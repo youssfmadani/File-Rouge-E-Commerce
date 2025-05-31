@@ -32,6 +32,6 @@ Ce projet est une plateforme e-commerce permettant aux utilisateurs de parcourir
 
 ### 2. Diagramme de classe 
 
-![image](https://github.com/user-attachments/assets/585b8860-776b-421d-a7cc-06eb71cf1840)
+![image](https://github.com/user-attachments/assets/4ed17363-d57d-40ad-b0c4-0a480af066f8)
 
 
