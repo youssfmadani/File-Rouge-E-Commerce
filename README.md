@@ -27,10 +27,11 @@ Ce projet est une plateforme e-commerce permettant aux utilisateurs de parcourir
 
 ### 1. Diagramme de cas d'utilisation (Use Case)
 
-![Capture d'écran 2025-05-27 102221](https://github.com/user-attachments/assets/c288326a-d04d-4130-b9e4-753f997abeee)
+![image](https://github.com/user-attachments/assets/81112570-344c-4faf-a306-c51c0d5f3ea5)
+
 
 ### 2. Diagramme de classe 
 
-![Capture d'écran 2025-05-27 105723](https://github.com/user-attachments/assets/6608e90a-4b64-4e28-a4ce-ca74da597a18)
+![image](https://github.com/user-attachments/assets/585b8860-776b-421d-a7cc-06eb71cf1840)
 
 
