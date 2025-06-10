@@ -27,7 +27,7 @@ Ce projet est une plateforme e-commerce permettant aux utilisateurs de parcourir
 
 ### 1. Diagramme de cas d'utilisation (Use Case)
 
-![image](https://github.com/user-attachments/assets/81112570-344c-4faf-a306-c51c0d5f3ea5)
+![image](https://github.com/user-attachments/assets/84606f42-f4f6-48da-92bf-1a3ce7a5f705)
 
 
 ### 2. Diagramme de classe 
