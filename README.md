@@ -36,5 +36,5 @@ Ce projet est une plateforme e-commerce permettant aux utilisateurs de parcourir
 
 ### 3. Diagramme de séquence
 
-![image](https://github.com/user-attachments/assets/962ef79c-be9e-4b38-9c9c-41feec3e345a)
+![image](https://github.com/user-attachments/assets/73d68006-284b-402d-9c34-f46a1b5953a8)
 
