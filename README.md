@@ -4,6 +4,11 @@
 Ce projet est une plateforme e-commerce permettant aux utilisateurs de parcourir des produits, les ajouter au panier et passer commande. Il s’adresse aussi bien aux clients qu’aux administrateurs, avec des fonctionnalités de gestion de produits, catégories, utilisateurs, commandes, etc.
 
 ---
+## L'architecture de projet (Backend)
+
+![image](https://github.com/user-attachments/assets/e63325b4-ac3d-4964-89ce-8bb942b8ccb6)
+
+---
 
 ## 🧩 Fonctionnalités principales
 
