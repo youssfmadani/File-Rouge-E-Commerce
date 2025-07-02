@@ -18,5 +18,5 @@ public class Produit {
     private float prix;
 
     @ManyToOne
-    private Catégorie catégorie;
+    private Categorie categorie;
 }
