@@ -1,0 +1,8 @@
+<div class="product-card">
+  <img [src]="product?.imageUrl" alt="{{product?.name}}" class="product-card__img" />
+  <div class="product-card__info">
+    <h3>{{product?.name}}</h3>
+    <p class="product-card__price">{{product?.price | currency}}</p>
+    <button class="product-card__btn">Add to Cart</button>
+  </div>
+</div>
