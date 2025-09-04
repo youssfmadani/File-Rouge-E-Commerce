@@ -13,10 +13,10 @@ public interface CategorieMapper {
 
     CategorieMapper INSTANCE = Mappers.getMapper(CategorieMapper.class);
 
-    @Mapping(source = "idCategorie", target = "id")
+    @Mapping(source = "id", target = "id")
     CategorieDTO toDTO(Categorie categorie);
 
-    @Mapping(source = "id", target = "idCategorie")
+    @Mapping(source = "id", target = "id")
     Categorie toEntity(CategorieDTO categorieDTO);
 
     List<CategorieDTO> toDTOList(List<Categorie> categories);

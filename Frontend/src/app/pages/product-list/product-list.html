@@ -1,3 +1,233 @@
-<div class="product-list">
-  <app-product-card *ngFor="let product of products" [product]="product"></app-product-card>
+<div class="product-list-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="container">
+      <h1 class="page-title">All Products</h1>
+      <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span class="current">Products</span>
+      </nav>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="product-list-layout">
+      <!-- Sidebar Filters -->
+      <aside class="filters-sidebar">
+        <div class="filter-section">
+          <h3 class="filter-title">Categories</h3>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="checkbox" checked>
+              <span class="checkmark"></span>
+              All Categories
+            </label>
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              Electronics
+            </label>
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              Fashion
+            </label>
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              Home & Garden
+            </label>
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              Sports
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h3 class="filter-title">Price Range</h3>
+          <div class="price-range">
+            <div class="price-inputs">
+              <input type="number" placeholder="Min" class="price-input">
+              <span class="price-separator">-</span>
+              <input type="number" placeholder="Max" class="price-input">
+            </div>
+            <button class="apply-price-btn">Apply</button>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h3 class="filter-title">Rating</h3>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              <div class="stars">
+                <span class="star filled">★</span>
+                <span class="star filled">★</span>
+                <span class="star filled">★</span>
+                <span class="star filled">★</span>
+                <span class="star filled">★</span>
+              </div>
+              <span class="rating-text">5 Stars</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              <div class="stars">
+                <span class="star filled">★</span>
+                <span class="star filled">★</span>
+                <span class="star filled">★</span>
+                <span class="star filled">★</span>
+                <span class="star">★</span>
+              </div>
+              <span class="rating-text">4+ Stars</span>
+            </label>
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              <div class="stars">
+                <span class="star filled">★</span>
+                <span class="star filled">★</span>
+                <span class="star filled">★</span>
+                <span class="star">★</span>
+                <span class="star">★</span>
+              </div>
+              <span class="rating-text">3+ Stars</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-section">
+          <h3 class="filter-title">Brand</h3>
+          <div class="filter-options">
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              Apple
+            </label>
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              Samsung
+            </label>
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              Nike
+            </label>
+            <label class="filter-option">
+              <input type="checkbox">
+              <span class="checkmark"></span>
+              Adidas
+            </label>
+          </div>
+        </div>
+
+        <button class="clear-filters-btn">Clear All Filters</button>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="products-main">
+        <!-- Toolbar -->
+        <div class="products-toolbar">
+          <div class="results-info">
+            <span class="results-count">Showing 1-12 of 48 products</span>
+          </div>
+          
+          <div class="toolbar-actions">
+            <div class="view-options">
+              <button class="view-btn active" data-view="grid">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+              </button>
+              <button class="view-btn" data-view="list">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="8" y1="6" x2="21" y2="6"></line>
+                  <line x1="8" y1="12" x2="21" y2="12"></line>
+                  <line x1="8" y1="18" x2="21" y2="18"></line>
+                  <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                  <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                  <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            
+            <div class="sort-dropdown">
+              <select class="sort-select">
+                <option>Sort by: Featured</option>
+                <option>Price: Low to High</option>
+                <option>Price: High to Low</option>
+                <option>Newest First</option>
+                <option>Best Rating</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="products-content">
+          <!-- Loading State -->
+          <div *ngIf="loading" class="loading-state">
+            <div class="loading-spinner"></div>
+            <p>Loading products...</p>
+          </div>
+
+          <!-- Error State -->
+          <div *ngIf="error && !loading" class="error-state">
+            <p class="error-message">{{ error }}</p>
+            <button class="retry-btn" (click)="loadProducts()">Try Again</button>
+          </div>
+
+          <!-- Products Grid -->
+          <div *ngIf="!loading && !error" class="products-grid">
+            <app-product-card 
+              *ngFor="let product of products; trackBy: trackByProduct" 
+              [product]="product"
+              (addToCart)="onAddToCart($event)"
+              (addToWishlist)="onAddToWishlist($event)"
+              (addToCompare)="onAddToCompare($event)"
+              (buyNow)="onBuyNow($event)">
+            </app-product-card>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!loading && !error && products.length === 0" class="empty-state">
+            <p>No products found.</p>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+          <button class="pagination-btn prev">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15,18 9,12 15,6"></polyline>
+            </svg>
+            Previous
+          </button>
+          
+          <div class="pagination-numbers">
+            <button class="page-btn active">1</button>
+            <button class="page-btn">2</button>
+            <button class="page-btn">3</button>
+            <span class="page-dots">...</span>
+            <button class="page-btn">8</button>
+          </div>
+          
+          <button class="pagination-btn next">
+            Next
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9,18 15,12 9,6"></polyline>
+            </svg>
+          </button>
+        </div>
+      </main>
+    </div>
+  </div>
 </div>

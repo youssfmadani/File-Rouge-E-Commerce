@@ -1,11 +1,169 @@
-<div class="product-details-container">
-  <div class="product-details">
-    <img [src]="product?.imageUrl" alt="{{product?.name}}" class="product-details__img" />
-    <div class="product-details__info">
-      <h2>{{product?.name}}</h2>
-      <p class="product-details__price">{{product?.price | currency}}</p>
-      <p class="product-details__desc">{{product?.description}}</p>
-      <button class="add-to-cart-btn">Add to Cart</button>
+<div class="product-details-page">
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+      <a href="/">Home</a>
+      <span class="separator">/</span>
+      <a href="/products">Products</a>
+      <span class="separator">/</span>
+      <span class="current">{{ product?.name || 'Product Name' }}</span>
+    </nav>
+
+    <!-- Product Main Info -->
+    <div class="product-main">
+      <!-- Product Images -->
+      <div class="product-images">
+        <div class="main-image">
+          <img [src]="product?.image || 'https://via.placeholder.com/500x500/4285f4/ffffff?text=Product'" [alt]="product?.name">
+          <div class="image-badges">
+            <span *ngIf="product?.isNew" class="badge new">New</span>
+            <span *ngIf="product?.discount" class="badge sale">{{ product.discount }}% OFF</span>
+          </div>
+        </div>
+        
+        <div class="thumbnail-images">
+          <div class="thumbnail active">
+            <img src="https://via.placeholder.com/100x100/4285f4/ffffff?text=1" alt="Thumbnail 1">
+          </div>
+          <div class="thumbnail">
+            <img src="https://via.placeholder.com/100x100/34a853/ffffff?text=2" alt="Thumbnail 2">
+          </div>
+          <div class="thumbnail">
+            <img src="https://via.placeholder.com/100x100/ea4335/ffffff?text=3" alt="Thumbnail 3">
+          </div>
+          <div class="thumbnail">
+            <img src="https://via.placeholder.com/100x100/fbbc05/ffffff?text=4" alt="Thumbnail 4">
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="product-info">
+        <div class="product-category">{{ product?.category || 'Electronics' }}</div>
+        <h1 class="product-title">{{ product?.name || 'Premium Wireless Headphones' }}</h1>
+        
+        <div class="product-rating">
+          <div class="stars">
+            <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= (product?.rating || 4)">
+              ★
+            </span>
+          </div>
+          <span class="rating-count">({{ product?.reviewCount || 128 }} reviews)</span>
+          <span class="rating-text">4.5 out of 5</span>
+        </div>
+
+        <div class="product-price">
+          <span class="current-price">{{ product?.price | currency:'USD':'symbol':'1.2-2' }}</span>
+          <span *ngIf="product?.originalPrice" class="original-price">{{ product.originalPrice | currency:'USD':'symbol':'1.2-2' }}</span>
+          <span *ngIf="product?.discount" class="discount-badge">{{ product.discount }}% OFF</span>
+        </div>
+
+        <div class="product-description">
+          <p>{{ product?.description || 'High-quality wireless headphones with noise cancellation technology. Perfect for music lovers and professionals who need crystal clear sound quality.' }}</p>
+        </div>
+
+        <!-- Product Options -->
+        <div class="product-options">
+          <div class="option-group">
+            <label class="option-label">Color:</label>
+            <div class="color-options">
+              <button class="color-option active" data-color="black">Black</button>
+              <button class="color-option" data-color="white">White</button>
+              <button class="color-option" data-color="blue">Blue</button>
+            </div>
+          </div>
+
+          <div class="option-group">
+            <label class="option-label">Quantity:</label>
+            <div class="quantity-selector">
+              <button class="qty-btn" (click)="decreaseQuantity()">-</button>
+              <input type="number" [value]="quantity" (input)="updateQuantity($event)" class="qty-input" min="1">
+              <button class="qty-btn" (click)="increaseQuantity()">+</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="product-actions">
+          <button class="btn btn-primary add-to-cart-btn" (click)="addToCart()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+            Add to Cart
+          </button>
+          
+          <button class="btn btn-secondary buy-now-btn" (click)="buyNow()">
+            Buy Now
+          </button>
+          
+          <button class="btn btn-outline wishlist-btn" (click)="addToWishlist()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Product Features -->
+        <div class="product-features">
+          <div class="feature">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22,4 12,14.01 9,11.01"></polyline>
+            </svg>
+            <span>Free Shipping</span>
+          </div>
+          <div class="feature">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22,4 12,14.01 9,11.01"></polyline>
+            </svg>
+            <span>30-Day Returns</span>
+          </div>
+          <div class="feature">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22,4 12,14.01 9,11.01"></polyline>
+            </svg>
+            <span>2-Year Warranty</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Tabs -->
+    <div class="product-tabs">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="description">Description</button>
+        <button class="tab-btn" data-tab="specifications">Specifications</button>
+        <button class="tab-btn" data-tab="reviews">Reviews (128)</button>
+      </div>
+
+      <div class="tab-content">
+        <div class="tab-pane active" id="description">
+          <h3>Product Description</h3>
+          <p>Experience premium sound quality with our wireless headphones. Features include:</p>
+          <ul>
+            <li>Active Noise Cancellation technology</li>
+            <li>40-hour battery life</li>
+            <li>Bluetooth 5.0 connectivity</li>
+            <li>Premium comfort with memory foam ear cushions</li>
+            <li>Built-in microphone for calls</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="related-products">
+      <h2 class="section-title">Related Products</h2>
+      <div class="products-grid">
+        <app-product-card 
+          *ngFor="let relatedProduct of relatedProducts" 
+          [product]="relatedProduct">
+        </app-product-card>
+      </div>
     </div>
   </div>
 </div>

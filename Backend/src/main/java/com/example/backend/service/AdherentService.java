@@ -9,5 +9,6 @@ public interface AdherentService {
     Adherent updateAdherent(Integer id, Adherent adherent);
     void deleteAdherent(Integer id);
     Optional<Adherent> getAdherentById(Integer id);
+    Optional<Adherent> getAdherentByEmail(String email);
     List<Adherent> getAllAdherents();
 } 

@@ -2,11 +2,13 @@ package com.example.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
 @Entity
 @Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Adherent extends Utilisateur {

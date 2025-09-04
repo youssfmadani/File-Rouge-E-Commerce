@@ -1,9 +1,75 @@
 <nav class="navbar">
-  <div class="navbar__logo">E-Shop</div>
-  <ul class="navbar__links">
-    <li><a routerLink="/">Home</a></li>
-    <li><a routerLink="/products">Products</a></li>
-    <li><a routerLink="/cart">Cart</a></li>
-    <li><a routerLink="/login">Login</a></li>
-  </ul>
+  <div class="navbar-container">
+    <!-- Logo -->
+    <div class="navbar-logo">
+      <a routerLink="/" class="logo-link">
+        <span class="logo-text">E-Shop</span>
+      </a>
+    </div>
+
+    <!-- Navigation Links -->
+    <button class="mobile-menu-toggle" aria-label="Toggle menu" (click)="isMenuOpen = !isMenuOpen">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path *ngIf="!isMenuOpen" d="M3 6h18M3 12h18M3 18h18"></path>
+        <path *ngIf="isMenuOpen" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <div class="navbar-nav" [class.open]="isMenuOpen">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
+      <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
+      <a routerLink="/categories" routerLinkActive="active" class="nav-link">Categories</a>
+      <a routerLink="/deals" routerLinkActive="active" class="nav-link">Deals</a>
+      <a routerLink="/about" routerLinkActive="active" class="nav-link">About</a>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="navbar-search">
+      <div class="search-container">
+        <input type="text" placeholder="Search for products..." class="search-input">
+        <button class="search-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Side Actions -->
+    <div class="navbar-actions">
+      <!-- User Menu -->
+      <div class="user-menu">
+        <button class="action-btn user-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+        </button>
+        <div class="dropdown-menu">
+          <ng-container *ngIf="!isLoggedIn; else loggedInMenu">
+            <a routerLink="/login" class="dropdown-item">Sign In</a>
+            <a routerLink="/register" class="dropdown-item">Create Account</a>
+          </ng-container>
+          <ng-template #loggedInMenu>
+            <a routerLink="/profile" class="dropdown-item">My Dashboard</a>
+            <a routerLink="/profile" class="dropdown-item">My Profile</a>
+            <a *ngIf="isAdmin" routerLink="/admin" class="dropdown-item">Admin Dashboard</a>
+            <div class="dropdown-divider"></div>
+            <button (click)="logout()" class="dropdown-item">Logout</button>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- Cart -->
+      <a routerLink="/cart" class="action-btn cart-btn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        <span class="cart-count">0</span>
+      </a>
+    </div>
+  </div>
 </nav>

@@ -33,6 +33,12 @@ public class AdherentController {
         return adherent.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/email/{email}")
+    public ResponseEntity<Adherent> getAdherentByEmail(@PathVariable String email) {
+        Optional<Adherent> adherent = adherentService.getAdherentByEmail(email);
+        return adherent.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Adherent> updateAdherent(@PathVariable Integer id, @RequestBody Adherent adherent) {
         Adherent updatedAdherent = adherentService.updateAdherent(id, adherent);

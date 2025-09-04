@@ -1,8 +1,58 @@
 <div class="product-card">
-  <img [src]="product?.imageUrl" alt="{{product?.name}}" class="product-card__img" />
-  <div class="product-card__info">
-    <h3>{{product?.name}}</h3>
-    <p class="product-card__price">{{product?.price | currency}}</p>
-    <button class="product-card__btn">Add to Cart</button>
+  <div class="product-image">
+    <img [src]="product?.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=3840&h=2160&fit=crop&crop=center'" [alt]="product?.name || 'Product'">
+    <div class="product-badge" *ngIf="product?.badge">{{ product.badge }}</div>
+  </div>
+  
+  <div class="product-content">
+    <div class="product-category" *ngIf="product?.category">{{ product.category }}</div>
+    <h3 class="product-title">{{ product?.name || 'Product Name' }}</h3>
+    
+    <div class="product-rating" *ngIf="product?.rating !== undefined">
+      <span class="stars">{{ getFullStars(product.rating) }}{{ getEmptyStars(product.rating) }}</span>
+      <span class="review-count">({{ product.reviewCount || 0 }} reviews)</span>
+    </div>
+    
+    <div class="product-price">
+      <span class="current-price">{{ product?.price | currency }}</span>
+      <span class="original-price" *ngIf="product?.originalPrice">{{ product.originalPrice | currency }}</span>
+    </div>
+    
+    <div class="product-actions">
+      <button class="btn btn-primary btn-sm" (click)="onAddToCart()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <path d="M16 10a4 4 0 0 1-8 0"></path>
+        </svg>
+        Add to Cart
+      </button>
+      <button class="btn btn-outline btn-sm" (click)="onAddToWishlist()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+        </svg>
+        Wishlist
+      </button>
+    </div>
   </div>
 </div>
+
+<!-- Quick View Modal -->
+<div class="quick-view-modal" [class.active]="showQuickView" (click)="closeQuickView()">
+  <div class="quick-view-content" (click)="$event.stopPropagation()">
+    <button class="quick-view-close" (click)="closeQuickView()">&times;</button>
+    
+    <div class="quick-view-image">
+      <img [src]="product?.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=3840&h=2160&fit=crop&crop=center'" [alt]="product?.name || 'Product'">
+    </div>
+    
+    <h3 class="quick-view-title">{{ product?.name || 'Product Name' }}</h3>
+    <div class="quick-view-price">{{ product?.price | currency }}</div>
+    
+    <div class="quick-view-actions">
+      <button class="btn btn-primary" (click)="onAddToCart()">Add to Cart</button>
+      <button class="btn btn-outline" (click)="onAddToWishlist()">Add to Wishlist</button>
+    </div>
+  </div>
+</div>
+ 

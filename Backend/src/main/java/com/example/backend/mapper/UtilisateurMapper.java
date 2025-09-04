@@ -14,11 +14,9 @@ public interface UtilisateurMapper {
     UtilisateurMapper INSTANCE = Mappers.getMapper(UtilisateurMapper.class);
 
     @Mapping(source = "prénom", target = "prenom")
-    @Mapping(target = "motDePasse", ignore = true)
     UtilisateurDTO toDTO(Utilisateur utilisateur);
 
     @Mapping(source = "prenom", target = "prénom")
-    @Mapping(target = "motDePasse", ignore = true)
     Utilisateur toEntity(UtilisateurDTO utilisateurDTO);
 
     List<UtilisateurDTO> toDTOList(List<Utilisateur> utilisateurs);

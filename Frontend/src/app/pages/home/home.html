@@ -1,11 +1,219 @@
-<section class="hero">
-  <div class="hero__content">
-    <h1>Welcome to E-Shop</h1>
-    <p>Your one-stop shop for the best products!</p>
-    <a routerLink="/products" class="hero__cta">Shop Now</a>
-  </div>
-</section>
-<section class="featured">
-  <h2>Featured Products</h2>
-  <!-- You can use <app-product-card> here for featured products -->
-</section>
+<div class="home-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-background">
+      <div class="hero-pattern"></div>
+      <div class="hero-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="shape shape-3"></div>
+      </div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-icon">🚀</span>
+        <span>Premium Shopping Experience</span>
+      </div>
+      <h1 class="hero-title">
+        Discover Amazing
+        <span class="text-gradient">Products</span>
+      </h1>
+      <p class="hero-subtitle">Shop the latest trends with unbeatable prices and premium quality. Your one-stop destination for all your shopping needs.</p>
+      <div class="hero-buttons">
+        <a href="/products" class="btn btn-primary btn-xl">
+          <span>Shop Now</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+        <a href="/deals" class="btn btn-outline btn-xl">
+          <span>View Deals</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+          </svg>
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-number">50K+</div>
+          <div class="stat-label">Happy Customers</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">1000+</div>
+          <div class="stat-label">Products</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">24/7</div>
+          <div class="stat-label">Support</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Why Choose Us</h2>
+        <p class="section-subtitle">We provide the best shopping experience with quality products and excellent service</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🚚</div>
+          <h3>Fast Delivery</h3>
+          <p>Get your orders delivered within 24 hours with our premium shipping service.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🛡️</div>
+          <h3>Secure Shopping</h3>
+          <p>Your data is protected with bank-level security and encrypted transactions.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💎</div>
+          <h3>Quality Products</h3>
+          <p>We only sell products that meet our high quality standards and customer satisfaction.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Products -->
+  <section class="featured-products">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Featured Products</h2>
+        <p class="section-subtitle">Handpicked products that our customers love the most</p>
+      </div>
+      <div class="products-grid">
+        <div class="product-card">
+          <div class="product-image">
+            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=3840&h=2160&fit=crop&crop=center" alt="Wireless Headphones">
+            <div class="product-badge">Sale</div>
+          </div>
+          <div class="product-content">
+            <div class="product-category">Electronics</div>
+            <h3 class="product-title">Premium Wireless Headphones</h3>
+            <div class="product-rating">
+              <span class="stars">★★★★★</span>
+              <span class="review-count">(128 reviews)</span>
+            </div>
+            <div class="product-price">
+              <span class="current-price">$199.99</span>
+              <span class="original-price">$249.99</span>
+            </div>
+            <div class="product-actions">
+              <button class="btn btn-primary btn-sm">Add to Cart</button>
+              <button class="btn btn-outline btn-sm">Wishlist</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card">
+          <div class="product-image">
+            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=3840&h=2160&fit=crop&crop=center" alt="Smart Watch">
+            <div class="product-badge">Hot</div>
+          </div>
+          <div class="product-content">
+            <div class="product-category">Electronics</div>
+            <h3 class="product-title">Smart Fitness Watch</h3>
+            <div class="product-rating">
+              <span class="stars">★★★★☆</span>
+              <span class="review-count">(89 reviews)</span>
+            </div>
+            <div class="product-price">
+              <span class="current-price">$149.99</span>
+            </div>
+            <div class="product-actions">
+              <button class="btn btn-primary btn-sm">Add to Cart</button>
+              <button class="btn btn-outline btn-sm">Wishlist</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card">
+          <div class="product-image">
+            <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=3840&h=2160&fit=crop&crop=center" alt="Designer Backpack">
+            <div class="product-badge">New</div>
+          </div>
+          <div class="product-content">
+            <div class="product-category">Fashion</div>
+            <h3 class="product-title">Designer Backpack</h3>
+            <div class="product-rating">
+              <span class="stars">★★★★★</span>
+              <span class="review-count">(56 reviews)</span>
+            </div>
+            <div class="product-price">
+              <span class="current-price">$89.99</span>
+            </div>
+            <div class="product-actions">
+              <button class="btn btn-primary btn-sm">Add to Cart</button>
+              <button class="btn btn-outline btn-sm">Wishlist</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="categories-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Shop by Category</h2>
+        <p class="section-subtitle">Explore our wide range of product categories</p>
+      </div>
+      <div class="categories-grid">
+        <div class="category-card">
+          <div class="category-image">
+            <img src="https://images.unsplash.com/photo-1498049794561-7780e7231661?w=3840&h=2160&fit=crop&crop=center" alt="Electronics">
+          </div>
+          <div class="category-content">
+            <h3>Electronics</h3>
+            <p>Latest gadgets and tech</p>
+          </div>
+        </div>
+        <div class="category-card">
+          <div class="category-image">
+            <img src="https://images.unsplash.com/photo-1445205170230-053b83016050?w=3840&h=2160&fit=crop&crop=center" alt="Fashion">
+          </div>
+          <div class="category-content">
+            <h3>Fashion</h3>
+            <p>Trendy clothing & accessories</p>
+          </div>
+        </div>
+        <div class="category-card">
+          <div class="category-image">
+            <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=3840&h=2160&fit=crop&crop=center" alt="Home & Garden">
+          </div>
+          <div class="category-content">
+            <h3>Home & Garden</h3>
+            <p>Everything for your home</p>
+          </div>
+        </div>
+        <div class="category-card">
+          <div class="category-image">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=3840&h=2160&fit=crop&crop=center" alt="Sports">
+          </div>
+          <div class="category-content">
+            <h3>Sports</h3>
+            <p>Equipment & activewear</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-content">
+        <h2>Stay Updated</h2>
+        <p>Subscribe to our newsletter and get the latest deals, product updates, and exclusive offers delivered to your inbox.</p>
+        <form class="newsletter-form">
+          <input type="email" class="newsletter-input" placeholder="Enter your email address">
+          <button type="submit" class="newsletter-btn">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>

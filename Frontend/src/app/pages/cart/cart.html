@@ -1,23 +1,144 @@
-<div class="cart-container">
-  <h2>Your Cart</h2>
-  <div *ngIf="cartItems?.length; else emptyCart">
-    <div class="cart-list">
-      <div class="cart-item" *ngFor="let item of cartItems">
-        <img [src]="item.imageUrl" alt="{{item.name}}" class="cart-item__img" />
-        <div class="cart-item__info">
-          <h4>{{item.name}}</h4>
-          <p>Price: {{item.price | currency}}</p>
-          <p>Quantity: {{item.quantity}}</p>
+<div class="cart-page">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">Shopping Cart</h1>
+      <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <span class="current">Cart</span>
+      </nav>
+    </div>
+
+    <div class="cart-layout">
+      <!-- Cart Items -->
+      <div class="cart-items">
+        <div class="cart-header">
+          <h2>Cart Items ({{ cartItems.length }})</h2>
+          <button class="clear-cart-btn" (click)="clearCart()">Clear All</button>
         </div>
-        <button class="cart-item__remove">Remove</button>
+
+        <div class="cart-item" *ngFor="let item of cartItems; let i = index">
+          <div class="item-image">
+            <img [src]="item.image" [alt]="item.name">
+          </div>
+          
+          <div class="item-details">
+            <h3 class="item-name">{{ item.name }}</h3>
+            <p class="item-category">{{ item.category }}</p>
+            <div class="item-price">
+              <span class="current-price">{{ item.price | currency:'USD':'symbol':'1.2-2' }}</span>
+              <span *ngIf="item.originalPrice" class="original-price">{{ item.originalPrice | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <div class="item-quantity">
+            <div class="quantity-controls">
+              <button class="qty-btn" (click)="decreaseQuantity(i)" [disabled]="item.quantity <= 1">-</button>
+              <span class="qty-display">{{ item.quantity }}</span>
+              <button class="qty-btn" (click)="increaseQuantity(i)">+</button>
+            </div>
+          </div>
+
+          <div class="item-total">
+            <span class="total-price">{{ (item.price * item.quantity) | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <div class="item-actions">
+            <button class="remove-btn" (click)="removeItem(i)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Empty Cart State -->
+        <div class="empty-cart" *ngIf="cartItems.length === 0">
+          <div class="empty-cart-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <path d="M16 10a4 4 0 0 1-8 0"></path>
+            </svg>
+          </div>
+          <h3>Your cart is empty</h3>
+          <p>Looks like you haven't added any items to your cart yet.</p>
+          <a href="/products" class="btn btn-primary">Start Shopping</a>
+        </div>
+      </div>
+
+      <!-- Cart Summary -->
+      <div class="cart-summary">
+        <div class="summary-card">
+          <h3 class="summary-title">Order Summary</h3>
+          
+          <div class="summary-items">
+            <div class="summary-item">
+              <span>Subtotal ({{ getTotalItems() }} items)</span>
+              <span>{{ getSubtotal() | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="summary-item">
+              <span>Shipping</span>
+              <span>{{ getShippingCost() | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="summary-item">
+              <span>Tax</span>
+              <span>{{ getTax() | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+            <div class="summary-item discount" *ngIf="getDiscount() > 0">
+              <span>Discount</span>
+              <span>-{{ getDiscount() | currency:'USD':'symbol':'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <div class="summary-total">
+            <span class="total-label">Total</span>
+            <span class="total-amount">{{ getTotal() | currency:'USD':'symbol':'1.2-2' }}</span>
+          </div>
+
+          <div class="promo-code">
+            <div class="promo-input">
+              <input type="text" placeholder="Enter promo code" class="promo-field">
+              <button class="apply-promo-btn">Apply</button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary checkout-btn" (click)="proceedToCheckout()" [disabled]="cartItems.length === 0">
+            Proceed to Checkout
+          </button>
+
+          <div class="secure-checkout">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>Secure checkout with SSL encryption</span>
+          </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-methods">
+          <h4>We Accept</h4>
+          <div class="payment-icons">
+            <div class="payment-icon">💳</div>
+            <div class="payment-icon">🏦</div>
+            <div class="payment-icon">📱</div>
+            <div class="payment-icon">💳</div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="cart-summary">
-      <p>Total: <span class="cart-total">{{cartTotal | currency}}</span></p>
-      <button class="checkout-btn">Checkout</button>
+
+    <!-- Recommended Products -->
+    <div class="recommended-section" *ngIf="cartItems.length > 0">
+      <h2 class="section-title">You might also like</h2>
+      <div class="products-grid">
+        <app-product-card 
+          *ngFor="let product of recommendedProducts" 
+          [product]="product">
+        </app-product-card>
+      </div>
     </div>
   </div>
-  <ng-template #emptyCart>
-    <p class="empty-cart">Your cart is empty.</p>
-  </ng-template>
 </div>

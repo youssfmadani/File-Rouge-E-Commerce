@@ -47,6 +47,11 @@ public class AdherentServiceImpl implements AdherentService {
     }
 
     @Override
+    public Optional<Adherent> getAdherentByEmail(String email) {
+        return adherentRepository.findByEmail(email);
+    }
+
+    @Override
     public List<Adherent> getAllAdherents() {
         return adherentRepository.findAll();
     }

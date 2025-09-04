@@ -15,11 +15,13 @@ public interface PanierMapper {
     PanierMapper INSTANCE = Mappers.getMapper(PanierMapper.class);
 
     @Mapping(source = "idPanier", target = "id")
+    @Mapping(source = "dateCréation", target = "dateCreation")
     @Mapping(source = "adherent.id", target = "adherentId")
     @Mapping(target = "produitIds", expression = "java(panier.getProduits() != null ? panier.getProduits().stream().map(p -> p.getIdProduit()).collect(Collectors.toList()) : null)")
     PanierDTO toDTO(Panier panier);
 
     @Mapping(source = "id", target = "idPanier")
+    @Mapping(source = "dateCreation", target = "dateCréation")
     @Mapping(target = "adherent", ignore = true)
     @Mapping(target = "produits", ignore = true)
     Panier toEntity(PanierDTO panierDTO);
