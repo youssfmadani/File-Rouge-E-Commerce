@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/adherents")
+@CrossOrigin(origins = {"http://localhost:*", "http://127.0.0.1:*"}, allowCredentials = "true")
 public class AdherentController {
 
     @Autowired
@@ -49,5 +50,31 @@ public class AdherentController {
     public ResponseEntity<Void> deleteAdherent(@PathVariable Integer id) {
         adherentService.deleteAdherent(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // Convert user to admin by changing email to include "admin"
+    @PostMapping("/{id}/make-admin")
+    public ResponseEntity<Adherent> makeAdmin(@PathVariable Integer id) {
+        try {
+            Optional<Adherent> adherentOpt = adherentService.getAdherentById(id);
+            if (adherentOpt.isPresent()) {
+                Adherent adherent = adherentOpt.get();
+                
+                // Change email to include "admin" prefix if not already present
+                String currentEmail = adherent.getEmail();
+                if (!currentEmail.toLowerCase().contains("admin")) {
+                    String newEmail = "admin." + currentEmail;
+                    adherent.setEmail(newEmail);
+                    Adherent updatedAdherent = adherentService.updateAdherent(id, adherent);
+                    return ResponseEntity.ok(updatedAdherent);
+                } else {
+                    return ResponseEntity.ok(adherent); // Already admin
+                }
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 } 

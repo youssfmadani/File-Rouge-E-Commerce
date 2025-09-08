@@ -1,4 +1,4 @@
-<div class="product-card">
+<div class="product-card" [class.list-view]="viewMode === 'list'" [class.grid-view]="viewMode === 'grid'">
   <div class="product-image">
     <img [src]="product?.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=3840&h=2160&fit=crop&crop=center'" [alt]="product?.name || 'Product'">
     <div class="product-badge" *ngIf="product?.badge">{{ product.badge }}</div>

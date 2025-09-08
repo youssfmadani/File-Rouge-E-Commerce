@@ -7,14 +7,26 @@ import { apiUrl } from './api';
 export interface Product {
   id?: number;
   nom?: string;
+  title?: string;
   description?: string;
   prix?: number;
+  price?: number;
   stock?: number;
   image?: string;
-  categorieId?: number;
   imageUrl?: string;
+  categorieId?: number;
+  category?: string;
   name?: string;
-  price?: number;
+  originalPrice?: number;
+  brand?: string;
+  rating?: number;
+  reviewCount?: number;
+  badge?: string;
+  stockStatus?: string;
+  categorie?: {
+    id?: number;
+    nom?: string;
+  };
   [key: string]: any;
 }
 
@@ -93,9 +105,11 @@ export class ProductService {
   private mapBackendProduct(product: any): Product {
     return {
       ...product,
-      name: product.nom || product.name,
+      name: product.nom || product.name || product.title,
+      title: product.nom || product.title || product.name,
       price: product.prix || product.price,
-      imageUrl: product.image || product.imageUrl || 'https://via.placeholder.com/300x300/4285f4/ffffff?text=Product'
+      imageUrl: product.image || product.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop&crop=center',
+      category: product.category || (product.categorie ? product.categorie.nom : '') || 'Uncategorized'
     };
   }
 
@@ -103,7 +117,7 @@ export class ProductService {
   private mapFrontendProduct(product: Product): any {
     return {
       ...product,
-      nom: product.name || product.nom,
+      nom: product.title || product.name || product.nom,
       prix: product.price || product.prix,
       image: product.imageUrl || product.image
     };

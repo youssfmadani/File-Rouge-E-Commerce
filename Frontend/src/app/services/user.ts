@@ -101,6 +101,17 @@ export class UserService {
     );
   }
 
+  // Convert user to admin
+  makeUserAdmin(id: number): Observable<Adherent> {
+    return this.http.post<Adherent>(`${this.adherentsUrl}/${id}/make-admin`, {}).pipe(
+      map(a => this.mapBackendAdherent(a)),
+      catchError(error => {
+        console.error('Error making user admin:', error);
+        throw error;
+      })
+    );
+  }
+
   // Map backend adherent format to frontend format
   private mapBackendAdherent(adherent: any): Adherent {
     if (!adherent) return adherent;

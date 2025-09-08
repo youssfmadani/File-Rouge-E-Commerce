@@ -1,0 +1,52 @@
+<div class="admin-converter-page">
+  <div class="container">
+    <div class="header">
+      <h1>User Admin Converter</h1>
+      <p>Convert existing users to admin accounts</p>
+    </div>
+
+    <!-- Message Display -->
+    <div *ngIf="message" [class]="'message ' + messageType">
+      {{ message }}
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading">
+      <div class="spinner"></div>
+      <span>Loading...</span>
+    </div>
+
+    <!-- Users List -->
+    <div *ngIf="!isLoading" class="users-grid">
+      <div *ngFor="let user of users" class="user-card">
+        <div class="user-info">
+          <h3>{{ user.nom }} {{ user['prénom'] || user.prenom }}</h3>
+          <p class="email">{{ user.email }}</p>
+          <span [class]="'role-badge ' + (isAdmin(user.email || '') ? 'admin' : 'user')">
+            {{ isAdmin(user.email || '') ? 'ADMIN' : 'USER' }}
+          </span>
+        </div>
+        
+        <div class="user-actions">
+          <button 
+            *ngIf="!isAdmin(user.email || '')"
+            class="btn btn-primary"
+            (click)="makeAdmin(user.id)"
+            [disabled]="isLoading"
+          >
+            Make Admin
+          </button>
+          <span *ngIf="isAdmin(user.email || '')" class="already-admin">
+            Already Admin
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!isLoading && users.length === 0" class="empty-state">
+      <h3>No Users Found</h3>
+      <p>There are no users in the system yet.</p>
+    </div>
+  </div>
+</div>

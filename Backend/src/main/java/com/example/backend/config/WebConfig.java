@@ -15,12 +15,10 @@ public class WebConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of(
-            "http://localhost:4200", 
-            "http://127.0.0.1:4200", 
-            "http://localhost:64496",
-            "http://127.0.0.1:64496",
-            "http://localhost:*",
-            "http://127.0.0.1:*"
+            "http://localhost:*", 
+            "http://127.0.0.1:*",
+            "https://localhost:*",
+            "https://127.0.0.1:*"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

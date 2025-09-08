@@ -10,6 +10,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 })
 export class ProductCardComponent {
   @Input() product: any;
+  @Input() viewMode: 'grid' | 'list' = 'grid';
   @Output() addToCart = new EventEmitter<any>();
   @Output() addToWishlist = new EventEmitter<any>();
   @Output() addToCompare = new EventEmitter<any>();

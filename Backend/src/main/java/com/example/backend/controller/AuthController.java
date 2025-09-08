@@ -7,7 +7,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = {"http://localhost:4200", "http://127.0.0.1:4200", "http://localhost:64496", "http://127.0.0.1:64496", "http://localhost:*"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:*", "http://127.0.0.1:*"}, allowCredentials = "true")
 public class AuthController {
 
     @PostMapping("/login")
