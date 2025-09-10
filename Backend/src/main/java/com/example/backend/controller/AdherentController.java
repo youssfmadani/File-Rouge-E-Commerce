@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/adherents")
-@CrossOrigin(origins = {"http://localhost:*", "http://127.0.0.1:*"}, allowCredentials = "true")
+@CrossOrigin(origins = {"http://localhost:*", "http://127.0.0.1:*", "http://localhost", "https://localhost"}, allowCredentials = "true")
 public class AdherentController {
 
     @Autowired

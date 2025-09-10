@@ -1,57 +1,208 @@
 <div class="product-card" [class.list-view]="viewMode === 'list'" [class.grid-view]="viewMode === 'grid'">
-  <div class="product-image">
-    <img [src]="product?.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=3840&h=2160&fit=crop&crop=center'" [alt]="product?.name || 'Product'">
-    <div class="product-badge" *ngIf="product?.badge">{{ product.badge }}</div>
+  <!-- Product Image Container -->
+  <div class="product-image-container">
+    <div class="product-image">
+      <img [src]="product?.imageUrl || product?.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=600&fit=crop&crop=center'" 
+           [alt]="product?.name || product?.title || 'Product'"
+           loading="lazy">
+      
+      <!-- Product Badge -->
+      <div class="product-badges">
+        <span class="badge badge-new" *ngIf="product?.isNew">NEW</span>
+        <span class="badge badge-sale" *ngIf="product?.discount || (product?.originalPrice && product?.originalPrice > product?.price)">-{{getDiscountPercent()}}%</span>
+        <span class="badge badge-featured" *ngIf="product?.isFeatured">FEATURED</span>
+      </div>
+      
+      <!-- Hover Actions -->
+      <div class="product-hover-actions">
+        <button class="action-btn" (click)="openQuickView()" title="Quick View">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </button>
+        <button class="action-btn" (click)="onAddToWishlist()" title="Add to Wishlist">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+        </button>
+        <button class="action-btn" (click)="onAddToCompare()" title="Compare">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2z"></path>
+            <path d="M21 19v-6a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2z"></path>
+            <path d="M9 10V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2z"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <!-- Availability Indicator -->
+      <div class="availability-indicator" [class.in-stock]="isInStock()" [class.low-stock]="isLowStock()" [class.out-of-stock]="isOutOfStock()">
+        <span class="availability-dot"></span>
+        <span class="availability-text">{{ getAvailabilityText() }}</span>
+      </div>
+    </div>
   </div>
   
+  <!-- Product Content -->
   <div class="product-content">
-    <div class="product-category" *ngIf="product?.category">{{ product.category }}</div>
-    <h3 class="product-title">{{ product?.name || 'Product Name' }}</h3>
-    
-    <div class="product-rating" *ngIf="product?.rating !== undefined">
-      <span class="stars">{{ getFullStars(product.rating) }}{{ getEmptyStars(product.rating) }}</span>
-      <span class="review-count">({{ product.reviewCount || 0 }} reviews)</span>
+    <!-- Product Category -->
+    <div class="product-category" *ngIf="product?.category">
+      <span class="category-label">{{ product.category }}</span>
     </div>
     
-    <div class="product-price">
-      <span class="current-price">{{ product?.price | currency }}</span>
-      <span class="original-price" *ngIf="product?.originalPrice">{{ product.originalPrice | currency }}</span>
+    <!-- Product Title -->
+    <h3 class="product-title">{{ product?.name || product?.title || 'Premium Product' }}</h3>
+    
+    <!-- Product Description (List View Only) -->
+    <p class="product-description" *ngIf="viewMode === 'list' && product?.description">
+      {{ product.description | slice:0:120 }}{{ product.description?.length > 120 ? '...' : '' }}
+    </p>
+    
+    <!-- Product Rating -->
+    <div class="product-rating" *ngIf="product?.rating || product?.rating === 0">
+      <div class="stars">
+        <span class="star" 
+              *ngFor="let star of getStarArray(product.rating); let i = index" 
+              [class.filled]="star === 1">
+          {{ star === 1 ? '★' : '☆' }}
+        </span>
+      </div>
+      <span class="rating-value">{{ product.rating || 0 }}</span>
+      <span class="review-count" *ngIf="product?.reviewCount">({{ product.reviewCount }} reviews)</span>
     </div>
     
+    <!-- Product Features (List View Only) -->
+    <div class="product-features" *ngIf="viewMode === 'list' && product?.features">
+      <span class="feature-tag" *ngFor="let feature of product.features.slice(0, 3)">{{ feature }}</span>
+    </div>
+    
+    <!-- Product Price -->
+    <div class="product-pricing">
+      <div class="price-main">
+        <span class="current-price">{{ (product?.price || 0) | currency:'USD':'symbol':'1.2-2' }}</span>
+        <span class="original-price" *ngIf="product?.originalPrice && product?.originalPrice > product?.price">
+          {{ product.originalPrice | currency:'USD':'symbol':'1.2-2' }}
+        </span>
+      </div>
+      <div class="price-savings" *ngIf="product?.originalPrice && product?.originalPrice > product?.price">
+        Save {{ getSavingsAmount() | currency:'USD':'symbol':'1.2-2' }}
+      </div>
+    </div>
+    
+    <!-- Product Actions -->
     <div class="product-actions">
-      <button class="btn btn-primary btn-sm" (click)="onAddToCart()">
+      <button class="btn btn-primary btn-add-cart" (click)="onAddToCart()" [disabled]="isOutOfStock()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <path d="M16 10a4 4 0 0 1-8 0"></path>
         </svg>
-        Add to Cart
+        <span>{{ isOutOfStock() ? 'Out of Stock' : 'Add to Cart' }}</span>
       </button>
-      <button class="btn btn-outline btn-sm" (click)="onAddToWishlist()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-        </svg>
-        Wishlist
-      </button>
+      
+      <div class="secondary-actions" *ngIf="viewMode === 'grid'">
+        <button class="btn btn-secondary btn-sm" (click)="onBuyNow()" [disabled]="isOutOfStock()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20,6 9,17 4,12"></polyline>
+          </svg>
+          Buy Now
+        </button>
+      </div>
+      
+      <!-- List View Extended Actions -->
+      <div class="extended-actions" *ngIf="viewMode === 'list'">
+        <button class="btn btn-secondary" (click)="onBuyNow()" [disabled]="isOutOfStock()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20,6 9,17 4,12"></polyline>
+          </svg>
+          Buy Now
+        </button>
+        <button class="btn btn-outline" (click)="openQuickView()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          Quick View
+        </button>
+      </div>
+    </div>
+    
+    <!-- Product Meta (List View Only) -->
+    <div class="product-meta" *ngIf="viewMode === 'list'">
+      <div class="meta-item" *ngIf="product?.brand">
+        <span class="meta-label">Brand:</span>
+        <span class="meta-value">{{ product.brand }}</span>
+      </div>
+      <div class="meta-item" *ngIf="product?.sku">
+        <span class="meta-label">SKU:</span>
+        <span class="meta-value">{{ product.sku }}</span>
+      </div>
+      <div class="meta-item" *ngIf="product?.stock !== undefined">
+        <span class="meta-label">Stock:</span>
+        <span class="meta-value" [class.low-stock]="isLowStock()" [class.out-of-stock]="isOutOfStock()">
+          {{ product.stock }} units
+        </span>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- Quick View Modal -->
+<!-- Enhanced Quick View Modal -->
 <div class="quick-view-modal" [class.active]="showQuickView" (click)="closeQuickView()">
+  <div class="quick-view-backdrop"></div>
   <div class="quick-view-content" (click)="$event.stopPropagation()">
-    <button class="quick-view-close" (click)="closeQuickView()">&times;</button>
+    <button class="quick-view-close" (click)="closeQuickView()">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
     
-    <div class="quick-view-image">
-      <img [src]="product?.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=3840&h=2160&fit=crop&crop=center'" [alt]="product?.name || 'Product'">
-    </div>
-    
-    <h3 class="quick-view-title">{{ product?.name || 'Product Name' }}</h3>
-    <div class="quick-view-price">{{ product?.price | currency }}</div>
-    
-    <div class="quick-view-actions">
-      <button class="btn btn-primary" (click)="onAddToCart()">Add to Cart</button>
-      <button class="btn btn-outline" (click)="onAddToWishlist()">Add to Wishlist</button>
+    <div class="quick-view-layout">
+      <div class="quick-view-image">
+        <img [src]="product?.imageUrl || product?.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=600&fit=crop&crop=center'" 
+             [alt]="product?.name || product?.title || 'Product'">
+      </div>
+      
+      <div class="quick-view-details">
+        <div class="quick-view-category" *ngIf="product?.category">{{ product.category }}</div>
+        <h3 class="quick-view-title">{{ product?.name || product?.title || 'Premium Product' }}</h3>
+        
+        <div class="quick-view-rating" *ngIf="product?.rating || product?.rating === 0">
+          <div class="stars">
+            <span class="star" 
+                  *ngFor="let star of getStarArray(product.rating); let i = index" 
+                  [class.filled]="star === 1">
+              {{ star === 1 ? '★' : '☆' }}
+            </span>
+          </div>
+          <span class="rating-value">{{ product.rating || 0 }}</span>
+          <span class="review-count" *ngIf="product?.reviewCount">({{ product.reviewCount }} reviews)</span>
+        </div>
+        
+        <p class="quick-view-description" *ngIf="product?.description">
+          {{ product.description }}
+        </p>
+        
+        <div class="quick-view-price">
+          <span class="current-price">{{ (product?.price || 0) | currency:'USD':'symbol':'1.2-2' }}</span>
+          <span class="original-price" *ngIf="product?.originalPrice && product?.originalPrice > product?.price">
+            {{ product.originalPrice | currency:'USD':'symbol':'1.2-2' }}
+          </span>
+        </div>
+        
+        <div class="quick-view-actions">
+          <button class="btn btn-primary" (click)="onAddToCart(); closeQuickView()" [disabled]="isOutOfStock()">
+            {{ isOutOfStock() ? 'Out of Stock' : 'Add to Cart' }}
+          </button>
+          <button class="btn btn-secondary" (click)="onBuyNow(); closeQuickView()" [disabled]="isOutOfStock()">
+            Buy Now
+          </button>
+          <button class="btn btn-outline" (click)="onAddToWishlist()">
+            Add to Wishlist
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

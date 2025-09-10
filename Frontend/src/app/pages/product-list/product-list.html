@@ -1,8 +1,18 @@
 <div class="product-list-page">
-  <!-- Page Header -->
+  <!-- Success Notification -->
+  <div class="success-notification" [class.show]="addToCartSuccess">
+    <div class="notification-content">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="20,6 9,17 4,12"></polyline>
+      </svg>
+      <span>{{ successMessage }}</span>
+    </div>
+  </div>
+
+  <!-- Luxury Page Header -->
   <div class="page-header">
     <div class="container">
-      <h1 class="page-title">All Products</h1>
+      <h1 class="page-title">Luxury Collections</h1>
       <nav class="breadcrumb">
         <a href="/">Home</a>
         <span class="separator">/</span>
@@ -13,34 +23,29 @@
 
   <div class="container">
     <div class="product-list-layout">
-      <!-- Sidebar Filters -->
+      <!-- Luxury Filters Sidebar -->
       <aside class="filters-sidebar">
         <div class="filter-section">
           <h3 class="filter-title">Categories</h3>
           <div class="filter-options">
             <label class="filter-option">
               <input type="checkbox" (change)="onCategoryFilter('all', $event)" [checked]="selectedCategories.has('all')">
-              <span class="checkmark"></span>
               All Categories
             </label>
             <label class="filter-option">
               <input type="checkbox" (change)="onCategoryFilter('electronics', $event)">
-              <span class="checkmark"></span>
               Electronics
             </label>
             <label class="filter-option">
               <input type="checkbox" (change)="onCategoryFilter('fashion', $event)">
-              <span class="checkmark"></span>
               Fashion
             </label>
             <label class="filter-option">
               <input type="checkbox" (change)="onCategoryFilter('home-garden', $event)">
-              <span class="checkmark"></span>
               Home & Garden
             </label>
             <label class="filter-option">
               <input type="checkbox" (change)="onCategoryFilter('sports', $event)">
-              <span class="checkmark"></span>
               Sports
             </label>
           </div>
@@ -71,66 +76,44 @@
             
             <!-- Price Display -->
             <div class="price-display">
-              <div class="price-values">
-                <span class="price-label">Min:</span>
-                <span class="price-value">${{ priceRange.current.min }}</span>
-                <span class="price-separator">—</span>
-                <span class="price-label">Max:</span>
-                <span class="price-value">${{ priceRange.current.max }}</span>
-              </div>
-            </div>
-            
-            <!-- Manual Input Fields -->
-            <div class="price-inputs">
-              <div class="input-group">
-                <span class="input-label">Min</span>
-                <input type="number" 
-                       class="price-input" 
-                       [(ngModel)]="priceRange.current.min" 
-                       [min]="priceRange.absolute.min" 
-                       [max]="priceRange.absolute.max"
-                       (blur)="validatePriceRange()"
-                       placeholder="0">
-              </div>
-              <div class="input-separator">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-              </div>
-              <div class="input-group">
-                <span class="input-label">Max</span>
-                <input type="number" 
-                       class="price-input" 
-                       [(ngModel)]="priceRange.current.max" 
-                       [min]="priceRange.absolute.min" 
-                       [max]="priceRange.absolute.max"
-                       (blur)="validatePriceRange()"
-                       placeholder="1000">
+              <div class="price-inputs">
+                <div class="price-input">
+                  <label>Min</label>
+                  <input type="number" 
+                         [(ngModel)]="priceRange.current.min" 
+                         [min]="priceRange.absolute.min" 
+                         [max]="priceRange.absolute.max"
+                         (blur)="validatePriceRange()"
+                         placeholder="0">
+                </div>
+                <span>-</span>
+                <div class="price-input">
+                  <label>Max</label>
+                  <input type="number" 
+                         [(ngModel)]="priceRange.current.max" 
+                         [min]="priceRange.absolute.min" 
+                         [max]="priceRange.absolute.max"
+                         (blur)="validatePriceRange()"
+                         placeholder="1000">
+                </div>
               </div>
             </div>
             
             <!-- Quick Price Filters -->
-            <div class="quick-price-filters">
-              <button class="quick-price-btn" 
+            <div class="quick-price-tags">
+              <button class="price-tag" 
                       [class.active]="isQuickPriceActive(0, 50)"
                       (click)="applyQuickPrice(0, 50)">Under $50</button>
-              <button class="quick-price-btn" 
+              <button class="price-tag" 
                       [class.active]="isQuickPriceActive(50, 100)"
                       (click)="applyQuickPrice(50, 100)">$50 - $100</button>
-              <button class="quick-price-btn" 
+              <button class="price-tag" 
                       [class.active]="isQuickPriceActive(100, 250)"
                       (click)="applyQuickPrice(100, 250)">$100 - $250</button>
-              <button class="quick-price-btn" 
+              <button class="price-tag" 
                       [class.active]="isQuickPriceActive(250, 1000)"
                       (click)="applyQuickPrice(250, 1000)">$250+</button>
             </div>
-            
-            <button class="apply-price-btn" (click)="applyPriceFilter()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="20,6 9,17 4,12"></polyline>
-              </svg>
-              Apply Filter
-            </button>
           </div>
         </div>
 
@@ -138,8 +121,7 @@
           <h3 class="filter-title">Rating</h3>
           <div class="filter-options">
             <label class="filter-option">
-              <input type="checkbox" (change)="onRatingFilter(5, $event)">
-              <span class="checkmark"></span>
+              <input type="radio" name="rating" (change)="onRatingFilter(5, $event)">
               <div class="stars">
                 <span class="star filled">★</span>
                 <span class="star filled">★</span>
@@ -147,11 +129,10 @@
                 <span class="star filled">★</span>
                 <span class="star filled">★</span>
               </div>
-              <span class="rating-text">5 Stars</span>
+              <span>5 Stars</span>
             </label>
             <label class="filter-option">
-              <input type="checkbox" (change)="onRatingFilter(4, $event)">
-              <span class="checkmark"></span>
+              <input type="radio" name="rating" (change)="onRatingFilter(4, $event)">
               <div class="stars">
                 <span class="star filled">★</span>
                 <span class="star filled">★</span>
@@ -159,11 +140,10 @@
                 <span class="star filled">★</span>
                 <span class="star">☆</span>
               </div>
-              <span class="rating-text">4+ Stars</span>
+              <span>4+ Stars</span>
             </label>
             <label class="filter-option">
-              <input type="checkbox" (change)="onRatingFilter(3, $event)">
-              <span class="checkmark"></span>
+              <input type="radio" name="rating" (change)="onRatingFilter(3, $event)">
               <div class="stars">
                 <span class="star filled">★</span>
                 <span class="star filled">★</span>
@@ -171,7 +151,7 @@
                 <span class="star">☆</span>
                 <span class="star">☆</span>
               </div>
-              <span class="rating-text">3+ Stars</span>
+              <span>3+ Stars</span>
             </label>
           </div>
         </div>
@@ -181,47 +161,63 @@
           <div class="filter-options">
             <label class="filter-option">
               <input type="checkbox" (change)="onBrandFilter('apple', $event)">
-              <span class="checkmark"></span>
               Apple
             </label>
             <label class="filter-option">
               <input type="checkbox" (change)="onBrandFilter('samsung', $event)">
-              <span class="checkmark"></span>
               Samsung
             </label>
             <label class="filter-option">
               <input type="checkbox" (change)="onBrandFilter('nike', $event)">
-              <span class="checkmark"></span>
               Nike
             </label>
             <label class="filter-option">
               <input type="checkbox" (change)="onBrandFilter('adidas', $event)">
-              <span class="checkmark"></span>
               Adidas
             </label>
           </div>
         </div>
 
-        <button class="clear-filters-btn" (click)="clearAllFilters()">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-          Clear All Filters
-        </button>
+        <div class="clear-filters">
+          <button class="clear-filters-btn" (click)="clearAllFilters()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+            Clear All Filters
+          </button>
+        </div>
       </aside>
 
-      <!-- Main Content -->
-      <main class="products-main">
-        <!-- Toolbar -->
-        <div class="products-toolbar">
-          <div class="results-info">
+      <!-- Premium Products Content -->
+      <main class="products-content">
+        <!-- Luxury Products Header -->
+        <div class="products-header">
+          <div class="products-info">
             <span class="results-count">Showing {{ getDisplayedProductsCount() }} of {{ getTotalProductsCount() }} products</span>
-            <span class="active-filters" *ngIf="hasActiveFilters()">({{ getActiveFiltersCount() }} filters applied)</span>
+            <div class="active-filters" *ngIf="hasActiveFilters()">
+              <span class="filter-tag" *ngIf="!selectedCategories.has('all')">
+                Categories: {{ selectedCategories.size }}
+                <span class="remove-filter" (click)="clearCategoryFilters()">×</span>
+              </span>
+              <span class="filter-tag" *ngIf="selectedBrands.size > 0">
+                Brands: {{ selectedBrands.size }}
+                <span class="remove-filter" (click)="clearBrandFilters()">×</span>
+              </span>
+              <span class="filter-tag" *ngIf="selectedRatings.size > 0">
+                Rating: {{ selectedRatings.size }}
+                <span class="remove-filter" (click)="clearRatingFilters()">×</span>
+              </span>
+              <span class="filter-tag" *ngIf="priceRange.current.min !== priceRange.absolute.min || priceRange.current.max !== priceRange.absolute.max">
+                Price: ${{ priceRange.current.min }}-${{ priceRange.current.max }}
+                <span class="remove-filter" (click)="resetPriceRange()">×</span>
+              </span>
+            </div>
           </div>
           
-          <div class="toolbar-actions">
-            <div class="view-options">
+          <div class="products-controls">
+            <!-- Luxury View Toggle -->
+            <div class="view-toggle">
               <button class="view-btn" 
                       [class.active]="currentView === 'grid'"
                       (click)="setView('grid')">
@@ -231,6 +227,7 @@
                   <rect x="14" y="14" width="7" height="7"></rect>
                   <rect x="3" y="14" width="7" height="7"></rect>
                 </svg>
+                Grid
               </button>
               <button class="view-btn" 
                       [class.active]="currentView === 'list'"
@@ -243,12 +240,14 @@
                   <line x1="3" y1="12" x2="3.01" y2="12"></line>
                   <line x1="3" y1="18" x2="3.01" y2="18"></line>
                 </svg>
+                List
               </button>
             </div>
             
-            <div class="sort-dropdown">
-              <select class="sort-select" [(ngModel)]="currentSort" (change)="onSortChange()">
-                <option value="featured">Sort by: Featured</option>
+            <!-- Premium Sort Controls -->
+            <div class="sort-controls">
+              <select class="sort-dropdown" [(ngModel)]="currentSort" (change)="onSortChange()">
+                <option value="featured">Featured</option>
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
                 <option value="newest">Newest First</option>
@@ -260,24 +259,39 @@
           </div>
         </div>
 
-        <!-- Products Grid -->
-        <div class="products-content">
+        <!-- Premium Products Main Content -->
+        <div class="products-main">
           <!-- Loading State -->
           <div *ngIf="loading" class="loading-state">
             <div class="loading-spinner"></div>
-            <p>Loading products...</p>
+            <p>Loading luxury collections...</p>
           </div>
 
           <!-- Error State -->
           <div *ngIf="error && !loading" class="error-state">
+            <div class="empty-icon">
+              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <h3>Oops! Something went wrong</h3>
             <p class="error-message">{{ error }}</p>
-            <button class="retry-btn" (click)="loadProducts()">Try Again</button>
+            <button class="retry-btn" (click)="loadProducts()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23,4 23,10 17,10"></polyline>
+                <polyline points="1,20 1,14 7,14"></polyline>
+                <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10m22,4a9,9,0,0,1-14.85,4.36L23,14"></path>
+              </svg>
+              Try Again
+            </button>
           </div>
 
-          <!-- Products Grid -->
+          <!-- Premium Products Grid -->
           <div *ngIf="!loading && !error" class="products-grid" [class.list-view]="currentView === 'list'">
             <app-product-card 
-              *ngFor="let product of filteredProducts; trackBy: trackByProduct" 
+              *ngFor="let product of getPaginatedProducts(); trackBy: trackByProduct" 
               [product]="product"
               [viewMode]="currentView"
               (addToCart)="onAddToCart($event)"
@@ -287,23 +301,29 @@
             </app-product-card>
           </div>
 
-          <!-- Empty State -->
+          <!-- Enhanced Empty State -->
           <div *ngIf="!loading && !error && filteredProducts.length === 0" class="empty-state">
             <div class="empty-icon">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.35-4.35"></path>
               </svg>
             </div>
-            <h3>No products found</h3>
-            <p>Try adjusting your filters or search criteria</p>
-            <button class="btn btn-primary" (click)="clearAllFilters()">Clear Filters</button>
+            <h3>No luxury items match your criteria</h3>
+            <p>Refine your selection or explore our complete collection of premium products</p>
+            <button class="retry-btn" (click)="clearAllFilters()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18l-2 13H5L3 6z"></path>
+                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+              View All Products
+            </button>
           </div>
         </div>
 
-        <!-- Pagination -->
+        <!-- Premium Pagination -->
         <div class="pagination">
-          <button class="pagination-btn prev">
+          <button class="pagination-btn" [disabled]="currentPage === 1">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="15,18 9,12 15,6"></polyline>
             </svg>
@@ -311,14 +331,14 @@
           </button>
           
           <div class="pagination-numbers">
-            <button class="page-btn active">1</button>
-            <button class="page-btn">2</button>
-            <button class="page-btn">3</button>
-            <span class="page-dots">...</span>
-            <button class="page-btn">8</button>
+            <button class="page-btn" [class.active]="currentPage === 1" (click)="goToPage(1)">1</button>
+            <button class="page-btn" [class.active]="currentPage === 2" (click)="goToPage(2)">2</button>
+            <button class="page-btn" [class.active]="currentPage === 3" (click)="goToPage(3)">3</button>
+            <span class="page-dots" *ngIf="totalPages > 5">...</span>
+            <button class="page-btn" *ngIf="totalPages > 5" [class.active]="currentPage === totalPages" (click)="goToPage(totalPages)">{{ totalPages }}</button>
           </div>
           
-          <button class="pagination-btn next">
+          <button class="pagination-btn" [disabled]="currentPage === totalPages">
             Next
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="9,18 15,12 9,6"></polyline>

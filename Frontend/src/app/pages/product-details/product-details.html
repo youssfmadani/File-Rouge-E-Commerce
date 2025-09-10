@@ -1,168 +1,355 @@
-<div class="product-details-page">
+<div class="product-details-page" *ngIf="!loading">
   <div class="container">
-    <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-      <a href="/">Home</a>
-      <span class="separator">/</span>
-      <a href="/products">Products</a>
-      <span class="separator">/</span>
-      <span class="current">{{ product?.name || 'Product Name' }}</span>
-    </nav>
+    <!-- Loading State -->
+    <div class="loading-wrapper" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading product details...</p>
+    </div>
 
-    <!-- Product Main Info -->
-    <div class="product-main">
-      <!-- Product Images -->
-      <div class="product-images">
-        <div class="main-image">
-          <img [src]="product?.image || 'https://via.placeholder.com/500x500/4285f4/ffffff?text=Product'" [alt]="product?.name">
-          <div class="image-badges">
-            <span *ngIf="product?.isNew" class="badge new">New</span>
-            <span *ngIf="product?.discount" class="badge sale">{{ product.discount }}% OFF</span>
-          </div>
-        </div>
-        
-        <div class="thumbnail-images">
-          <div class="thumbnail active">
-            <img src="https://via.placeholder.com/100x100/4285f4/ffffff?text=1" alt="Thumbnail 1">
-          </div>
-          <div class="thumbnail">
-            <img src="https://via.placeholder.com/100x100/34a853/ffffff?text=2" alt="Thumbnail 2">
-          </div>
-          <div class="thumbnail">
-            <img src="https://via.placeholder.com/100x100/ea4335/ffffff?text=3" alt="Thumbnail 3">
-          </div>
-          <div class="thumbnail">
-            <img src="https://via.placeholder.com/100x100/fbbc05/ffffff?text=4" alt="Thumbnail 4">
-          </div>
+    <!-- Error State -->
+    <div class="error-wrapper" *ngIf="error && !loading">
+      <div class="error-icon">⚠️</div>
+      <h3>Oops! Something went wrong</h3>
+      <p>{{ error }}</p>
+      <button class="btn btn-primary" (click)="loadProduct(1)">Try Again</button>
+    </div>
+
+    <!-- Product Content -->
+    <div *ngIf="product && !loading && !error">
+      <!-- Breadcrumb -->
+      <nav class="breadcrumb">
+        <a href="/">Home</a>
+        <span class="separator">/</span>
+        <a href="/products">Products</a>
+        <span class="separator">/</span>
+        <span class="current">{{ getProductTitle() }}</span>
+      </nav>
+
+      <!-- Success Message -->
+      <div class="success-banner" *ngIf="addToCartSuccess">
+        <div class="success-content">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22,4 12,14.01 9,11.01"></polyline>
+          </svg>
+          <span>Product added to cart successfully!</span>
         </div>
       </div>
 
-      <!-- Product Info -->
-      <div class="product-info">
-        <div class="product-category">{{ product?.category || 'Electronics' }}</div>
-        <h1 class="product-title">{{ product?.name || 'Premium Wireless Headphones' }}</h1>
-        
-        <div class="product-rating">
-          <div class="stars">
-            <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= (product?.rating || 4)">
-              ★
-            </span>
-          </div>
-          <span class="rating-count">({{ product?.reviewCount || 128 }} reviews)</span>
-          <span class="rating-text">4.5 out of 5</span>
-        </div>
-
-        <div class="product-price">
-          <span class="current-price">{{ product?.price | currency:'USD':'symbol':'1.2-2' }}</span>
-          <span *ngIf="product?.originalPrice" class="original-price">{{ product.originalPrice | currency:'USD':'symbol':'1.2-2' }}</span>
-          <span *ngIf="product?.discount" class="discount-badge">{{ product.discount }}% OFF</span>
-        </div>
-
-        <div class="product-description">
-          <p>{{ product?.description || 'High-quality wireless headphones with noise cancellation technology. Perfect for music lovers and professionals who need crystal clear sound quality.' }}</p>
-        </div>
-
-        <!-- Product Options -->
-        <div class="product-options">
-          <div class="option-group">
-            <label class="option-label">Color:</label>
-            <div class="color-options">
-              <button class="color-option active" data-color="black">Black</button>
-              <button class="color-option" data-color="white">White</button>
-              <button class="color-option" data-color="blue">Blue</button>
+      <!-- Product Main Info -->
+      <div class="product-main">
+        <!-- Product Images -->
+        <div class="product-images">
+          <div class="main-image">
+            <img 
+              [src]="getProductImage()" 
+              [alt]="getProductTitle()">
+            <div class="image-badges">
+              <span *ngIf="product && product['isNew']" class="badge new">New</span>
+              <span *ngIf="getDiscountPercentage() > 0" class="badge sale">{{ getDiscountPercentage() }}% OFF</span>
+              <span *ngIf="isInCart()" class="badge in-cart">In Cart ({{ getCartItemCount() }})</span>
+            </div>
+            
+            <!-- Zoom indicator -->
+            <div class="zoom-hint">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+                <path d="M11 15v-4"></path>
+                <path d="M13 11h-4"></path>
+              </svg>
+              <span>Hover to zoom</span>
             </div>
           </div>
-
-          <div class="option-group">
-            <label class="option-label">Quantity:</label>
-            <div class="quantity-selector">
-              <button class="qty-btn" (click)="decreaseQuantity()">-</button>
-              <input type="number" [value]="quantity" (input)="updateQuantity($event)" class="qty-input" min="1">
-              <button class="qty-btn" (click)="increaseQuantity()">+</button>
+          
+          <div class="thumbnail-images">
+            <div 
+              *ngFor="let image of productImages; let i = index" 
+              class="thumbnail" 
+              [class.active]="selectedImageIndex === i"
+              (click)="selectImage(i)">
+              <img [src]="image" [alt]="'Thumbnail ' + (i + 1)">
             </div>
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="product-actions">
-          <button class="btn btn-primary add-to-cart-btn" (click)="addToCart()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-              <line x1="3" y1="6" x2="21" y2="6"></line>
-              <path d="M16 10a4 4 0 0 1-8 0"></path>
-            </svg>
-            Add to Cart
-          </button>
+        <!-- Product Info -->
+        <div class="product-info">
+          <div class="product-category">{{ getProductCategory() }}</div>
+          <h1 class="product-title">{{ getProductTitle() }}</h1>
           
-          <button class="btn btn-secondary buy-now-btn" (click)="buyNow()">
-            Buy Now
+          <div class="product-rating">
+            <div class="stars">
+              <span 
+                *ngFor="let star of getStarArray()" 
+                class="star" 
+                [class.filled]="isStarFilled(star)">
+                ★
+              </span>
+            </div>
+            <span class="rating-count">({{ getProductReviewCount() }} reviews)</span>
+            <span class="rating-text">{{ getProductRating() }} out of 5</span>
+          </div>
+
+          <div class="product-price">
+            <span class="current-price">{{ getProductPrice() | currency:'USD':'symbol':'1.2-2' }}</span>
+            <span *ngIf="hasOriginalPrice()" class="original-price">{{ getOriginalPrice() | currency:'USD':'symbol':'1.2-2' }}</span>
+            <span *ngIf="getDiscountPercentage() > 0" class="discount-badge">{{ getDiscountPercentage() }}% OFF</span>
+            <div class="savings" *ngIf="hasOriginalPrice()">
+              You save: {{ getSavingsAmount() | currency:'USD':'symbol':'1.2-2' }}
+            </div>
+          </div>
+
+          <div class="product-description">
+            <p>{{ getProductDescription() }}</p>
+          </div>
+
+          <!-- Product Options -->
+          <div class="product-options">
+            <div class="option-group">
+              <label class="option-label">Color:</label>
+              <div class="color-options">
+                <button 
+                  *ngFor="let color of availableColors" 
+                  class="color-option" 
+                  [class.active]="selectedColor === color.name"
+                  [style.background-color]="color.code"
+                  [attr.title]="color.label"
+                  (click)="selectColor(color.name)">
+                  <span class="color-checkmark" *ngIf="selectedColor === color.name">✓</span>
+                </button>
+                <span class="selected-color-label">{{ getSelectedColorInfo()?.label }}</span>
+              </div>
+            </div>
+
+            <div class="option-group">
+              <label class="option-label">Size:</label>
+              <div class="size-options">
+                <button 
+                  *ngFor="let size of availableSizes" 
+                  class="size-option" 
+                  [class.active]="selectedSize === size"
+                  (click)="selectSize(size)">
+                  {{ size }}
+                </button>
+              </div>
+            </div>
+
+            <div class="option-group">
+              <label class="option-label">Quantity:</label>
+              <div class="quantity-selector">
+                <button class="qty-btn" (click)="decreaseQuantity()" [disabled]="quantity <= 1">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="6" y1="12" x2="18" y2="12"></line>
+                  </svg>
+                </button>
+                <input 
+                  type="number" 
+                  [value]="quantity" 
+                  (input)="updateQuantity($event)" 
+                  class="qty-input" 
+                  min="1" 
+                  max="99">
+                <button class="qty-btn" (click)="increaseQuantity()">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="6" x2="12" y2="18"></line>
+                    <line x1="6" y1="12" x2="18" y2="12"></line>
+                  </svg>
+                </button>
+              </div>
+              <span class="stock-info">Only 12 left in stock!</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="product-actions">
+            <button 
+              class="btn btn-primary add-to-cart-btn" 
+              (click)="addToCart()"
+              [disabled]="isAddingToCart"
+              [class.loading]="isAddingToCart">
+              <div class="btn-content">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+                <span *ngIf="!isAddingToCart">{{ isInCart() ? 'Add More' : 'Add to Cart' }}</span>
+                <span *ngIf="isAddingToCart">Adding...</span>
+              </div>
+              <div class="btn-spinner" *ngIf="isAddingToCart"></div>
+            </button>
+            
+            <button class="btn btn-secondary buy-now-btn" (click)="buyNow()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4"></path>
+                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+              </svg>
+              Buy Now
+            </button>
+            
+            <button class="btn btn-outline wishlist-btn" (click)="addToWishlist()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              <span class="wishlist-text">Save for Later</span>
+            </button>
+
+            <button class="btn btn-outline share-btn">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="18" cy="5" r="3"></circle>
+                <circle cx="6" cy="12" r="3"></circle>
+                <circle cx="18" cy="19" r="3"></circle>
+                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+              </svg>
+              Share
+            </button>
+          </div>
+
+          <!-- Product Features -->
+          <div class="product-features">
+            <div class="feature">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22,4 12,14.01 9,11.01"></polyline>
+              </svg>
+              <div class="feature-text">
+                <strong>Free Shipping</strong>
+                <small>On orders over $50</small>
+              </div>
+            </div>
+            <div class="feature">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 12l2 2 4-4"></path>
+                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+              </svg>
+              <div class="feature-text">
+                <strong>30-Day Returns</strong>
+                <small>Hassle-free returns</small>
+              </div>
+            </div>
+            <div class="feature">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+              <div class="feature-text">
+                <strong>2-Year Warranty</strong>
+                <small>Manufacturer warranty</small>
+              </div>
+            </div>
+            <div class="feature">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="3" width="15" height="13"></rect>
+                <polygon points="16,3 16,13 22,8 16,3"></polygon>
+              </svg>
+              <div class="feature-text">
+                <strong>Fast Delivery</strong>
+                <small>2-3 business days</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Tabs -->
+      <div class="product-tabs">
+        <div class="tab-buttons">
+          <button 
+            *ngFor="let tab of ['description', 'specifications', 'reviews']" 
+            class="tab-btn" 
+            [class.active]="activeTab === tab"
+            (click)="selectTab(tab)">
+            {{ tab | titlecase }}
+            <span *ngIf="tab === 'reviews'">({{ getProductReviewCount() }})</span>
           </button>
-          
-          <button class="btn btn-outline wishlist-btn" (click)="addToWishlist()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-          </button>
         </div>
 
-        <!-- Product Features -->
-        <div class="product-features">
-          <div class="feature">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22,4 12,14.01 9,11.01"></polyline>
-            </svg>
-            <span>Free Shipping</span>
+        <div class="tab-content">
+          <div class="tab-pane" [class.active]="activeTab === 'description'" *ngIf="activeTab === 'description'">
+            <h3>Product Description</h3>
+            <p>{{ getProductDescription() }}</p>
+            <div class="features-list">
+              <h4>Key Features:</h4>
+              <ul>
+                <li>Premium quality materials and construction</li>
+                <li>Advanced technology for superior performance</li>
+                <li>Ergonomic design for maximum comfort</li>
+                <li>Durable and long-lasting reliability</li>
+                <li>Easy to use with intuitive controls</li>
+                <li>Backed by comprehensive warranty</li>
+              </ul>
+            </div>
           </div>
-          <div class="feature">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22,4 12,14.01 9,11.01"></polyline>
-            </svg>
-            <span>30-Day Returns</span>
+
+          <div class="tab-pane" [class.active]="activeTab === 'specifications'" *ngIf="activeTab === 'specifications'">
+            <h3>Technical Specifications</h3>
+            <div class="specs-grid">
+              <div class="spec-item">
+                <span class="spec-label">Brand:</span>
+                <span class="spec-value">{{ getProductBrand() }}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Model:</span>
+                <span class="spec-value">{{ getProductModel() }}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Weight:</span>
+                <span class="spec-value">{{ getProductWeight() }}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Dimensions:</span>
+                <span class="spec-value">{{ getProductDimensions() }}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Color:</span>
+                <span class="spec-value">{{ getSelectedColorInfo()?.label || 'Multiple Options' }}</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Warranty:</span>
+                <span class="spec-value">2 Years Manufacturer Warranty</span>
+              </div>
+            </div>
           </div>
-          <div class="feature">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22,4 12,14.01 9,11.01"></polyline>
-            </svg>
-            <span>2-Year Warranty</span>
+
+          <div class="tab-pane" [class.active]="activeTab === 'reviews'" *ngIf="activeTab === 'reviews'">
+            <h3>Customer Reviews</h3>
+            <div class="reviews-summary">
+              <div class="rating-breakdown">
+                <div class="overall-rating">
+                  <span class="rating-number">{{ getProductRating() }}</span>
+                  <div class="stars">
+                    <span 
+                      *ngFor="let star of getStarArray()" 
+                      class="star" 
+                      [class.filled]="isStarFilled(star)">
+                      ★
+                    </span>
+                  </div>
+                  <span class="review-count">Based on {{ getProductReviewCount() }} reviews</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="review-placeholder">
+              <p>Customer reviews will be loaded here. This feature is coming soon!</p>
+              <button class="btn btn-outline">Write a Review</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Product Tabs -->
-    <div class="product-tabs">
-      <div class="tab-buttons">
-        <button class="tab-btn active" data-tab="description">Description</button>
-        <button class="tab-btn" data-tab="specifications">Specifications</button>
-        <button class="tab-btn" data-tab="reviews">Reviews (128)</button>
-      </div>
-
-      <div class="tab-content">
-        <div class="tab-pane active" id="description">
-          <h3>Product Description</h3>
-          <p>Experience premium sound quality with our wireless headphones. Features include:</p>
-          <ul>
-            <li>Active Noise Cancellation technology</li>
-            <li>40-hour battery life</li>
-            <li>Bluetooth 5.0 connectivity</li>
-            <li>Premium comfort with memory foam ear cushions</li>
-            <li>Built-in microphone for calls</li>
-          </ul>
+      <!-- Related Products -->
+      <div class="related-products" *ngIf="relatedProducts.length > 0">
+        <h2 class="section-title">You Might Also Like</h2>
+        <div class="products-grid">
+          <app-product-card 
+            *ngFor="let relatedProduct of relatedProducts; trackBy: trackByProduct" 
+            [product]="relatedProduct">
+          </app-product-card>
         </div>
-      </div>
-    </div>
-
-    <!-- Related Products -->
-    <div class="related-products">
-      <h2 class="section-title">Related Products</h2>
-      <div class="products-grid">
-        <app-product-card 
-          *ngFor="let relatedProduct of relatedProducts" 
-          [product]="relatedProduct">
-        </app-product-card>
       </div>
     </div>
   </div>

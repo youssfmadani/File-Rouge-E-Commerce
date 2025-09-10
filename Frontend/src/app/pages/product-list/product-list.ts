@@ -1,8 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ProductCardComponent } from '../../components/product-card/product-card';
 import { ProductService, Product } from '../../services/product';
+import { CartService } from '../../services/cart';
+import { AuthService } from '../../services/auth';
 
 interface PriceRange {
   absolute: { min: number; max: number };
@@ -36,8 +39,22 @@ export class ProductListComponent implements OnInit {
   // View and sorting
   currentView: 'grid' | 'list' = 'grid';
   currentSort: string = 'featured';
+  
+  // Pagination
+  currentPage: number = 1;
+  itemsPerPage: number = 12;
+  totalPages: number = 1;
+  
+  // UI State
+  addToCartSuccess: boolean = false;
+  successMessage: string = '';
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private cartService: CartService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadProducts();
@@ -122,22 +139,57 @@ export class ProductListComponent implements OnInit {
 
   onAddToCart(product: Product) {
     console.log('Adding to cart:', product);
-    // TODO: Implement add to cart functionality
+    
+    try {
+      this.cartService.addToCart(product, 1, {
+        color: 'default',
+        size: 'default'
+      });
+      
+      // Show success feedback
+      this.successMessage = `${product.title || 'Product'} added to cart successfully!`;
+      this.addToCartSuccess = true;
+      console.log(this.successMessage);
+      
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        this.addToCartSuccess = false;
+        this.successMessage = '';
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
   }
 
   onAddToWishlist(product: Product) {
     console.log('Adding to wishlist:', product);
-    // TODO: Implement add to wishlist functionality
+    // TODO: Implement wishlist service when available
+    alert('Wishlist functionality will be implemented soon!');
   }
 
   onAddToCompare(product: Product) {
     console.log('Adding to compare:', product);
-    // TODO: Implement add to compare functionality
+    // TODO: Implement compare service when available
+    alert('Compare functionality will be implemented soon!');
   }
 
   onBuyNow(product: Product) {
     console.log('Buying now:', product);
-    // TODO: Implement buy now functionality
+    
+    try {
+      // Add to cart first
+      this.cartService.addToCart(product, 1, {
+        color: 'default',
+        size: 'default'
+      });
+      
+      // Navigate to cart for checkout
+      this.router.navigate(['/cart']);
+      
+    } catch (error) {
+      console.error('Error in buy now:', error);
+    }
   }
 
   trackByProduct(index: number, product: Product): number {
@@ -225,6 +277,8 @@ export class ProductListComponent implements OnInit {
     }
 
     this.filteredProducts = this.sortProducts(filtered);
+    this.currentPage = 1; // Reset to first page when filters change
+    this.updatePagination();
   }
 
   // View and Sorting Methods
@@ -284,5 +338,46 @@ export class ProductListComponent implements OnInit {
     if (this.priceRange.current.min !== this.priceRange.absolute.min || 
         this.priceRange.current.max !== this.priceRange.absolute.max) count++;
     return count;
+  }
+
+  // Enhanced Filter Clear Methods
+  clearCategoryFilters(): void {
+    this.selectedCategories.clear();
+    this.selectedCategories.add('all');
+    this.applyFilters();
+  }
+
+  clearBrandFilters(): void {
+    this.selectedBrands.clear();
+    this.applyFilters();
+  }
+
+  clearRatingFilters(): void {
+    this.selectedRatings.clear();
+    this.applyFilters();
+  }
+
+  resetPriceRange(): void {
+    this.priceRange.current.min = this.priceRange.absolute.min;
+    this.priceRange.current.max = this.priceRange.absolute.max;
+    this.applyFilters();
+  }
+
+  // Pagination Methods
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.filteredProducts.length / this.itemsPerPage);
+  }
+
+  getPaginatedProducts(): Product[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredProducts.slice(startIndex, endIndex);
   }
 }

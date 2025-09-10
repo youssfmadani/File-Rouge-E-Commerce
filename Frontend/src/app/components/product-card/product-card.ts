@@ -1,10 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule, CurrencyPipe, SlicePipe } from '@angular/common';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe],
+  imports: [CommonModule, CurrencyPipe, SlicePipe],
   templateUrl: './product-card.html',
   styleUrl: './product-card.css'
 })
@@ -54,5 +54,51 @@ export class ProductCardComponent {
 
   closeQuickView() {
     this.showQuickView = false;
+  }
+
+  // New methods for enhanced product card
+  getDiscountPercent(): number {
+    if (this.product?.originalPrice && this.product?.price) {
+      return Math.round(((this.product.originalPrice - this.product.price) / this.product.originalPrice) * 100);
+    }
+    return this.product?.discount || 0;
+  }
+
+  getSavingsAmount(): number {
+    if (this.product?.originalPrice && this.product?.price) {
+      return this.product.originalPrice - this.product.price;
+    }
+    return 0;
+  }
+
+  isInStock(): boolean {
+    if (this.product?.stock !== undefined) {
+      return this.product.stock > 0;
+    }
+    return this.product?.inStock !== false;
+  }
+
+  isLowStock(): boolean {
+    if (this.product?.stock !== undefined) {
+      return this.product.stock > 0 && this.product.stock <= 10;
+    }
+    return false;
+  }
+
+  isOutOfStock(): boolean {
+    if (this.product?.stock !== undefined) {
+      return this.product.stock <= 0;
+    }
+    return this.product?.inStock === false;
+  }
+
+  getAvailabilityText(): string {
+    if (this.isOutOfStock()) {
+      return 'Out of Stock';
+    } else if (this.isLowStock()) {
+      return 'Low Stock';
+    } else {
+      return 'In Stock';
+    }
   }
 }
