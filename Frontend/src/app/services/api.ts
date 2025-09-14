@@ -1,6 +1,6 @@
 export const API_BASE = (typeof window !== 'undefined' && (window as any).ENV_API_BASE_URL)
   ? (window as any).ENV_API_BASE_URL
-  : 'http://localhost:8081';
+  : 'http://localhost:8082';
 
 export const apiUrl = (path: string): string => {
   if (!path) {

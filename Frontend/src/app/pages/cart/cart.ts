@@ -237,17 +237,17 @@ export class Cart implements OnInit, OnDestroy {
         console.log('Stored email found:', storedEmail);
         
         if (storedEmail && this.authService.isAuthenticated()) {
-          // Recreate user object if we have email and are authenticated
-          const isAdmin = storedEmail.toLowerCase().includes('admin');
-          const recreatedUser: any = {
-            id: isAdmin ? 1 : Math.floor(Math.random() * 1000) + 100,
-            email: storedEmail,
-            role: isAdmin ? 'ADMIN' : 'USER',
-            name: storedEmail.split('@')[0]
-          };
-          this.authService.setCurrentUser(recreatedUser);
-          currentUser = recreatedUser;
-          console.log('Recreated user:', currentUser);
+          // Try to get or create the user properly
+          try {
+            const userResult = await this.authService.getOrCreateUser(storedEmail, 'USER').toPromise();
+            if (userResult && userResult.id) {
+              this.authService.setCurrentUser(userResult);
+              currentUser = userResult;
+              console.log('Successfully created/retrieved user:', currentUser);
+            }
+          } catch (error) {
+            console.error('Failed to create/retrieve user:', error);
+          }
         }
       }
     }
@@ -277,18 +277,17 @@ export class Cart implements OnInit, OnDestroy {
       // Prepare order data
       const orderData: Order = {
         adherentId: currentUser.id,
-        total: this.getTotal(),
-        status: 'pending',
-        date: new Date().toISOString(),
-        produits: this.cartItems.map(item => ({
-          id: item.product.id || 0,
-          name: item.product.title || item.product.name || 'Unknown Product',
-          price: item.product.price || 0,
-          quantity: item.quantity || 1,
-          selectedColor: item.selectedColor || 'default',
-          selectedSize: item.selectedSize || 'default'
-        }))
+        montantTotal: this.getTotal(), // Use montantTotal instead of total
+        statut: 'EN_COURS', // Use backend enum value directly (statut instead of status)
+        dateCommande: new Date().toISOString(),
+        // Send product IDs instead of full product objects
+        produitIds: this.cartItems.map(item => item.product.id || 0).filter(id => id > 0)
       };
+      
+      // Ensure we have at least one product
+      if (!orderData.produitIds || orderData.produitIds.length === 0) {
+        throw new Error('Cannot create order without products');
+      }
       
       console.log('Order data to be sent:', orderData);
 
@@ -306,7 +305,7 @@ export class Cart implements OnInit, OnDestroy {
         this.orderSuccess = true;
         this.error = 'Order placed successfully!';
         
-        // Navigate to order confirmation or orders page after delay
+        // Navigate to order confirmation or products page after delay
         setTimeout(() => {
           // For now, just redirect to products page since orders page might not exist
           this.router.navigate(['/products'], {
@@ -321,12 +320,14 @@ export class Cart implements OnInit, OnDestroy {
       
       // Provide specific error messages based on the error type
       if (error instanceof Error) {
-        if (error.message.includes('User not found')) {
-          this.error = 'Authentication error. Please log out and log in again.';
+        if (error.message.includes('User not found') || error.message.includes('adherent')) {
+          this.error = 'Authentication error. Please log out and log in again to refresh your user data.';
         } else if (error.message.includes('authentication') || error.message.includes('unauthorized')) {
           this.error = 'Your session has expired. Please log in again.';
         } else if (error.message.includes('network') || error.message.includes('fetch')) {
           this.error = 'Network error. Please check your connection and try again.';
+        } else if (error.message.includes('Invalid order data')) {
+          this.error = 'There was a problem with your order. Please log out and log in again to refresh your session.';
         } else {
           this.error = `Order failed: ${error.message}`;
         }

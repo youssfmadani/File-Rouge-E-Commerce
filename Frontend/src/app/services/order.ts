@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpResponse, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { apiUrl } from './api';
@@ -11,6 +11,7 @@ export interface Order {
   total?: number;
   adherentId?: number;
   produits?: any[];
+  produitIds?: number[];
   dateCommande?: string;
   statut?: string;
   montantTotal?: number;
@@ -30,7 +31,7 @@ export class OrderService {
       map(orders => orders.map(this.mapBackendOrder)),
       catchError(error => {
         console.error('Error fetching orders:', error);
-        return of(this.getMockOrders());
+        return of([]); // Return empty array instead of mock data
       })
     );
   }
@@ -40,7 +41,7 @@ export class OrderService {
       map(order => this.mapBackendOrder(order)),
       catchError(error => {
         console.error('Error fetching order:', error);
-        return of(this.getMockOrders().find(o => o.id === id) || null);
+        return of(null); // Return null instead of mock data
       })
     );
   }
@@ -51,39 +52,177 @@ export class OrderService {
       map(orders => orders.map(this.mapBackendOrder)),
       catchError(error => {
         console.error('Error fetching orders by adherent:', error);
-        return of(this.getMockOrders().filter(o => o.adherentId === adherentId));
+        return of([]); // Return empty array instead of mock data
       })
     );
   }
 
   createOrder(order: Order): Observable<Order> {
-    const mappedOrder = this.mapFrontendOrder(order);
-    console.log('Creating order with data:', mappedOrder);
+    try {
+      // Ensure we're using the correct mapping
+      const mappedOrder = this.mapFrontendOrder(order);
+      console.log('Creating order with data:', mappedOrder);
+      
+      // Log the raw JSON being sent
+      const rawJson = JSON.stringify(mappedOrder, null, 2);
+      console.log('Raw JSON being sent:', rawJson);
+      
+      // Validate the mapped order one more time before sending
+      this.validateMappedOrder(mappedOrder);
+      
+      // Set proper headers
+      const headers = new HttpHeaders({
+        'Content-Type': 'application/json'
+      });
+      
+      // Log the complete request
+      console.log('Complete request:', {
+        url: this.ordersUrl,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: mappedOrder
+      });
+      
+      return this.http.post<Order>(this.ordersUrl, mappedOrder, { headers }).pipe(
+        map(response => {
+          console.log('Order creation response:', response);
+          return this.mapBackendOrder(response);
+        }),
+        catchError(error => {
+          console.error('Error creating order:', error);
+          console.error('Request data that failed:', mappedOrder);
+          console.error('Error status:', error.status);
+          console.error('Error message:', error.message);
+          if (error.error) {
+            console.error('Error details:', error.error);
+          }
+          
+          // Provide more specific error messages
+          let errorMessage = 'Failed to place order. Please try again.';
+          if (error.status === 400) {
+            errorMessage = 'Invalid order data. Please check all fields and try again.';
+            // If we have specific validation errors from the backend, include them
+            if (error.error && typeof error.error === 'object') {
+              // Check if this is a validation error response
+              const validationErrors = Object.keys(error.error);
+              if (validationErrors.length > 0) {
+                // If it's a validation error with specific field messages
+                if (validationErrors.some(key => typeof error.error[key] === 'string')) {
+                  errorMessage = `Invalid order data: ${validationErrors.map(key => `${key}: ${error.error[key]}`).join(', ')}`;
+                } else if (error.error.message) {
+                  // If it's a general error message
+                  errorMessage = `Invalid order data: ${error.error.message}`;
+                }
+              }
+            }
+            // If we don't have specific error details, provide a more general message
+            if (errorMessage === 'Invalid order data. Please check all fields and try again.') {
+              // Check if the error is related to adherent ID
+              if (mappedOrder.adherentId) {
+                errorMessage = `Invalid order data. The user with ID ${mappedOrder.adherentId} does not exist. Please log out and log in again.`;
+              } else {
+                errorMessage = 'Invalid order data. This might be due to an invalid user ID. Please log out and log in again.';
+              }
+            }
+          } else if (error.status === 401) {
+            errorMessage = 'Authentication required. Please log in and try again.';
+          } else if (error.status === 404) {
+            errorMessage = 'Order service not found. Please try again later.';
+          } else if (error.status === 500) {
+            errorMessage = 'Server error. Please try again later.';
+          }
+          
+          // Create a custom error with more details
+          const customError = new Error(errorMessage);
+          (customError as any)['originalError'] = error;
+          (customError as any)['requestData'] = mappedOrder;
+          (customError as any)['requestJson'] = rawJson;
+          throw customError; // Re-throw the error instead of creating mock order
+        })
+      );
+    } catch (error) {
+      console.error('Error in createOrder method:', error);
+      throw error;
+    }
+  }
+  
+  // Additional validation method
+  private validateMappedOrder(mappedOrder: any): void {
+    console.log('Validating mapped order:', mappedOrder);
     
-    return this.http.post<Order>(this.ordersUrl, mappedOrder).pipe(
-      map(o => this.mapBackendOrder(o)),
-      catchError(error => {
-        console.error('Error creating order, using fallback:', error);
-        console.error('Request data that failed:', mappedOrder);
-        // Create a mock successful order for development/testing
-        const mockOrder: Order = {
-          ...order,
-          id: Math.floor(Math.random() * 10000) + 1000, // Generate random ID
-          date: new Date().toISOString(),
-          status: 'pending'
-        };
-        console.log('Created mock order:', mockOrder);
-        return of(mockOrder);
-      })
-    );
+    // Check that all required fields are present and have correct types
+    if (mappedOrder.adherentId === undefined || mappedOrder.adherentId === null) {
+      throw new Error('adherentId is missing or null');
+    }
+    
+    if (typeof mappedOrder.adherentId !== 'number') {
+      throw new Error('adherentId must be a number');
+    }
+    
+    if (mappedOrder.adherentId <= 0) {
+      throw new Error('adherentId must be positive');
+    }
+    
+    if (mappedOrder.statut === undefined || mappedOrder.statut === null) {
+      throw new Error('statut is missing or null');
+    }
+    
+    if (typeof mappedOrder.statut !== 'string') {
+      throw new Error('statut must be a string');
+    }
+    
+    if (mappedOrder.statut.trim() === '') {
+      throw new Error('statut cannot be empty');
+    }
+    
+    if (mappedOrder.dateCommande === undefined || mappedOrder.dateCommande === null) {
+      throw new Error('dateCommande is missing or null');
+    }
+    
+    if (typeof mappedOrder.dateCommande !== 'string') {
+      throw new Error('dateCommande must be a string');
+    }
+    
+    if (mappedOrder.produitIds === undefined || mappedOrder.produitIds === null) {
+      throw new Error('produitIds is missing or null');
+    }
+    
+    if (!Array.isArray(mappedOrder.produitIds)) {
+      throw new Error('produitIds must be an array');
+    }
+    
+    if (mappedOrder.produitIds.length === 0) {
+      throw new Error('produitIds cannot be empty');
+    }
+    
+    if (mappedOrder.produitIds.some((id: any) => typeof id !== 'number' || id <= 0)) {
+      throw new Error('All produitIds must be positive numbers');
+    }
+    
+    console.log('Mapped order validation passed');
   }
 
   updateOrder(id: number, order: Order): Observable<Order> {
-    return this.http.put<Order>(`${this.ordersUrl}/${id}`, this.mapFrontendOrder(order)).pipe(
+    const mappedOrder = this.mapFrontendOrder(order);
+    console.log('Updating order with data:', mappedOrder);
+    
+    // Log the raw JSON being sent
+    console.log('Raw JSON being sent for update:', JSON.stringify(mappedOrder, null, 2));
+    
+    return this.http.put<Order>(`${this.ordersUrl}/${id}`, mappedOrder).pipe(
       map(o => this.mapBackendOrder(o)),
       catchError(error => {
         console.error('Error updating order:', error);
-        throw error;
+        console.error('Request data that failed:', mappedOrder);
+        console.error('Error status:', error.status);
+        console.error('Error message:', error.message);
+        if (error.error) {
+          console.error('Error details:', error.error);
+        }
+        // Return the original order with an error flag so the UI can handle it
+        return of({ ...order, error: true });
       })
     );
   }
@@ -99,60 +238,161 @@ export class OrderService {
 
   // Map backend order format to frontend format
   private mapBackendOrder(order: any): Order {
+    // Calculate total from produits if not provided
+    let total = order.montantTotal || order.total || 0;
+    
+    // If we have produits, calculate total from them
+    if (!total && order.produits && Array.isArray(order.produits)) {
+      total = order.produits.reduce((sum: number, produit: any) => {
+        const price = produit.prix || produit.price || 0;
+        const quantity = produit.quantite || produit.quantity || 1;
+        return sum + (price * quantity);
+      }, 0);
+    }
+    
     return {
       ...order,
+      id: order.idCommande || order.id, // Map idCommande to id if needed
       date: order.dateCommande || order.date,
-      status: order.statut || order.status || 'pending',
-      total: order.montantTotal || order.total || 0
+      dateCommande: order.dateCommande || order.date,
+      status: order.statut || order.status || 'EN_COURS',
+      statut: order.statut || order.status || 'EN_COURS',
+      total: total,
+      montantTotal: order.montantTotal || order.total || 0,
+      adherentId: order.adherentId || (order.adherent ? order.adherent.id : undefined),
+      produitIds: order.produitIds || (order.produits ? order.produits.map((p: any) => p.idProduit || p.id) : undefined),
+      produits: order.produits
     };
   }
 
   // Map frontend order format to backend format
   private mapFrontendOrder(order: Order): any {
     console.log('Mapping frontend order:', order);
-    const mapped = {
-      ...order,
-      dateCommande: order.date || order.dateCommande,
-      statut: order.status || order.statut,
-      montantTotal: order.total || order.montantTotal
+    
+    // Validate required fields with better error messages
+    if (order.adherentId === undefined || order.adherentId === null) {
+      throw new Error('Adherent ID is required to create an order. Please ensure you are logged in.');
+    }
+    
+    if (!order.produitIds || !Array.isArray(order.produitIds) || order.produitIds.length === 0) {
+      throw new Error('At least one product is required to create an order.');
+    }
+    
+    // Validate that all product IDs are valid numbers
+    if (order.produitIds.some(id => typeof id !== 'number' || id <= 0)) {
+      throw new Error('Invalid product IDs provided. All product IDs must be positive numbers.');
+    }
+    
+    // Validate that adherentId is a positive number
+    if (typeof order.adherentId !== 'number' || order.adherentId <= 0) {
+      throw new Error('Invalid adherent ID. Adherent ID must be a positive number.');
+    }
+    
+    // Format the date properly for the backend
+    let formattedDate = order.dateCommande || order.date;
+    if (formattedDate) {
+      // If it's already a string, make sure it's in the right format
+      if (typeof formattedDate === 'string') {
+        // Try to parse it as a date and reformat it
+        const dateObj = new Date(formattedDate);
+        if (!isNaN(dateObj.getTime())) {
+          formattedDate = dateObj.toISOString();
+        } else {
+          throw new Error('Invalid date format. Please provide a valid date.');
+        }
+      } else {
+        // Handle Date objects
+        const dateObj = formattedDate as Date;
+        if (dateObj instanceof Date && !isNaN(dateObj.getTime())) {
+          formattedDate = dateObj.toISOString();
+        }
+      }
+    } else {
+      // Default to current date if not provided
+      formattedDate = new Date().toISOString();
+    }
+    
+    // Validate status is not empty
+    const status = order.statut || order.status || 'EN_COURS';
+    if (!status || status.trim() === '') {
+      throw new Error('Order status is required.');
+    }
+    
+    // Ensure produitIds is properly formatted as an array of numbers
+    const produitIds = Array.isArray(order.produitIds) 
+      ? order.produitIds.map(id => Number(id)).filter(id => !isNaN(id) && id > 0)
+      : [];
+    
+    if (produitIds.length === 0) {
+      throw new Error('At least one valid product ID is required.');
+    }
+    
+    // Handle montantTotal - ensure it's a valid number
+    let montantTotal = order.montantTotal || order.total || 0;
+    if (typeof montantTotal !== 'number' || isNaN(montantTotal)) {
+      montantTotal = 0;
+    }
+    
+    // Round to 2 decimal places to avoid floating point precision issues
+    montantTotal = Math.round(montantTotal * 100) / 100;
+    
+    // Send data in the exact format expected by the backend
+    const mapped: any = {
+      adherentId: order.adherentId,
+      montantTotal: montantTotal,
+      statut: status, // Use 'statut' not 'status'
+      dateCommande: formattedDate,
+      produitIds: produitIds // Ensure this is properly formatted
     };
+    
+    // Validate that all required fields are present
+    if (mapped.adherentId === undefined || mapped.adherentId === null) {
+      throw new Error('adherentId is required');
+    }
+    
+    if (mapped.statut === undefined || mapped.statut === null || mapped.statut.trim() === '') {
+      throw new Error('statut is required');
+    }
+    
+    if (mapped.dateCommande === undefined || mapped.dateCommande === null) {
+      throw new Error('dateCommande is required');
+    }
+    
+    if (!Array.isArray(mapped.produitIds) || mapped.produitIds.length === 0) {
+      throw new Error('produitIds is required and must be a non-empty array');
+    }
+    
+    // Additional validation for data types
+    if (typeof mapped.adherentId !== 'number') {
+      throw new Error('adherentId must be a number');
+    }
+    
+    if (typeof mapped.statut !== 'string') {
+      throw new Error('statut must be a string');
+    }
+    
+    if (typeof mapped.dateCommande !== 'string') {
+      throw new Error('dateCommande must be a string');
+    }
+    
+    if (!Array.isArray(mapped.produitIds)) {
+      throw new Error('produitIds must be an array');
+    }
+    
+    if (mapped.produitIds.some((id: any) => typeof id !== 'number')) {
+      throw new Error('All produitIds must be numbers');
+    }
+    
+    // Remove undefined properties
+    Object.keys(mapped).forEach(key => {
+      if (mapped[key] === undefined) {
+        delete mapped[key];
+      }
+    });
+    
     console.log('Mapped order result:', mapped);
     return mapped;
   }
 
-  // Mock data for development/fallback
-  private getMockOrders(): Order[] {
-    return [
-      {
-        id: 1,
-        date: '2024-01-15',
-        status: 'delivered',
-        total: 199.99,
-        adherentId: 1,
-        produits: [
-          { id: 1, name: 'Premium Wireless Headphones', quantity: 1, price: 199.99 }
-        ]
-      },
-      {
-        id: 2,
-        date: '2024-01-10',
-        status: 'shipped',
-        total: 149.99,
-        adherentId: 1,
-        produits: [
-          { id: 2, name: 'Smart Fitness Watch', quantity: 1, price: 149.99 }
-        ]
-      },
-      {
-        id: 3,
-        date: '2024-01-05',
-        status: 'processing',
-        total: 89.99,
-        adherentId: 1,
-        produits: [
-          { id: 3, name: 'Designer Backpack', quantity: 1, price: 89.99 }
-        ]
-      }
-    ];
-  }
+
 }

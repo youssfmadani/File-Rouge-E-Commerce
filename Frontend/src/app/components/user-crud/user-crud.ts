@@ -142,15 +142,16 @@ export class UserCrud implements OnInit {
   }
 
   getJoinDate(user: Adherent): string {
-    const date = user.createdAt || user['dateJoined'] || user['joinDate'];
-    if (!date) return 'N/A';
+    const dateValue = user.createdAt || user['dateJoined'] || user['joinDate'];
+    if (!dateValue) return 'N/A';
     
-    if (typeof date === 'string') {
-      return new Date(date).toLocaleDateString();
+    if (typeof dateValue === 'string') {
+      const parsedDate = new Date(dateValue);
+      return isNaN(parsedDate.getTime()) ? 'N/A' : parsedDate.toLocaleDateString();
     }
     
-    if (date instanceof Date) {
-      return date.toLocaleDateString();
+    if (dateValue instanceof Date) {
+      return dateValue.toLocaleDateString();
     }
     
     return 'N/A';

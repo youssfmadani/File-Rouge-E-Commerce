@@ -17,10 +17,12 @@ public interface CommandeMapper {
     @Mapping(source = "idCommande", target = "id")
     @Mapping(source = "statut", target = "statut")
     @Mapping(source = "adherent.id", target = "adherentId")
+    @Mapping(source = "montantTotal", target = "montantTotal")
     @Mapping(target = "produitIds", expression = "java(commande.getProduits() != null ? commande.getProduits().stream().map(p -> p.getIdProduit()).collect(Collectors.toList()) : null)")
     CommandeDTO toDTO(Commande commande);
 
     @Mapping(source = "id", target = "idCommande")
+    @Mapping(source = "montantTotal", target = "montantTotal")
     @Mapping(target = "adherent", ignore = true)
     @Mapping(target = "produits", ignore = true)
     Commande toEntity(CommandeDTO commandeDTO);

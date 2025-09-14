@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-deals',
   standalone: true,
+  imports: [CommonModule],
   templateUrl: './deals.html',
-  styleUrl: './deals.css'
+  styleUrls: ['./deals.css']
 })
 export class Deals {
-  // Component logic here
-} 
+  constructor() { }
+}

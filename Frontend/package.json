@@ -8,7 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:coverage": "ng test --code-coverage --watch=false --browsers=ChromeHeadless",
-    "sonar": "sonar-scanner"
+    "sonar": "sonar-scanner",
+    "lint": "ng lint"
   },
   "prettier": {
     "overrides": [
@@ -37,6 +38,8 @@
     "@angular/cli": "^20.1.4",
     "@angular/compiler-cli": "^20.1.0",
     "@types/jasmine": "~5.1.0",
+    "angular-eslint": "20.2.0",
+    "eslint": "^9.33.0",
     "jasmine-core": "~5.8.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",
@@ -44,6 +47,7 @@
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.1.0",
     "sonarqube-scanner": "^3.0.1",
-    "typescript": "~5.8.2"
+    "typescript": "~5.8.2",
+    "typescript-eslint": "8.40.0"
   }
 }

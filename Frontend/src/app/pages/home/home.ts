@@ -10,4 +10,10 @@ import { CommonModule } from '@angular/common';
 })
 export class Home {
   // Simple component for beautiful home page
+  
+  constructor() { }
+  
+  ngOnInit(): void {
+    // Add any initialization logic here if needed
+  }
 }

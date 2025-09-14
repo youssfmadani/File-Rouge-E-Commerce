@@ -1,0 +1,272 @@
+<div class="enhanced-product-list-page">
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <div class="header-content">
+        <h1 class="page-title">All Products</h1>
+        <p class="page-subtitle">Discover our complete collection of premium products</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Filters and Results -->
+  <section class="products-section">
+    <div class="container">
+      <div class="products-layout">
+        <!-- Filters Sidebar -->
+        <aside class="filters-sidebar">
+          <div class="filters-header">
+            <h2 class="filters-title">Filters</h2>
+            <button class="filters-reset">Reset All</button>
+          </div>
+
+          <!-- Search Filter -->
+          <div class="filter-group">
+            <h3 class="filter-title">Search</h3>
+            <div class="search-box">
+              <input 
+                type="text" 
+                class="search-input" 
+                placeholder="Search products..."
+                [(ngModel)]="searchQuery"
+                (input)="onSearchChange($event)">
+              <button class="search-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="filter-group">
+            <h3 class="filter-title">Category</h3>
+            <div class="filter-options">
+              <label class="filter-option">
+                <input 
+                  type="checkbox" 
+                  value="all" 
+                  [checked]="selectedCategories.has('all')"
+                  (change)="onCategoryFilter('all', $event)">
+                <span class="filter-label">All Categories</span>
+              </label>
+              <label class="filter-option" *ngFor="let category of getUniqueCategories()">
+                <input 
+                  type="checkbox" 
+                  [value]="category" 
+                  [checked]="selectedCategories.has(category)"
+                  (change)="onCategoryFilter(category, $event)">
+                <span class="filter-label">{{ category }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Price Filter -->
+          <div class="filter-group">
+            <h3 class="filter-title">Price Range</h3>
+            <div class="price-filter">
+              <div class="price-inputs">
+                <input 
+                  type="number" 
+                  class="price-input" 
+                  placeholder="Min" 
+                  [value]="priceRange.current.min"
+                  (change)="onMinPriceChange($event)">
+                <span class="price-separator">-</span>
+                <input 
+                  type="number" 
+                  class="price-input" 
+                  placeholder="Max" 
+                  [value]="priceRange.current.max"
+                  (change)="onMaxPriceChange($event)">
+              </div>
+              <div class="price-slider">
+                <div class="slider-track"></div>
+                <div class="slider-range" 
+                     [style.left.%]="getSliderLeftPercent()"
+                     [style.width.%]="getSliderWidthPercent()"></div>
+                <input 
+                  type="range" 
+                  class="slider-thumb min-thumb" 
+                  min="{{priceRange.absolute.min}}" 
+                  max="{{priceRange.absolute.max}}" 
+                  [value]="priceRange.current.min"
+                  (input)="onMinPriceChange($event)">
+                <input 
+                  type="range" 
+                  class="slider-thumb max-thumb" 
+                  min="{{priceRange.absolute.min}}" 
+                  max="{{priceRange.absolute.max}}" 
+                  [value]="priceRange.current.max"
+                  (input)="onMaxPriceChange($event)">
+              </div>
+              <div class="price-labels">
+                <span class="price-min">${{priceRange.absolute.min}}</span>
+                <span class="price-max">${{priceRange.absolute.max}}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brand Filter -->
+          <div class="filter-group">
+            <h3 class="filter-title">Brand</h3>
+            <div class="filter-options">
+              <label class="filter-option" *ngFor="let brand of getUniqueBrands()">
+                <input 
+                  type="checkbox" 
+                  [value]="brand" 
+                  [checked]="selectedBrands.has(brand)"
+                  (change)="onBrandFilter(brand, $event)">
+                <span class="filter-label">{{ brand }}</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Rating Filter -->
+          <div class="filter-group">
+            <h3 class="filter-title">Rating</h3>
+            <div class="filter-options">
+              <label class="filter-option" *ngFor="let rating of getUniqueRatings()">
+                <input 
+                  type="checkbox" 
+                  [value]="rating" 
+                  [checked]="selectedRatings.has(rating)"
+                  (change)="onRatingFilter(rating, $event)">
+                <span class="filter-label">
+                  <div class="stars">
+                    <span class="star" *ngFor="let star of [1,2,3,4,5]" [class.filled]="star <= rating">★</span>
+                  </div>
+                  <span class="rating-text">& Up</span>
+                </span>
+              </label>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Products Main Content -->
+        <main class="products-main">
+          <!-- Products Header -->
+          <div class="products-header">
+            <div class="results-info">
+              <span class="results-count">{{ filteredProducts.length }} products found</span>
+            </div>
+            
+            <div class="products-controls">
+              <div class="view-toggle">
+                <button 
+                  class="view-btn" 
+                  [class.active]="currentView === 'grid'"
+                  (click)="onViewChange('grid')">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                  </svg>
+                </button>
+                <button 
+                  class="view-btn" 
+                  [class.active]="currentView === 'list'"
+                  (click)="onViewChange('list')">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+              
+              <select class="sort-select" (change)="onSortChange($event)">
+                <option value="featured">Featured</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="rating">Top Rated</option>
+                <option value="newest">Newest Arrivals</option>
+                <option value="name">Name A-Z</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Products Grid/List -->
+          <div class="products-container" [class.list-view]="currentView === 'list'">
+            <!-- Loading State -->
+            <div class="loading-state" *ngIf="loading">
+              <div class="spinner"></div>
+              <p>Loading products...</p>
+            </div>
+
+            <!-- Error State -->
+            <div class="error-state" *ngIf="error && !loading">
+              <div class="error-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <h3 class="error-title">Oops! Something went wrong</h3>
+              <p class="error-message">{{ error }}</p>
+              <button class="btn btn-primary" (click)="loadProducts()">Try Again</button>
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" *ngIf="!loading && filteredProducts.length === 0 && !error">
+              <div class="empty-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
+              </div>
+              <h3 class="empty-title">No products found</h3>
+              <p class="empty-message">Try adjusting your filters or search terms</p>
+              <button class="btn btn-primary" (click)="loadProducts()">Reset Filters</button>
+            </div>
+
+            <!-- Products -->
+            <div class="products-grid" *ngIf="!loading && !error && filteredProducts.length > 0">
+              <app-wonderful-product-card
+                *ngFor="let product of getPaginatedProducts(); trackBy: trackByProduct"
+                [product]="product"
+                [viewMode]="currentView"
+                (addToCart)="onAddToCart($event)"
+                (addToWishlist)="onAddToWishlist($event)"
+                (addToCompare)="onAddToCompare($event)"
+                (buyNow)="onBuyNow($event)">
+              </app-wonderful-product-card>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div class="pagination" *ngIf="!loading && !error && totalPages > 1">
+            <button 
+              class="pagination-btn" 
+              [disabled]="currentPage === 1"
+              (click)="prevPage()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 18 9 12 15 6"></polyline>
+              </svg>
+            </button>
+            
+            <span class="pagination-info">
+              Page {{ currentPage }} of {{ totalPages }}
+            </span>
+            
+            <button 
+              class="pagination-btn" 
+              [disabled]="currentPage === totalPages"
+              (click)="nextPage()">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </main>
+      </div>
+    </div>
+  </section>
+</div>

@@ -5,7 +5,22 @@
       <h2>Order Management</h2>
       <p>Track and manage customer orders</p>
     </div>
-    <div class="header-stats">
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="showCreateOrderForm()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Create Order
+      </button>
+      <button class="btn btn-secondary" (click)="refreshOrders()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23,4 23,10 17,10"/>
+          <polyline points="1,20 1,14 7,14"/>
+          <path d="M20.49,9A9,9,0,0,0,5.64,5.64L1,10m22,4a9,9,0,0,1-14.85,3.36L23,14"/>
+        </svg>
+        Refresh
+      </button>
       <div class="stat-item">
         <span class="stat-number">{{ orders.length }}</span>
         <span class="stat-label">Total Orders</span>
@@ -29,6 +44,88 @@
       <line x1="9" y1="9" x2="15" y2="15"/>
     </svg>
     {{ errorMessage }}
+  </div>
+
+  <!-- Create Order Form Modal -->
+  <div *ngIf="showCreateForm" class="modal-overlay" (click)="hideCreateOrderForm()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Create New Order</h2>
+        <button class="close-btn" (click)="hideCreateOrderForm()">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form (ngSubmit)="createOrder()" #orderForm="ngForm">
+          <div class="form-group">
+            <label for="adherentId">Customer ID:</label>
+            <input 
+              type="number" 
+              id="adherentId" 
+              name="adherentId" 
+              [(ngModel)]="newOrder.adherentId" 
+              class="form-control" 
+              required
+              min="1">
+            <div *ngIf="newOrder.adherentId !== undefined && newOrder.adherentId !== null && newOrder.adherentId <= 0" class="error-message">
+              Please enter a valid customer ID
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="total">Total Amount:</label>
+            <input 
+              type="number" 
+              id="total" 
+              name="total" 
+              [(ngModel)]="newOrder.total" 
+              class="form-control" 
+              step="0.01" 
+              required
+              min="0.01">
+            <div *ngIf="newOrder.total !== undefined && newOrder.total !== null && newOrder.total <= 0" class="error-message">
+              Please enter a valid total amount
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="status">Status:</label>
+            <select 
+              id="status" 
+              name="status" 
+              [(ngModel)]="newOrder.status" 
+              class="form-control" 
+              required>
+              <option value="EN_COURS">En Cours</option>
+              <option value="VALIDÉE">Validée</option>
+              <option value="ANNULÉE">Annulée</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="date">Order Date:</label>
+            <input 
+              type="date" 
+              id="date" 
+              name="date" 
+              [(ngModel)]="newOrder.date" 
+              class="form-control" 
+              required>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" (click)="hideCreateOrderForm()">Cancel</button>
+            <button type="submit" class="btn btn-primary" [disabled]="!orderForm.form.valid || isCreatingOrder">
+              {{ isCreatingOrder ? 'Creating...' : 'Create Order' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
   <!-- Filters Section -->
@@ -75,7 +172,7 @@
         <div class="header-cell">Actions</div>
       </div>
 
-      <div *ngFor="let order of filteredOrders" class="table-row">
+      <div *ngFor="let order of paginatedOrders" class="table-row">
         <div class="cell order-id-cell" data-label="Order ID">
           <span class="order-id">#{{ order.id }}</span>
         </div>
@@ -116,7 +213,7 @@
               (change)="updateOrderStatus(order, $any($event.target).value)"
               class="status-select-inline"
             >
-              <option *ngFor="let status of statusOptions" [value]="status">
+              <option *ngFor="let status of getStatusOptions()" [value]="status">
                 {{ getStatusText(status) }}
               </option>
             </select>
@@ -125,7 +222,7 @@
           <button class="btn btn-sm btn-danger" (click)="deleteOrder(order)">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="3,6 5,6 21,6"/>
-              <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2"/>
+              <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6a2,2,0,0,1 2-2h2"/>
             </svg>
             Delete
           </button>
@@ -141,6 +238,29 @@
       </svg>
       <h3>No Orders Found</h3>
       <p>{{ searchTerm || selectedStatus ? 'No orders match your filters' : 'No orders have been placed yet' }}</p>
+    </div>
+    
+    <!-- Pagination -->
+    <div *ngIf="!isLoading && filteredOrders.length > 0 && totalPages > 1" class="pagination">
+      <button 
+        class="pagination-btn" 
+        [disabled]="currentPage === 1"
+        (click)="prevPage()"
+      >
+        Previous
+      </button>
+      
+      <span class="pagination-info">
+        Page {{ currentPage }} of {{ totalPages }}
+      </span>
+      
+      <button 
+        class="pagination-btn" 
+        [disabled]="currentPage === totalPages"
+        (click)="nextPage()"
+      >
+        Next
+      </button>
     </div>
   </div>
 </div>

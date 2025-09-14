@@ -1,10 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule, CurrencyPipe, SlicePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, SlicePipe],
+  imports: [CommonModule],
   templateUrl: './product-card.html',
   styleUrl: './product-card.css'
 })
@@ -17,6 +18,22 @@ export class ProductCardComponent {
   @Output() buyNow = new EventEmitter<any>();
 
   showQuickView = false;
+  selectedColor = 'default';
+  selectedSize = 'default';
+  quantity = 1;
+
+  // Product options
+  availableColors = [
+    { name: 'default', label: 'Default', code: '#6366f1' },
+    { name: 'black', label: 'Black', code: '#000000' },
+    { name: 'white', label: 'White', code: '#ffffff' },
+    { name: 'red', label: 'Red', code: '#ef4444' },
+    { name: 'blue', label: 'Blue', code: '#3b82f6' }
+  ];
+
+  availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+  constructor(private router: Router) {}
 
   onAddToCart() {
     this.addToCart.emit(this.product);
@@ -54,6 +71,36 @@ export class ProductCardComponent {
 
   closeQuickView() {
     this.showQuickView = false;
+  }
+
+  // Color and size selection
+  selectColor(color: string) {
+    this.selectedColor = color;
+  }
+
+  selectSize(size: string) {
+    this.selectedSize = size;
+  }
+
+  // Quantity controls
+  increaseQuantity() {
+    if (this.quantity < 99) {
+      this.quantity++;
+    }
+  }
+
+  decreaseQuantity() {
+    if (this.quantity > 1) {
+      this.quantity--;
+    }
+  }
+
+  updateQuantity(event: any) {
+    const target = event.target as HTMLInputElement;
+    const value = parseInt(target.value);
+    if (!isNaN(value) && value >= 1 && value <= 99) {
+      this.quantity = value;
+    }
   }
 
   // New methods for enhanced product card
@@ -100,5 +147,81 @@ export class ProductCardComponent {
     } else {
       return 'In Stock';
     }
+  }
+
+  // Navigation
+  viewProductDetails() {
+    if (this.product?.id) {
+      this.router.navigate(['/products', this.product.id]);
+    }
+  }
+
+  // Get product image with fallback
+  getProductImage(): string {
+    return this.product?.imageUrl || 
+           this.product?.image || 
+           null;
+  }
+
+  // Get product title with fallback
+  getProductTitle(): string {
+    return this.product?.name || 
+           this.product?.title || 
+           'Premium Product';
+  }
+
+  // Get product category with fallback
+  getProductCategory(): string {
+    return this.product?.category || 'Uncategorized';
+  }
+
+  // Get product price with fallback
+  getProductPrice(): number {
+    return this.product?.price || 0;
+  }
+
+  // Get original price with fallback
+  getOriginalPrice(): number {
+    return this.product?.originalPrice || this.product?.price || 0;
+  }
+
+  // Check if product has discount
+  hasDiscount(): boolean {
+    return this.getDiscountPercent() > 0;
+  }
+
+  // Get product rating with fallback
+  getProductRating(): number {
+    return this.product?.rating || 0;
+  }
+
+  // Get review count with fallback
+  getReviewCount(): number {
+    return this.product?.reviewCount || 0;
+  }
+
+  // Get product brand with fallback
+  getProductBrand(): string {
+    return this.product?.brand || 'Unknown Brand';
+  }
+
+  // Get product description with fallback
+  getProductDescription(): string {
+    return this.product?.description || 'No description available for this product.';
+  }
+
+  // Get product features
+  getProductFeatures(): string[] {
+    return this.product?.features || [];
+  }
+
+  // Get product SKU
+  getProductSKU(): string {
+    return this.product?.sku || 'N/A';
+  }
+
+  // Get stock quantity
+  getStockQuantity(): number {
+    return this.product?.stock || 0;
   }
 }

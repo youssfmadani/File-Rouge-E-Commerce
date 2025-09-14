@@ -1,207 +1,209 @@
 <div class="deals-page">
   <!-- Page Header -->
-  <div class="page-header">
+  <section class="page-header">
     <div class="container">
-      <h1 class="page-title">Hot Deals & Offers</h1>
-      <nav class="breadcrumb">
-        <a href="/">Home</a>
-        <span class="separator">/</span>
-        <span class="current">Deals</span>
-      </nav>
+      <div class="header-content">
+        <h1 class="page-title">Special Deals & Offers</h1>
+        <p class="page-subtitle">Discover our exclusive discounts and limited-time offers</p>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <div class="container">
-    <!-- Flash Sale Banner -->
-    <section class="flash-sale">
-      <div class="sale-banner">
-        <div class="sale-content">
-          <h2>⚡ Flash Sale</h2>
-          <p>Up to 70% off on selected items</p>
+  <!-- Deals Banner -->
+  <section class="deals-banner">
+    <div class="container">
+      <div class="banner-content">
+        <div class="banner-text">
+          <h2 class="banner-title">Flash Sale Event</h2>
+          <p class="banner-description">Up to 70% off on selected items. Limited time only!</p>
           <div class="countdown">
-            <span class="countdown-label">Ends in:</span>
-            <div class="countdown-timer">
-              <div class="time-unit">
-                <span class="time-number">24</span>
-                <span class="time-label">Hours</span>
-              </div>
-              <div class="time-unit">
-                <span class="time-number">12</span>
-                <span class="time-label">Minutes</span>
-              </div>
-              <div class="time-unit">
-                <span class="time-number">45</span>
-                <span class="time-label">Seconds</span>
-              </div>
+            <div class="countdown-item">
+              <span class="countdown-value">02</span>
+              <span class="countdown-label">Days</span>
+            </div>
+            <div class="countdown-item">
+              <span class="countdown-value">18</span>
+              <span class="countdown-label">Hours</span>
+            </div>
+            <div class="countdown-item">
+              <span class="countdown-value">45</span>
+              <span class="countdown-label">Minutes</span>
+            </div>
+            <div class="countdown-item">
+              <span class="countdown-value">30</span>
+              <span class="countdown-label">Seconds</span>
             </div>
           </div>
+          <button class="btn btn-primary btn-xl">Shop Now</button>
         </div>
-        <div class="sale-image">
-          <img src="https://images.unsplash.com/photo-1607082349566-187342175e2f?w=3840&h=2160&fit=crop&crop=center" alt="Flash Sale">
+        <div class="banner-image">
+          <img src="https://images.unsplash.com/photo-1607082350899-7e105aa886ae?w=600&h=400&fit=crop" alt="Flash Sale" loading="lazy">
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Featured Deals -->
-    <section class="featured-deals">
-      <h2 class="section-title">Featured Deals</h2>
+  <!-- Featured Deals -->
+  <section class="featured-deals">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Featured Deals</h2>
+        <p class="section-subtitle">Handpicked offers just for you</p>
+      </div>
       <div class="deals-grid">
-        <div class="deal-card featured">
-          <div class="deal-badge">70% OFF</div>
-          <div class="deal-image">
-            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=3840&h=2160&fit=crop&crop=center" alt="Premium Headphones">
-          </div>
-          <div class="deal-content">
-            <h3>Premium Wireless Headphones</h3>
-            <div class="deal-price">
-              <span class="current-price">$59.99</span>
-              <span class="original-price">$199.99</span>
-            </div>
-            <div class="deal-progress">
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 75%"></div>
-              </div>
-              <span class="progress-text">75% sold</span>
-            </div>
-            <button class="btn btn-primary">Shop Now</button>
-          </div>
-        </div>
-
+        <!-- Deal 1 -->
         <div class="deal-card">
-          <div class="deal-badge">50% OFF</div>
-          <div class="deal-image">
-            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=3840&h=2160&fit=crop&crop=center" alt="Smart Watch">
+          <div class="deal-badge">
+            <span class="badge-text">50% OFF</span>
+          </div>
+          <div class="deal-media">
+            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=600&fit=crop&crop=center" alt="Wireless Headphones" loading="lazy">
           </div>
           <div class="deal-content">
-            <h3>Smart Fitness Watch</h3>
-            <div class="deal-price">
-              <span class="current-price">$99.99</span>
-              <span class="original-price">$199.99</span>
+            <h3 class="deal-title">Premium Wireless Headphones</h3>
+            <div class="deal-pricing">
+              <span class="price-original">$249.99</span>
+              <span class="price-current">$124.99</span>
             </div>
-            <div class="deal-progress">
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 60%"></div>
-              </div>
-              <span class="progress-text">60% sold</span>
+            <div class="deal-timer">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Ends in 2 days</span>
             </div>
-            <button class="btn btn-primary">Shop Now</button>
+            <button class="btn btn-primary deal-btn">Add to Cart</button>
           </div>
         </div>
 
+        <!-- Deal 2 -->
         <div class="deal-card">
-          <div class="deal-badge">40% OFF</div>
-          <div class="deal-image">
-            <img src="https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=3840&h=2160&fit=crop&crop=center" alt="Wireless Charger">
+          <div class="deal-badge">
+            <span class="badge-text">30% OFF</span>
+          </div>
+          <div class="deal-media">
+            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop&crop=center" alt="Smart Watch" loading="lazy">
           </div>
           <div class="deal-content">
-            <h3>Fast Wireless Charger</h3>
-            <div class="deal-price">
-              <span class="current-price">$35.99</span>
-              <span class="original-price">$59.99</span>
+            <h3 class="deal-title">Smart Fitness Watch</h3>
+            <div class="deal-pricing">
+              <span class="price-original">$199.99</span>
+              <span class="price-current">$139.99</span>
             </div>
-            <div class="deal-progress">
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: 45%"></div>
-              </div>
-              <span class="progress-text">45% sold</span>
+            <div class="deal-timer">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Ends in 5 days</span>
             </div>
-            <button class="btn btn-primary">Shop Now</button>
+            <button class="btn btn-primary deal-btn">Add to Cart</button>
+          </div>
+        </div>
+
+        <!-- Deal 3 -->
+        <div class="deal-card">
+          <div class="deal-badge hot">
+            <span class="badge-text">HOT DEAL</span>
+          </div>
+          <div class="deal-media">
+            <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop&crop=center" alt="Smartphone" loading="lazy">
+          </div>
+          <div class="deal-content">
+            <h3 class="deal-title">Latest Smartphone X</h3>
+            <div class="deal-pricing">
+              <span class="price-original">$999.99</span>
+              <span class="price-current">$849.99</span>
+            </div>
+            <div class="deal-timer">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Ends in 1 day</span>
+            </div>
+            <button class="btn btn-primary deal-btn">Add to Cart</button>
+          </div>
+        </div>
+
+        <!-- Deal 4 -->
+        <div class="deal-card">
+          <div class="deal-badge">
+            <span class="badge-text">40% OFF</span>
+          </div>
+          <div class="deal-media">
+            <img src="https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=600&h=600&fit=crop&crop=center" alt="Designer Sunglasses" loading="lazy">
+          </div>
+          <div class="deal-content">
+            <h3 class="deal-title">Designer Sunglasses</h3>
+            <div class="deal-pricing">
+              <span class="price-original">$179.99</span>
+              <span class="price-current">$107.99</span>
+            </div>
+            <div class="deal-timer">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Ends in 3 days</span>
+            </div>
+            <button class="btn btn-primary deal-btn">Add to Cart</button>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Category Deals -->
-    <section class="category-deals">
-      <h2 class="section-title">Deals by Category</h2>
-      <div class="category-tabs">
-        <button class="tab-btn active" data-category="electronics">Electronics</button>
-        <button class="tab-btn" data-category="fashion">Fashion</button>
-        <button class="tab-btn" data-category="home">Home & Garden</button>
-        <button class="tab-btn" data-category="sports">Sports</button>
+  <!-- Limited Time Offers -->
+  <section class="limited-offers">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Limited Time Offers</h2>
+        <p class="section-subtitle">Don't miss these exclusive deals</p>
       </div>
-
-      <div class="products-grid">
-        <div class="product-card deal">
-          <div class="product-image">
-            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=3840&h=2160&fit=crop&crop=center" alt="Bluetooth Speaker">
-            <div class="product-badges">
-              <span class="badge sale">30% OFF</span>
-            </div>
-          </div>
-          <div class="product-info">
-            <h3 class="product-title">Bluetooth Speaker</h3>
-            <div class="product-price">
-              <span class="current-price">$69.99</span>
-              <span class="original-price">$99.99</span>
-            </div>
-            <button class="btn btn-primary btn-sm">Add to Cart</button>
+      <div class="offers-grid">
+        <div class="offer-card">
+          <div class="offer-content">
+            <h3 class="offer-title">Buy 2 Get 1 Free</h3>
+            <p class="offer-description">On all accessories when you spend over $100</p>
+            <button class="btn btn-secondary">Shop Accessories</button>
           </div>
         </div>
-
-        <div class="product-card deal">
-          <div class="product-image">
-            <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=3840&h=2160&fit=crop&crop=center" alt="Designer Backpack">
-            <div class="product-badges">
-              <span class="badge sale">25% OFF</span>
-            </div>
-          </div>
-          <div class="product-info">
-            <h3 class="product-title">Designer Backpack</h3>
-            <div class="product-price">
-              <span class="current-price">$67.49</span>
-              <span class="original-price">$89.99</span>
-            </div>
-            <button class="btn btn-primary btn-sm">Add to Cart</button>
+        <div class="offer-card">
+          <div class="offer-content">
+            <h3 class="offer-title">Free Shipping</h3>
+            <p class="offer-description">On all orders over $50. No code needed.</p>
+            <button class="btn btn-secondary">Start Shopping</button>
           </div>
         </div>
-
-        <div class="product-card deal">
-          <div class="product-image">
-            <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=3840&h=2160&fit=crop&crop=center" alt="Running Shoes">
-            <div class="product-badges">
-              <span class="badge sale">40% OFF</span>
-            </div>
-          </div>
-          <div class="product-info">
-            <h3 class="product-title">Running Shoes</h3>
-            <div class="product-price">
-              <span class="current-price">$89.99</span>
-              <span class="original-price">$149.99</span>
-            </div>
-            <button class="btn btn-primary btn-sm">Add to Cart</button>
-          </div>
-        </div>
-
-        <div class="product-card deal">
-          <div class="product-image">
-            <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=3840&h=2160&fit=crop&crop=center" alt="Digital Camera">
-            <div class="product-badges">
-              <span class="badge sale">20% OFF</span>
-            </div>
-          </div>
-          <div class="product-info">
-            <h3 class="product-title">Digital Camera</h3>
-            <div class="product-price">
-              <span class="current-price">$399.99</span>
-              <span class="original-price">$499.99</span>
-            </div>
-            <button class="btn btn-primary btn-sm">Add to Cart</button>
+        <div class="offer-card">
+          <div class="offer-content">
+            <h3 class="offer-title">Student Discount</h3>
+            <p class="offer-description">15% off for students with valid ID</p>
+            <button class="btn btn-secondary">Verify Now</button>
           </div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- Newsletter for Deals -->
-    <section class="deals-newsletter">
-      <div class="newsletter-content">
-        <h2>Never Miss a Deal!</h2>
-        <p>Subscribe to get exclusive offers and early access to sales</p>
+  <!-- Newsletter Section -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-container">
+        <div class="newsletter-content">
+          <h2 class="newsletter-title">Stay Updated on Deals</h2>
+          <p class="newsletter-description">
+            Subscribe to our newsletter and be the first to know about upcoming sales and exclusive offers.
+          </p>
+        </div>
         <div class="newsletter-form">
-          <input type="email" placeholder="Enter your email" class="newsletter-input">
-          <button class="btn btn-primary">Subscribe</button>
+          <div class="form-group">
+            <input type="email" class="form-control" placeholder="Enter your email address">
+            <button class="btn btn-primary">Subscribe</button>
+          </div>
         </div>
       </div>
-    </section>
-  </div>
-</div> 
+    </div>
+  </section>
+</div>

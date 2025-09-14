@@ -237,16 +237,26 @@ export class AdminDashboard implements OnInit {
           
           // Calculate total revenue from real order data
           this.stats.totalRevenue = orders.reduce((sum, order) => {
-            const orderTotal = order.total || order.montantTotal || 0;
+            const orderTotal = order.total || order['montantTotal'] || 0;
             return sum + Number(orderTotal);
           }, 0);
           
           // Sort orders by date (most recent first)
           this.recentOrders = orders
             .sort((a, b) => {
-              const dateA = new Date(a.date || a.dateCommande || '').getTime();
-              const dateB = new Date(b.date || b.dateCommande || '').getTime();
-              return dateB - dateA;
+              const dateStrA = a.date || a['dateCommande'] || '';
+              const dateStrB = b.date || b['dateCommande'] || '';
+              
+              // Handle different date formats
+              const dateA = new Date(dateStrA);
+              const dateB = new Date(dateStrB);
+              
+              // Check if dates are valid
+              if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0;
+              if (isNaN(dateA.getTime())) return 1;
+              if (isNaN(dateB.getTime())) return -1;
+              
+              return dateB.getTime() - dateA.getTime();
             })
             .slice(0, 5);
           
@@ -302,8 +312,8 @@ export class AdminDashboard implements OnInit {
   }
 
   navigateToOrders(): void {
-    // Navigate to orders management page (implement later)
-    this.router.navigate(['/admin/orders']);
+    // Switch to orders tab instead of navigating to a separate page
+    this.setActiveTab('orders');
   }
 
   navigateToUsers(): void {
@@ -327,7 +337,8 @@ export class AdminDashboard implements OnInit {
     if (!date) return 'N/A';
     
     if (typeof date === 'string') {
-      return new Date(date).toLocaleDateString();
+      const parsedDate = new Date(date);
+      return isNaN(parsedDate.getTime()) ? 'N/A' : parsedDate.toLocaleDateString();
     }
     
     if (date instanceof Date) {
@@ -340,16 +351,17 @@ export class AdminDashboard implements OnInit {
   getOrderStatusClass(status: string): string {
     if (!status) return 'pending';
     
-    const normalizedStatus = status.toLowerCase();
-    
-    switch (normalizedStatus) {
+    switch (status) {
+      case 'VALIDÉE':
       case 'delivered':
       case 'completed':
       case 'confirmed':
         return 'delivered';
+      case 'EN_COURS':
       case 'shipped':
       case 'processing':
         return 'shipped';
+      case 'ANNULÉE':
       case 'pending':
       case 'waiting':
         return 'pending';

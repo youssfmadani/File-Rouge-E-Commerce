@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ProductCardComponent } from '../../components/product-card/product-card';
 import { ProductService, Product } from '../../services/product';
 import { CartService } from '../../services/cart';
 import { AuthService } from '../../services/auth';
@@ -9,7 +8,7 @@ import { AuthService } from '../../services/auth';
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe, ProductCardComponent],
+  imports: [CommonModule],
   templateUrl: './product-details.html',
   styleUrl: './product-details.css'
 })

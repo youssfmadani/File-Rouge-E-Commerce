@@ -15,7 +15,7 @@
   margin: 0;
   padding: 0;
   padding-top: 80px; /* Navbar height */
-  padding-bottom: var(--space-3xl); /* Space before footer */
+  padding-bottom: 0; /* Footer will provide spacing */
 }
 
 /* Enhanced Container - Full Width */

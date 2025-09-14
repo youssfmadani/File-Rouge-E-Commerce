@@ -40,7 +40,7 @@ export class UserService {
           catchError(() => of(null))
         );
       }),
-      catchError(() => of(this.getMockUser(email)))
+      catchError(() => of(null)) // Return null instead of mock user
     );
   }
 
@@ -136,50 +136,5 @@ export class UserService {
     };
   }
 
-  // Mock user for development/fallback
-  private getMockUser(email: string): Adherent {
-    return {
-      id: 1,
-      nom: 'Test',
-      prénom: 'User',
-      prenom: 'User',
-      email: email,
-      createdAt: '2024-01-01',
-      ordersCount: 3,
-      wishlistCount: 5,
-      rating: 4.5,
-      recentOrders: [
-        {
-          id: 1,
-          title: 'Premium Wireless Headphones',
-          date: '2024-01-15',
-          status: 'delivered',
-          total: 199.99,
-          imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop'
-        },
-        {
-          id: 2,
-          title: 'Smart Fitness Watch',
-          date: '2024-01-10',
-          status: 'shipped',
-          total: 149.99,
-          imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop'
-        }
-      ],
-      wishlist: [
-        {
-          id: 4,
-          title: 'Bluetooth Speaker',
-          price: 79.99,
-          imageUrl: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=300&h=300&fit=crop'
-        },
-        {
-          id: 5,
-          title: 'Wireless Earbuds',
-          price: 59.99,
-          imageUrl: 'https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=300&h=300&fit=crop'
-        }
-      ]
-    };
-  }
+
 }

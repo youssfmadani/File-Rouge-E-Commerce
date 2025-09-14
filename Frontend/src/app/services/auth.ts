@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { tap, map, catchError } from 'rxjs/operators';
+import { tap, map, catchError, switchMap } from 'rxjs/operators';
 import { apiUrl } from './api';
+import { UserService } from './user';
 
 export interface User {
   id: number;
@@ -18,7 +19,7 @@ export class AuthService {
   private userKey = 'auth_user';
   private loginEndpoint = apiUrl('/api/auth/login');
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private userService: UserService) {}
 
   isAuthenticated(): boolean {
     const token = localStorage.getItem(this.tokenKey);
@@ -81,15 +82,6 @@ export class AuthService {
     const role = isAdmin ? 'ADMIN' : 'USER';
     const fakeToken = 'dummy-token';
     
-    // Create user object with guaranteed valid ID
-    const userId = isAdmin ? 1 : Math.floor(Math.random() * 1000) + 100; // Generate unique ID for users
-    const user: User = {
-      id: userId,
-      email: email,
-      role: role,
-      name: email.split('@')[0] // Extract name from email
-    };
-    
     console.log('LoginLocal: Starting authentication for:', email);
     
     // Store authentication data
@@ -98,8 +90,26 @@ export class AuthService {
     // Store email for legacy compatibility
     localStorage.setItem('auth_email', email);
     
-    // Store user object
-    this.setCurrentUser(user);
+    // Check if user exists in database, create if not
+    this.getOrCreateUser(email, role).subscribe({
+      next: (user) => {
+        console.log('LoginLocal: User created/retrieved:', user);
+        this.setCurrentUser(user);
+      },
+      error: (error) => {
+        console.error('LoginLocal: Error creating/retrieving user:', error);
+        // Create a temporary user as fallback
+        const names = email.split('@')[0].split('.');
+        const firstName = names[0] || 'User';
+        const user: User = {
+          id: Math.floor(Math.random() * 10000) + 1000,
+          email: email,
+          role: role,
+          name: firstName
+        };
+        this.setCurrentUser(user);
+      }
+    });
     
     // Verify storage worked
     const storedUser = this.getCurrentUser();
@@ -112,27 +122,6 @@ export class AuthService {
     console.log('  - User:', storedUser);
     console.log('  - Is Authenticated:', this.isAuthenticated());
     
-    if (!storedUser) {
-      console.error('LoginLocal: User was not stored properly! Attempting immediate fix...');
-      // Try storing again with different approach
-      try {
-        const userJson = JSON.stringify(user);
-        localStorage.setItem(this.userKey, userJson);
-        console.log('LoginLocal: Retry - User JSON stored:', userJson);
-        
-        const reVerifyUser = this.getCurrentUser();
-        console.log('LoginLocal: Retry - Retrieved user:', reVerifyUser);
-        
-        if (!reVerifyUser) {
-          console.error('LoginLocal: Critical error - Unable to store user data!');
-          return false;
-        }
-      } catch (error) {
-        console.error('LoginLocal: JSON serialization error:', error);
-        return false;
-      }
-    }
-    
     console.log('LoginLocal: Authentication completed successfully');
     return true;
   }
@@ -140,7 +129,7 @@ export class AuthService {
   // Backend login (expects {token, role, user} response)
   login(email: string, password: string): Observable<boolean> {
     return this.http.post<{ token: string; role: string; user?: User }>(this.loginEndpoint, { email, password }).pipe(
-      tap(res => {
+      switchMap(res => {
         console.log('Backend login response:', res);
         if (res?.token) {
           localStorage.setItem(this.tokenKey, res.token);
@@ -153,32 +142,78 @@ export class AuthService {
             console.log('Backend login: Using user from response:', res.user);
             this.setCurrentUser(res.user);
           } else {
-            // Create user object from available data
-            console.log('Backend login: Creating user from available data');
-            const user: User = {
-              id: 1, // Should come from backend
-              email: email,
-              role: res.role || 'USER'
-            };
-            this.setCurrentUser(user);
+            // Check if user exists in database, create if not
+            return this.getOrCreateUser(email, res.role || 'USER').pipe(
+              tap(user => {
+                this.setCurrentUser(user);
+              }),
+              map(() => res)
+            );
           }
           
-          // Verify storage worked
-          const storedUser = this.getCurrentUser();
-          const storedToken = this.getToken();
-          const storedRole = this.getUserRole();
-          
-          console.log('Backend login: Final authentication state:');
-          console.log('  - Token:', storedToken);
-          console.log('  - Role:', storedRole);
-          console.log('  - User:', storedUser);
-          console.log('  - Is Authenticated:', this.isAuthenticated());
+          // If we already handled the user, just return the response
+          return of(res);
         }
+        return of(res);
       }),
       map(res => !!res?.token),
       catchError((error) => {
         console.error('Backend login error:', error);
         return of(false);
+      })
+    );
+  }
+  
+  // Get existing user or create new one
+  private getOrCreateUser(email: string, role: string): Observable<User> {
+    // First, try to get the user by email
+    return this.userService.getByEmail(email).pipe(
+      switchMap(existingUser => {
+        if (existingUser && existingUser.id) {
+          // User exists, return it
+          const user: User = {
+            id: existingUser.id,
+            email: existingUser.email || email,
+            role: role,
+            name: existingUser.prenom || existingUser.prénom || email.split('@')[0]
+          };
+          console.log('Using existing user:', user);
+          return of(user);
+        } else {
+          // User doesn't exist, create a new one
+          const names = email.split('@')[0].split('.');
+          const firstName = names[0] || 'User';
+          const lastName = names.length > 1 ? names.slice(1).join(' ') : 'Customer';
+          
+          const newUser = {
+            nom: lastName,
+            prenom: firstName,
+            email: email,
+            motDePasse: 'defaultPassword123' // In a real app, this would be properly handled
+          };
+          
+          console.log('Creating new user:', newUser);
+          return this.userService.createUser(newUser).pipe(
+            map(createdUser => {
+              const user: User = {
+                id: createdUser.id!,
+                email: createdUser.email || email,
+                role: role,
+                name: createdUser.prenom || createdUser.prénom || firstName
+              };
+              console.log('Created user:', user);
+              return user;
+            }),
+            catchError(error => {
+              console.error('Error creating user:', error);
+              throw error; // Re-throw the error instead of creating a temporary user
+            })
+          );
+        }
+      }),
+      catchError(error => {
+        console.error('Error getting/creating user:', error);
+        throw error; // Re-throw the error instead of creating a temporary user
       })
     );
   }

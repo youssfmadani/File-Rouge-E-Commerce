@@ -24,4 +24,4 @@ public interface ProduitMapper {
     List<ProduitDTO> toDTOList(List<Produit> produits);
 
     List<Produit> toEntityList(List<ProduitDTO> produitDTOs);
-} 
+}

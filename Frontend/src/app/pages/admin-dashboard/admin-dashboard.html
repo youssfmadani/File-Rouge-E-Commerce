@@ -235,7 +235,10 @@
                       <p>{{ formatDate(order.date || order.dateCommande) }} - ${{ (order.total || order.montantTotal || 0) | number:'1.2-2' }}</p>
                     </div>
                     <span [class]="'item-status ' + getOrderStatusClass(order.status || order.statut || 'pending')">
-                      {{ order.status || order.statut || 'pending' }}
+                      <span *ngIf="order.status === 'VALIDÉE' || order.statut === 'VALIDÉE'">Validée</span>
+                      <span *ngIf="order.status === 'EN_COURS' || order.statut === 'EN_COURS'">En Cours</span>
+                      <span *ngIf="order.status === 'ANNULÉE' || order.statut === 'ANNULÉE'">Annulée</span>
+                      <span *ngIf="!(order.status === 'VALIDÉE' || order.statut === 'VALIDÉE' || order.status === 'EN_COURS' || order.statut === 'EN_COURS' || order.status === 'ANNULÉE' || order.statut === 'ANNULÉE')">{{ order.status || order.statut || 'pending' }}</span>
                     </span>
                   </div>
                 </div>

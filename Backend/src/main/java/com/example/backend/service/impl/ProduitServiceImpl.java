@@ -45,6 +45,7 @@ public class ProduitServiceImpl implements ProduitService {
         produit.setNom(produitDTO.getNom());
         produit.setDescription(produitDTO.getDescription());
         produit.setPrix(produitDTO.getPrix());
+        produit.setImage(produitDTO.getImage()); // Added image field
         if (produitDTO.getCategorieId() != null) {
             Categorie categorie = categorieRepository.findById(produitDTO.getCategorieId())
                     .orElseThrow(() -> new NotFoundException("Categorie not found with id: " + produitDTO.getCategorieId()));
@@ -70,9 +71,14 @@ public class ProduitServiceImpl implements ProduitService {
                 .orElseThrow(() -> new NotFoundException("Produit not found with id: " + id));
         return produitMapper.toDTO(produit);
     }
+    
+    @Override
+    public Optional<Produit> getProduitEntityById(Integer id) {
+        return produitRepository.findById(id);
+    }
 
     @Override
     public List<ProduitDTO> getAllProduits() {
         return produitRepository.findAll().stream().map(produitMapper::toDTO).collect(Collectors.toList());
     }
-} 
+}

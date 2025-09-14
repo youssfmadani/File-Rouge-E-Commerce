@@ -1,356 +1,491 @@
-<div class="product-details-page" *ngIf="!loading">
-  <div class="container">
-    <!-- Loading State -->
-    <div class="loading-wrapper" *ngIf="loading">
-      <div class="loading-spinner"></div>
-      <p>Loading product details...</p>
+<div class="product-details-page">
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <div class="container">
+      <ol class="breadcrumb-list">
+        <li class="breadcrumb-item">
+          <a routerLink="/" class="breadcrumb-link">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a routerLink="/products" class="breadcrumb-link">Products</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a routerLink="/categories" class="breadcrumb-link">Electronics</a>
+        </li>
+        <li class="breadcrumb-item active">Premium Wireless Headphones</li>
+      </ol>
     </div>
+  </nav>
 
-    <!-- Error State -->
-    <div class="error-wrapper" *ngIf="error && !loading">
-      <div class="error-icon">⚠️</div>
-      <h3>Oops! Something went wrong</h3>
-      <p>{{ error }}</p>
-      <button class="btn btn-primary" (click)="loadProduct(1)">Try Again</button>
-    </div>
-
-    <!-- Product Content -->
-    <div *ngIf="product && !loading && !error">
-      <!-- Breadcrumb -->
-      <nav class="breadcrumb">
-        <a href="/">Home</a>
-        <span class="separator">/</span>
-        <a href="/products">Products</a>
-        <span class="separator">/</span>
-        <span class="current">{{ getProductTitle() }}</span>
-      </nav>
-
-      <!-- Success Message -->
-      <div class="success-banner" *ngIf="addToCartSuccess">
-        <div class="success-content">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-            <polyline points="22,4 12,14.01 9,11.01"></polyline>
-          </svg>
-          <span>Product added to cart successfully!</span>
-        </div>
-      </div>
-
-      <!-- Product Main Info -->
-      <div class="product-main">
-        <!-- Product Images -->
-        <div class="product-images">
-          <div class="main-image">
-            <img 
-              [src]="getProductImage()" 
-              [alt]="getProductTitle()">
-            <div class="image-badges">
-              <span *ngIf="product && product['isNew']" class="badge new">New</span>
-              <span *ngIf="getDiscountPercentage() > 0" class="badge sale">{{ getDiscountPercentage() }}% OFF</span>
-              <span *ngIf="isInCart()" class="badge in-cart">In Cart ({{ getCartItemCount() }})</span>
-            </div>
-            
-            <!-- Zoom indicator -->
-            <div class="zoom-hint">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.35-4.35"></path>
-                <path d="M11 15v-4"></path>
-                <path d="M13 11h-4"></path>
-              </svg>
-              <span>Hover to zoom</span>
-            </div>
+  <!-- Product Details -->
+  <section class="product-details-section">
+    <div class="container">
+      <div class="product-details-grid">
+        <!-- Product Gallery -->
+        <div class="product-gallery">
+          <div class="gallery-main">
+            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&h=800&fit=crop&crop=center" alt="Premium Wireless Headphones" loading="lazy">
           </div>
-          
-          <div class="thumbnail-images">
-            <div 
-              *ngFor="let image of productImages; let i = index" 
-              class="thumbnail" 
-              [class.active]="selectedImageIndex === i"
-              (click)="selectImage(i)">
-              <img [src]="image" [alt]="'Thumbnail ' + (i + 1)">
+          <div class="gallery-thumbnails">
+            <div class="thumbnail active">
+              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop&crop=center" alt="Premium Wireless Headphones" loading="lazy">
+            </div>
+            <div class="thumbnail">
+              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop&crop=center" alt="Premium Wireless Headphones" loading="lazy">
+            </div>
+            <div class="thumbnail">
+              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop&crop=center" alt="Premium Wireless Headphones" loading="lazy">
+            </div>
+            <div class="thumbnail">
+              <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=200&h=200&fit=crop&crop=center" alt="Premium Wireless Headphones" loading="lazy">
             </div>
           </div>
         </div>
 
         <!-- Product Info -->
         <div class="product-info">
-          <div class="product-category">{{ getProductCategory() }}</div>
-          <h1 class="product-title">{{ getProductTitle() }}</h1>
-          
-          <div class="product-rating">
-            <div class="stars">
-              <span 
-                *ngFor="let star of getStarArray()" 
-                class="star" 
-                [class.filled]="isStarFilled(star)">
-                ★
-              </span>
+          <div class="product-header">
+            <div class="product-category">Electronics</div>
+            <h1 class="product-title">Premium Wireless Headphones</h1>
+            <div class="product-rating">
+              <div class="stars">
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+              </div>
+              <span class="rating-value">4.8</span>
+              <span class="review-count">(128 reviews)</span>
+              <a href="#reviews" class="reviews-link">Write a review</a>
             </div>
-            <span class="rating-count">({{ getProductReviewCount() }} reviews)</span>
-            <span class="rating-text">{{ getProductRating() }} out of 5</span>
           </div>
 
-          <div class="product-price">
-            <span class="current-price">{{ getProductPrice() | currency:'USD':'symbol':'1.2-2' }}</span>
-            <span *ngIf="hasOriginalPrice()" class="original-price">{{ getOriginalPrice() | currency:'USD':'symbol':'1.2-2' }}</span>
-            <span *ngIf="getDiscountPercentage() > 0" class="discount-badge">{{ getDiscountPercentage() }}% OFF</span>
-            <div class="savings" *ngIf="hasOriginalPrice()">
-              You save: {{ getSavingsAmount() | currency:'USD':'symbol':'1.2-2' }}
+          <div class="product-pricing">
+            <div class="price-main">
+              <span class="current-price">$199.99</span>
+              <span class="original-price">$249.99</span>
+              <span class="price-savings">Save 20%</span>
             </div>
+            <div class="price-note">Including all taxes</div>
           </div>
 
           <div class="product-description">
-            <p>{{ getProductDescription() }}</p>
+            <p>
+              Experience crystal-clear sound with our premium wireless headphones. Featuring 
+              advanced noise cancellation technology, 30-hour battery life, and comfortable 
+              over-ear design for extended listening sessions.
+            </p>
+            <p>
+              These headphones deliver exceptional audio quality with deep bass and crisp 
+              highs, making them perfect for music lovers, gamers, and professionals alike.
+            </p>
           </div>
 
-          <!-- Product Options -->
-          <div class="product-options">
-            <div class="option-group">
-              <label class="option-label">Color:</label>
-              <div class="color-options">
-                <button 
-                  *ngFor="let color of availableColors" 
-                  class="color-option" 
-                  [class.active]="selectedColor === color.name"
-                  [style.background-color]="color.code"
-                  [attr.title]="color.label"
-                  (click)="selectColor(color.name)">
-                  <span class="color-checkmark" *ngIf="selectedColor === color.name">✓</span>
-                </button>
-                <span class="selected-color-label">{{ getSelectedColorInfo()?.label }}</span>
+          <div class="product-variants">
+            <div class="variant-group">
+              <h3 class="variant-title">Color</h3>
+              <div class="variant-options">
+                <button class="variant-option active" style="background-color: #000000;"></button>
+                <button class="variant-option" style="background-color: #ffffff; border: 2px solid #ddd;"></button>
+                <button class="variant-option" style="background-color: #dc2626;"></button>
               </div>
             </div>
 
-            <div class="option-group">
-              <label class="option-label">Size:</label>
-              <div class="size-options">
-                <button 
-                  *ngFor="let size of availableSizes" 
-                  class="size-option" 
-                  [class.active]="selectedSize === size"
-                  (click)="selectSize(size)">
-                  {{ size }}
-                </button>
+            <div class="variant-group">
+              <h3 class="variant-title">Size</h3>
+              <div class="variant-options">
+                <button class="variant-option-text active">Standard</button>
+                <button class="variant-option-text">Large</button>
               </div>
-            </div>
-
-            <div class="option-group">
-              <label class="option-label">Quantity:</label>
-              <div class="quantity-selector">
-                <button class="qty-btn" (click)="decreaseQuantity()" [disabled]="quantity <= 1">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="6" y1="12" x2="18" y2="12"></line>
-                  </svg>
-                </button>
-                <input 
-                  type="number" 
-                  [value]="quantity" 
-                  (input)="updateQuantity($event)" 
-                  class="qty-input" 
-                  min="1" 
-                  max="99">
-                <button class="qty-btn" (click)="increaseQuantity()">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="12" y1="6" x2="12" y2="18"></line>
-                    <line x1="6" y1="12" x2="18" y2="12"></line>
-                  </svg>
-                </button>
-              </div>
-              <span class="stock-info">Only 12 left in stock!</span>
             </div>
           </div>
 
-          <!-- Action Buttons -->
           <div class="product-actions">
-            <button 
-              class="btn btn-primary add-to-cart-btn" 
-              (click)="addToCart()"
-              [disabled]="isAddingToCart"
-              [class.loading]="isAddingToCart">
-              <div class="btn-content">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                  <path d="M16 10a4 4 0 0 1-8 0"></path>
-                </svg>
-                <span *ngIf="!isAddingToCart">{{ isInCart() ? 'Add More' : 'Add to Cart' }}</span>
-                <span *ngIf="isAddingToCart">Adding...</span>
-              </div>
-              <div class="btn-spinner" *ngIf="isAddingToCart"></div>
-            </button>
-            
-            <button class="btn btn-secondary buy-now-btn" (click)="buyNow()">
+            <div class="quantity-selector">
+              <button class="qty-btn" aria-label="Decrease quantity">-</button>
+              <input type="number" class="qty-input" value="1" min="1" max="10">
+              <button class="qty-btn" aria-label="Increase quantity">+</button>
+            </div>
+            <button class="btn btn-primary btn-xl add-to-cart">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 12l2 2 4-4"></path>
-                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
-                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
               </svg>
-              Buy Now
+              Add to Cart
             </button>
-            
-            <button class="btn btn-outline wishlist-btn" (click)="addToWishlist()">
+            <button class="btn btn-outline wishlist-btn" title="Add to Wishlist">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
-              <span class="wishlist-text">Save for Later</span>
-            </button>
-
-            <button class="btn btn-outline share-btn">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="18" cy="5" r="3"></circle>
-                <circle cx="6" cy="12" r="3"></circle>
-                <circle cx="18" cy="19" r="3"></circle>
-                <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
-                <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
-              </svg>
-              Share
             </button>
           </div>
 
-          <!-- Product Features -->
-          <div class="product-features">
-            <div class="feature">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22,4 12,14.01 9,11.01"></polyline>
-              </svg>
-              <div class="feature-text">
-                <strong>Free Shipping</strong>
-                <small>On orders over $50</small>
-              </div>
+          <div class="product-meta">
+            <div class="meta-item">
+              <span class="meta-label">SKU:</span>
+              <span class="meta-value">PH-78945</span>
             </div>
-            <div class="feature">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 12l2 2 4-4"></path>
-                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
-                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
-              </svg>
-              <div class="feature-text">
-                <strong>30-Day Returns</strong>
-                <small>Hassle-free returns</small>
-              </div>
+            <div class="meta-item">
+              <span class="meta-label">Availability:</span>
+              <span class="meta-value in-stock">In Stock</span>
             </div>
-            <div class="feature">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              </svg>
-              <div class="feature-text">
-                <strong>2-Year Warranty</strong>
-                <small>Manufacturer warranty</small>
-              </div>
-            </div>
-            <div class="feature">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="1" y="3" width="15" height="13"></rect>
-                <polygon points="16,3 16,13 22,8 16,3"></polygon>
-              </svg>
-              <div class="feature-text">
-                <strong>Fast Delivery</strong>
-                <small>2-3 business days</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Product Tabs -->
-      <div class="product-tabs">
-        <div class="tab-buttons">
-          <button 
-            *ngFor="let tab of ['description', 'specifications', 'reviews']" 
-            class="tab-btn" 
-            [class.active]="activeTab === tab"
-            (click)="selectTab(tab)">
-            {{ tab | titlecase }}
-            <span *ngIf="tab === 'reviews'">({{ getProductReviewCount() }})</span>
-          </button>
-        </div>
-
-        <div class="tab-content">
-          <div class="tab-pane" [class.active]="activeTab === 'description'" *ngIf="activeTab === 'description'">
-            <h3>Product Description</h3>
-            <p>{{ getProductDescription() }}</p>
-            <div class="features-list">
-              <h4>Key Features:</h4>
-              <ul>
-                <li>Premium quality materials and construction</li>
-                <li>Advanced technology for superior performance</li>
-                <li>Ergonomic design for maximum comfort</li>
-                <li>Durable and long-lasting reliability</li>
-                <li>Easy to use with intuitive controls</li>
-                <li>Backed by comprehensive warranty</li>
-              </ul>
+            <div class="meta-item">
+              <span class="meta-label">Brand:</span>
+              <span class="meta-value">PremiumSound</span>
             </div>
           </div>
 
-          <div class="tab-pane" [class.active]="activeTab === 'specifications'" *ngIf="activeTab === 'specifications'">
-            <h3>Technical Specifications</h3>
-            <div class="specs-grid">
-              <div class="spec-item">
-                <span class="spec-label">Brand:</span>
-                <span class="spec-value">{{ getProductBrand() }}</span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">Model:</span>
-                <span class="spec-value">{{ getProductModel() }}</span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">Weight:</span>
-                <span class="spec-value">{{ getProductWeight() }}</span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">Dimensions:</span>
-                <span class="spec-value">{{ getProductDimensions() }}</span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">Color:</span>
-                <span class="spec-value">{{ getSelectedColorInfo()?.label || 'Multiple Options' }}</span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">Warranty:</span>
-                <span class="spec-value">2 Years Manufacturer Warranty</span>
-              </div>
+          <div class="product-share">
+            <span class="share-label">Share:</span>
+            <div class="share-links">
+              <a href="#" class="share-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+                </svg>
+              </a>
+              <a href="#" class="share-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"></path>
+                </svg>
+              </a>
+              <a href="#" class="share-link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                </svg>
+              </a>
             </div>
           </div>
-
-          <div class="tab-pane" [class.active]="activeTab === 'reviews'" *ngIf="activeTab === 'reviews'">
-            <h3>Customer Reviews</h3>
-            <div class="reviews-summary">
-              <div class="rating-breakdown">
-                <div class="overall-rating">
-                  <span class="rating-number">{{ getProductRating() }}</span>
-                  <div class="stars">
-                    <span 
-                      *ngFor="let star of getStarArray()" 
-                      class="star" 
-                      [class.filled]="isStarFilled(star)">
-                      ★
-                    </span>
-                  </div>
-                  <span class="review-count">Based on {{ getProductReviewCount() }} reviews</span>
-                </div>
-              </div>
-            </div>
-            
-            <div class="review-placeholder">
-              <p>Customer reviews will be loaded here. This feature is coming soon!</p>
-              <button class="btn btn-outline">Write a Review</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Related Products -->
-      <div class="related-products" *ngIf="relatedProducts.length > 0">
-        <h2 class="section-title">You Might Also Like</h2>
-        <div class="products-grid">
-          <app-product-card 
-            *ngFor="let relatedProduct of relatedProducts; trackBy: trackByProduct" 
-            [product]="relatedProduct">
-          </app-product-card>
         </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Product Tabs -->
+  <section class="product-tabs-section">
+    <div class="container">
+      <div class="product-tabs">
+        <div class="tab-list">
+          <button class="tab-btn active" data-tab="description">Description</button>
+          <button class="tab-btn" data-tab="specifications">Specifications</button>
+          <button class="tab-btn" data-tab="reviews">Reviews (128)</button>
+          <button class="tab-btn" data-tab="shipping">Shipping</button>
+        </div>
+        <div class="tab-content">
+          <div class="tab-pane active" id="description">
+            <h3>Product Description</h3>
+            <p>
+              Our premium wireless headphones combine cutting-edge technology with elegant design 
+              to deliver an unparalleled listening experience. Featuring advanced noise cancellation, 
+              these headphones block out ambient sounds so you can focus on what matters most - your music.
+            </p>
+            <p>
+              With up to 30 hours of battery life, you can enjoy your favorite tunes all day long 
+              without interruption. The comfortable over-ear design with memory foam ear cushions 
+              ensures a perfect fit for extended listening sessions.
+            </p>
+            <h4>Key Features</h4>
+            <ul>
+              <li>Active Noise Cancellation technology</li>
+              <li>30-hour battery life with quick charge</li>
+              <li>Bluetooth 5.0 with 30ft range</li>
+              <li>Hi-Res Audio certified</li>
+              <li>Voice assistant compatible</li>
+              <li>Foldable design for easy portability</li>
+            </ul>
+          </div>
+          <div class="tab-pane" id="specifications">
+            <h3>Technical Specifications</h3>
+            <div class="specs-table">
+              <div class="spec-row">
+                <span class="spec-label">Driver Size</span>
+                <span class="spec-value">40mm</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Frequency Response</span>
+                <span class="spec-value">20Hz - 20kHz</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Impedance</span>
+                <span class="spec-value">32 Ohms</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Battery Life</span>
+                <span class="spec-value">30 hours (ANC on), 35 hours (ANC off)</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Charging Time</span>
+                <span class="spec-value">2 hours</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Quick Charge</span>
+                <span class="spec-value">10 minutes = 3 hours playback</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Bluetooth Version</span>
+                <span class="spec-value">5.0</span>
+              </div>
+              <div class="spec-row">
+                <span class="spec-label">Weight</span>
+                <span class="spec-value">254g</span>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane" id="reviews">
+            <div class="reviews-header">
+              <h3>Customer Reviews</h3>
+              <div class="reviews-summary">
+                <div class="average-rating">
+                  <span class="rating-value">4.8</span>
+                  <div class="stars">
+                    <span class="star active">★</span>
+                    <span class="star active">★</span>
+                    <span class="star active">★</span>
+                    <span class="star active">★</span>
+                    <span class="star active">★</span>
+                  </div>
+                  <span class="review-count">Based on 128 reviews</span>
+                </div>
+                <button class="btn btn-primary">Write a Review</button>
+              </div>
+            </div>
+            <div class="reviews-list">
+              <div class="review-item">
+                <div class="review-author">
+                  <div class="author-avatar">
+                    <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah Johnson">
+                  </div>
+                  <div class="author-info">
+                    <h4 class="author-name">Sarah Johnson</h4>
+                    <div class="stars">
+                      <span class="star active">★</span>
+                      <span class="star active">★</span>
+                      <span class="star active">★</span>
+                      <span class="star active">★</span>
+                      <span class="star active">★</span>
+                    </div>
+                    <span class="review-date">2 days ago</span>
+                  </div>
+                </div>
+                <h4 class="review-title">Exceptional Sound Quality</h4>
+                <p class="review-content">
+                  These headphones exceeded my expectations! The noise cancellation is incredible, 
+                  and the sound quality is crystal clear. Battery life is exactly as advertised. 
+                  Highly recommend!
+                </p>
+              </div>
+              <div class="review-item">
+                <div class="review-author">
+                  <div class="author-avatar">
+                    <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="Michael Chen">
+                  </div>
+                  <div class="author-info">
+                    <h4 class="author-name">Michael Chen</h4>
+                    <div class="stars">
+                      <span class="star active">★</span>
+                      <span class="star active">★</span>
+                      <span class="star active">★</span>
+                      <span class="star active">★</span>
+                      <span class="star">★</span>
+                    </div>
+                    <span class="review-date">1 week ago</span>
+                  </div>
+                </div>
+                <h4 class="review-title">Great for Work</h4>
+                <p class="review-content">
+                  Perfect for working from home. The noise cancellation blocks out all the 
+                  distractions, and they're comfortable to wear all day. Only downside is 
+                  they're a bit bulky for travel.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane" id="shipping">
+            <h3>Shipping Information</h3>
+            <div class="shipping-info">
+              <div class="shipping-option">
+                <h4>Standard Shipping</h4>
+                <p>3-5 business days • Free on orders over $50</p>
+                <p class="shipping-price">$5.99</p>
+              </div>
+              <div class="shipping-option">
+                <h4>Express Shipping</h4>
+                <p>1-2 business days</p>
+                <p class="shipping-price">$12.99</p>
+              </div>
+              <div class="shipping-option">
+                <h4>Overnight Shipping</h4>
+                <p>Next business day</p>
+                <p class="shipping-price">$24.99</p>
+              </div>
+            </div>
+            <div class="return-policy">
+              <h4>Return Policy</h4>
+              <p>
+                We offer a 30-day money-back guarantee. If you're not satisfied with your purchase, 
+                you can return it for a full refund. Items must be in original condition with all 
+                packaging and accessories included.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Related Products -->
+  <section class="related-products">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">You May Also Like</h2>
+        <p class="section-subtitle">Discover similar products you might enjoy</p>
+      </div>
+      <div class="products-grid">
+        <!-- Product 1 -->
+        <div class="product-card">
+          <div class="product-media">
+            <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=600&fit=crop&crop=center" alt="Smart Fitness Watch" loading="lazy">
+            <div class="product-badge trending">Trending</div>
+            <div class="product-actions">
+              <button class="action-btn" title="Quick View">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+              <button class="action-btn" title="Add to Wishlist">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="product-info">
+            <div class="product-category">Wearables</div>
+            <h3 class="product-name">Smart Fitness Watch Pro</h3>
+            <div class="product-rating">
+              <div class="stars">
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star">★</span>
+              </div>
+              <span class="rating-count">(89 reviews)</span>
+            </div>
+            <div class="product-pricing">
+              <span class="price-current">$149.99</span>
+            </div>
+            <button class="btn btn-primary product-cart-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 2 -->
+        <div class="product-card">
+          <div class="product-media">
+            <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=600&h=600&fit=crop&crop=center" alt="Luxury Smart Phone" loading="lazy">
+            <div class="product-badge new">New</div>
+            <div class="product-actions">
+              <button class="action-btn" title="Quick View">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+              <button class="action-btn" title="Add to Wishlist">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="product-info">
+            <div class="product-category">Mobile</div>
+            <h3 class="product-name">Luxury Smart Phone X</h3>
+            <div class="product-rating">
+              <div class="stars">
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star half">★</span>
+              </div>
+              <span class="rating-count">(215 reviews)</span>
+            </div>
+            <div class="product-pricing">
+              <span class="price-current">$899.99</span>
+              <span class="price-original">$999.99</span>
+              <span class="price-savings">Save 10%</span>
+            </div>
+            <button class="btn btn-primary product-cart-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+
+        <!-- Product 3 -->
+        <div class="product-card">
+          <div class="product-media">
+            <img src="https://images.unsplash.com/photo-1572569511254-d8f925fe2cbb?w=600&h=600&fit=crop&crop=center" alt="Designer Sunglasses" loading="lazy">
+            <div class="product-badge sale">Sale</div>
+            <div class="product-actions">
+              <button class="action-btn" title="Quick View">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+              <button class="action-btn" title="Add to Wishlist">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="product-info">
+            <div class="product-category">Accessories</div>
+            <h3 class="product-name">Designer Sunglasses</h3>
+            <div class="product-rating">
+              <div class="stars">
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star active">★</span>
+                <span class="star">★</span>
+              </div>
+              <span class="rating-count">(64 reviews)</span>
+            </div>
+            <div class="product-pricing">
+              <span class="price-current">$129.99</span>
+              <span class="price-original">$179.99</span>
+              <span class="price-savings">Save 28%</span>
+            </div>
+            <button class="btn btn-primary product-cart-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <path d="M16 10a4 4 0 0 1-8 0"></path>
+              </svg>
+              Add to Cart
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>

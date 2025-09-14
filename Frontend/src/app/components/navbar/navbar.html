@@ -1,4 +1,4 @@
-<nav class="navbar">
+<nav class="navbar" [class.scrolled]="isScrolled">
   <div class="navbar-container">
     <!-- Logo -->
     <div class="navbar-logo">
@@ -17,14 +17,14 @@
 
     <div class="navbar-nav" [class.open]="isMenuOpen">
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Home</a>
-      <a routerLink="/products" routerLinkActive="active" class="nav-link">Products</a>
+      <a routerLink="/products-perfect" routerLinkActive="active" class="nav-link">Products</a>
       <a routerLink="/categories" routerLinkActive="active" class="nav-link">Categories</a>
       <a routerLink="/deals" routerLinkActive="active" class="nav-link">Deals</a>
       <a routerLink="/about" routerLinkActive="active" class="nav-link">About</a>
     </div>
 
     <!-- Search Bar -->
-    <div class="navbar-search">
+    <div class="navbar-search" [class.open]="isMenuOpen">
       <div class="search-container">
         <input type="text" placeholder="Search for products..." class="search-input">
         <button class="search-btn">

@@ -43,7 +43,7 @@ export class ProductService {
       map(products => products.map(this.mapBackendProduct)),
       catchError(error => {
         console.error('Error fetching products:', error);
-        return of(this.getMockProducts());
+        return of([]); // Return empty array instead of mock data
       })
     );
   }
@@ -53,7 +53,7 @@ export class ProductService {
       map(product => this.mapBackendProduct(product)),
       catchError(error => {
         console.error('Error fetching product:', error);
-        return of(this.getMockProducts().find(p => p.id === id) || null);
+        return of(null); // Return null instead of mock data
       })
     );
   }
@@ -93,10 +93,7 @@ export class ProductService {
       map(products => products.map(this.mapBackendProduct)),
       catchError(error => {
         console.error('Error searching products:', error);
-        return of(this.getMockProducts().filter(p => 
-          p.name?.toLowerCase().includes(query.toLowerCase()) ||
-          p.description?.toLowerCase().includes(query.toLowerCase())
-        ));
+        return of([]); // Return empty array instead of mock data
       })
     );
   }
@@ -108,7 +105,7 @@ export class ProductService {
       name: product.nom || product.name || product.title,
       title: product.nom || product.title || product.name,
       price: product.prix || product.price,
-      imageUrl: product.image || product.imageUrl || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=300&h=300&fit=crop&crop=center',
+      imageUrl: product.image || product.imageUrl || null, // Removed fallback image
       category: product.category || (product.categorie ? product.categorie.nom : '') || 'Uncategorized'
     };
   }
@@ -121,54 +118,5 @@ export class ProductService {
       prix: product.price || product.prix,
       image: product.imageUrl || product.image
     };
-  }
-
-  // Mock data for development/fallback
-  private getMockProducts(): Product[] {
-    return [
-      {
-        id: 1,
-        name: 'Premium Wireless Headphones',
-        price: 199.99,
-        originalPrice: 249.99,
-        imageUrl: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=3840&h=2160&fit=crop&crop=center',
-        category: 'Electronics',
-        brand: 'AudioTech',
-        rating: 4.8,
-        reviewCount: 128,
-        badge: 'Sale',
-        stockStatus: 'in-stock',
-        description: 'Experience crystal-clear sound with our premium wireless headphones featuring active noise cancellation and extended battery life.',
-        stock: 50
-      },
-      {
-        id: 2,
-        name: 'Smart Fitness Watch',
-        price: 149.99,
-        imageUrl: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=3840&h=2160&fit=crop&crop=center',
-        category: 'Electronics',
-        brand: 'FitTech',
-        rating: 4.5,
-        reviewCount: 89,
-        badge: 'Hot',
-        stockStatus: 'in-stock',
-        description: 'Track your fitness goals with precision using our advanced smart watch with comprehensive health monitoring features.',
-        stock: 25
-      },
-      {
-        id: 3,
-        name: 'Designer Backpack',
-        price: 89.99,
-        imageUrl: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=3840&h=2160&fit=crop&crop=center',
-        category: 'Fashion',
-        brand: 'UrbanStyle',
-        rating: 4.9,
-        reviewCount: 56,
-        badge: 'New',
-        stockStatus: 'in-stock',
-        description: 'Stay organized and stylish with our premium designer backpack featuring durable materials and smart storage solutions.',
-        stock: 15
-      }
-    ];
   }
 }

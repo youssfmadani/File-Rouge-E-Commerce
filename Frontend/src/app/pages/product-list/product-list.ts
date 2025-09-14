@@ -2,10 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ProductCardComponent } from '../../components/product-card/product-card';
 import { ProductService, Product } from '../../services/product';
 import { CartService } from '../../services/cart';
-import { AuthService } from '../../services/auth';
+import { WonderfulProductCardComponent } from '../../components/wonderful-product-card/wonderful-product-card';
 
 interface PriceRange {
   absolute: { min: number; max: number };
@@ -15,11 +14,11 @@ interface PriceRange {
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductCardComponent],
+  imports: [CommonModule, FormsModule, WonderfulProductCardComponent],
   templateUrl: './product-list.html',
   styleUrls: ['./product-list.css']
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent {
   products: Product[] = [];
   filteredProducts: Product[] = [];
   loading = false;
@@ -52,9 +51,8 @@ export class ProductListComponent implements OnInit {
   constructor(
     private productService: ProductService,
     private cartService: CartService,
-    private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadProducts();
@@ -65,14 +63,14 @@ export class ProductListComponent implements OnInit {
     this.error = '';
     
     this.productService.getAllProducts().subscribe({
-      next: (products) => {
+      next: (products: Product[]) => {
         this.products = products;
         this.setupPriceRange();
         this.applyFilters();
         this.loading = false;
         console.log('Products loaded:', products);
       },
-      error: (error) => {
+      error: (error: any) => {
         console.error('Error loading products:', error);
         this.error = 'Failed to load products. Please try again.';
         this.loading = false;
@@ -92,14 +90,16 @@ export class ProductListComponent implements OnInit {
   }
 
   onMinPriceChange(event: any): void {
-    const value = parseInt(event.target.value);
+    const target = event.target as HTMLInputElement;
+    const value = parseInt(target.value);
     if (value <= this.priceRange.current.max) {
       this.priceRange.current.min = value;
     }
   }
 
   onMaxPriceChange(event: any): void {
-    const value = parseInt(event.target.value);
+    const target = event.target as HTMLInputElement;
+    const value = parseInt(target.value);
     if (value >= this.priceRange.current.min) {
       this.priceRange.current.max = value;
     }
@@ -197,22 +197,16 @@ export class ProductListComponent implements OnInit {
   }
 
   // Filter Methods
-  onCategoryFilter(category: string, event: any): void {
+  onCategoryFilter(event: any): void {
+    const target = event.target as HTMLSelectElement;
+    const category = target.value;
+    
     if (category === 'all') {
-      if (event.target.checked) {
-        this.selectedCategories.clear();
-        this.selectedCategories.add('all');
-      }
+      this.selectedCategories.clear();
+      this.selectedCategories.add('all');
     } else {
       this.selectedCategories.delete('all');
-      if (event.target.checked) {
-        this.selectedCategories.add(category);
-      } else {
-        this.selectedCategories.delete(category);
-      }
-      if (this.selectedCategories.size === 0) {
-        this.selectedCategories.add('all');
-      }
+      this.selectedCategories.add(category);
     }
     this.applyFilters();
   }
@@ -379,5 +373,76 @@ export class ProductListComponent implements OnInit {
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
     return this.filteredProducts.slice(startIndex, endIndex);
+  }
+
+  // Add these missing methods
+  getUniqueCategories(): string[] {
+    const categories = new Set<string>();
+    this.products.forEach(product => {
+      const category = (product['category'] || '').toLowerCase();
+      if (category) {
+        categories.add(category);
+      }
+    });
+    return Array.from(categories).sort();
+  }
+
+  getUniqueBrands(): string[] {
+    const brands = new Set<string>();
+    this.products.forEach(product => {
+      const brand = (product['brand'] || '').toLowerCase();
+      if (brand) {
+        brands.add(brand);
+      }
+    });
+    return Array.from(brands).sort();
+  }
+
+  getUniqueRatings(): number[] {
+    const ratings = new Set<number>();
+    this.products.forEach(product => {
+      const rating = Math.floor(product['rating'] || 0);
+      if (rating > 0) {
+        ratings.add(rating);
+      }
+    });
+    return Array.from(ratings).sort((a, b) => b - a);
+  }
+
+  resetFilters(): void {
+    this.clearAllFilters();
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages = [];
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  // Add missing methods for search and other functionality
+  onSearchChange(event: any): void {
+    // This would typically filter products based on search term
+    // Implementation depends on how search is intended to work
+    console.log('Search term:', event.target.value);
+  }
+
+  onViewChange(view: 'grid' | 'list'): void {
+    this.currentView = view;
   }
 }

@@ -2,6 +2,7 @@ package com.example.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.util.List;
 
@@ -15,6 +16,7 @@ public class Categorie {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotEmpty
     private String nom;
 
     @OneToMany(mappedBy = "categorie")
