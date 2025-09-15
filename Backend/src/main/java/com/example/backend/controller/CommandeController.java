@@ -10,11 +10,13 @@ import com.example.backend.service.AdherentService;
 import com.example.backend.service.ProduitService;
 import com.example.backend.mapper.CommandeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -36,19 +38,21 @@ public class CommandeController {
     private CommandeMapper commandeMapper;
 
     @PostMapping
-    public ResponseEntity<Commande> createCommande(@Valid @RequestBody CommandeDTO commandeDTO) {
+    public ResponseEntity<?> createCommande(@Valid @RequestBody CommandeDTO commandeDTO) {
         try {
-            System.out.println("Received commandeDTO: " + commandeDTO);
-            
             // Validate required fields
             if (commandeDTO.getAdherentId() == null) {
-                System.out.println("Adherent ID is null");
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Invalid adherent ID",
+                    "message", "Adherent ID is required. Please log in again to refresh your user data."
+                ));
             }
             
             if (commandeDTO.getDateCommande() == null) {
-                System.out.println("Date commande is null");
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Invalid date",
+                    "message", "Order date is required."
+                ));
             }
             
             // Set default status if not provided or invalid
@@ -75,8 +79,10 @@ public class CommandeController {
             // Set the adherent
             Optional<Adherent> adherentOpt = adherentService.getAdherentById(commandeDTO.getAdherentId());
             if (!adherentOpt.isPresent()) {
-                System.out.println("Adherent not found with ID: " + commandeDTO.getAdherentId());
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(Map.of(
+                    "error", "Invalid adherent ID",
+                    "message", "No adherent found with ID: " + commandeDTO.getAdherentId() + ". Please log in again to refresh your user data."
+                ));
             }
             commande.setAdherent(adherentOpt.get());
             
@@ -88,17 +94,21 @@ public class CommandeController {
                     .map(Optional::get)
                     .collect(Collectors.toList());
                 commande.setProduits(produits);
+            } else {
+                // Initialize empty list if no products provided
+                commande.setProduits(List.of());
             }
             
-            System.out.println("Saving commande: " + commande);
             Commande savedCommande = commandeService.saveCommande(commande);
-            System.out.println("Saved commande: " + savedCommande);
             return ResponseEntity.ok(savedCommande);
         } catch (Exception e) {
             // Log the exception for debugging
             System.err.println("Error creating commande: " + e.getMessage());
             e.printStackTrace();
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "error", "Internal server error",
+                "message", "There was a problem with your order. Please log out and log in again to refresh your session."
+            ));
         }
     }
 
@@ -120,8 +130,38 @@ public class CommandeController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCommande(@PathVariable Integer id) {
-        commandeService.deleteCommande(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<?> deleteCommande(@PathVariable Integer id) {
+        try {
+            System.out.println("Attempting to delete commande with ID: " + id);
+            
+            // Check if the commande exists
+            Optional<Commande> commandeOpt = commandeService.getCommandeById(id);
+            if (!commandeOpt.isPresent()) {
+                System.out.println("Commande not found with ID: " + id);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                    "error", "Commande not found",
+                    "message", "No commande found with ID: " + id
+                ));
+            }
+            
+            System.out.println("Deleting commande with ID: " + id);
+            commandeService.deleteCommande(id);
+            System.out.println("Commande deleted successfully with ID: " + id);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            System.err.println("Runtime error deleting commande with ID: " + id + ", Error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+                "error", "Commande not found",
+                "message", "No commande found with ID: " + id
+            ));
+        } catch (Exception e) {
+            System.err.println("Unexpected error deleting commande with ID: " + id + ", Error: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of(
+                "error", "Internal server error",
+                "message", "Failed to delete commande with ID: " + id
+            ));
+        }
     }
 }

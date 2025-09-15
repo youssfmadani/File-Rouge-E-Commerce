@@ -90,7 +90,7 @@ export class AuthService {
     // Store email for legacy compatibility
     localStorage.setItem('auth_email', email);
     
-    // Check if user exists in database, create if not
+    // Actually create or retrieve the user from the database
     this.getOrCreateUser(email, role).subscribe({
       next: (user) => {
         console.log('LoginLocal: User created/retrieved:', user);
@@ -98,7 +98,7 @@ export class AuthService {
       },
       error: (error) => {
         console.error('LoginLocal: Error creating/retrieving user:', error);
-        // Create a temporary user as fallback
+        // Create a temporary user as fallback only if database operation fails
         const names = email.split('@')[0].split('.');
         const firstName = names[0] || 'User';
         const user: User = {
@@ -165,7 +165,7 @@ export class AuthService {
   }
   
   // Get existing user or create new one
-  private getOrCreateUser(email: string, role: string): Observable<User> {
+  public getOrCreateUser(email: string, role: string): Observable<User> {
     // First, try to get the user by email
     return this.userService.getByEmail(email).pipe(
       switchMap(existingUser => {
@@ -260,25 +260,27 @@ export class AuthService {
         console.log('Migrating legacy authentication data for:', legacyEmail);
         const isAdmin = legacyEmail.toLowerCase().includes('admin');
         const role = this.getUserRole() || (isAdmin ? 'ADMIN' : 'USER');
-        const user: User = {
-          id: isAdmin ? 1 : Math.floor(Math.random() * 1000) + 100,
-          email: legacyEmail,
-          role: role,
-          name: legacyEmail.split('@')[0]
-        };
         
-        console.log('MigrateLegacyData: Creating user object:', user);
-        this.setCurrentUser(user);
-        
-        // Verify migration worked
-        const migratedUser = this.getCurrentUser();
-        console.log('MigrateLegacyData: User after migration:', migratedUser);
-        
-        if (migratedUser) {
-          console.log('Legacy data migration completed successfully:', migratedUser);
-        } else {
-          console.error('MigrateLegacyData: Migration failed - user still null');
-        }
+        // Instead of creating a temporary user with a random ID,
+        // actually create or retrieve the user from the database
+        this.getOrCreateUser(legacyEmail, role).subscribe({
+          next: (user) => {
+            console.log('MigrateLegacyData: Successfully created/retrieved user:', user);
+            this.setCurrentUser(user);
+          },
+          error: (error) => {
+            console.error('MigrateLegacyData: Error creating/retrieving user:', error);
+            // Fallback to temporary user only if database operation fails
+            const user: User = {
+              id: isAdmin ? 1 : Math.floor(Math.random() * 1000) + 100,
+              email: legacyEmail,
+              role: role,
+              name: legacyEmail.split('@')[0]
+            };
+            console.log('MigrateLegacyData: Using fallback temporary user:', user);
+            this.setCurrentUser(user);
+          }
+        });
       } else {
         console.log('MigrateLegacyData: No legacy email found, cannot migrate');
       }

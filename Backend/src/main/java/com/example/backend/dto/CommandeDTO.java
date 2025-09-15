@@ -17,6 +17,7 @@ public class CommandeDTO {
     private Integer id;
     
     @NotNull(message = "Date commande is required")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", timezone="UTC")
     private Date dateCommande;
     
     @NotEmpty(message = "Status is required")
@@ -26,7 +27,7 @@ public class CommandeDTO {
     @Positive(message = "Adherent ID must be positive")
     private Integer adherentId;
     
-    @NotEmpty(message = "Product IDs are required")
+    // Changed from @NotEmpty to allow empty lists
     private List<Integer> produitIds;
     
     private Double montantTotal;
@@ -75,4 +76,17 @@ public class CommandeDTO {
     
     public Double getMontantTotal() { return montantTotal; }
     public void setMontantTotal(Double montantTotal) { this.montantTotal = montantTotal; }
-} 
+    
+    // Custom toString to avoid potential circular references
+    @Override
+    public String toString() {
+        return "CommandeDTO{" +
+                "id=" + id +
+                ", dateCommande=" + dateCommande +
+                ", statut='" + statut + '\'' +
+                ", adherentId=" + adherentId +
+                ", produitIds=" + produitIds +
+                ", montantTotal=" + montantTotal +
+                '}';
+    }
+}

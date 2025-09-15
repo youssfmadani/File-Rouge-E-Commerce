@@ -168,8 +168,9 @@ export class OrderCrud implements OnInit {
   }
 
   deleteOrder(order: Order): void {
-    if (confirm(`Are you sure you want to delete order #${order.id}?`)) {
+    if (confirm(`Are you sure you want to delete order #${order.id}? This action cannot be undone.`)) {
       if (order.id) {
+        console.log('Attempting to delete order with ID:', order.id);
         this.orderService.deleteOrder(order.id).subscribe({
           next: () => {
             console.log('Order deleted successfully');
@@ -189,10 +190,30 @@ export class OrderCrud implements OnInit {
           },
           error: (error) => {
             console.error('Error deleting order:', error);
-            this.errorMessage = 'Failed to delete order';
+            // Check if it's a 404 error (order not found)
+            if (error.status === 404) {
+              this.errorMessage = 'Order not found. It may have already been deleted.';
+              // Remove the order from local arrays anyway
+              this.orders = this.orders.filter(o => o.id !== order.id);
+              this.filteredOrders = this.filteredOrders.filter(o => o.id !== order.id);
+              this.totalPages = Math.ceil(this.filteredOrders.length / this.itemsPerPage);
+              if (this.currentPage > this.totalPages && this.totalPages > 0) {
+                this.currentPage = this.totalPages;
+              } else if (this.totalPages === 0) {
+                this.currentPage = 1;
+              }
+            } else if (error.status === 500) {
+              this.errorMessage = 'Server error. Failed to delete order. Please try again later.';
+            } else {
+              this.errorMessage = `Failed to delete order. Error: ${error.status} ${error.statusText}`;
+            }
             setTimeout(() => this.errorMessage = '', 3000);
           }
         });
+      } else {
+        console.error('Cannot delete order: Order ID is missing');
+        this.errorMessage = 'Cannot delete order: Order ID is missing';
+        setTimeout(() => this.errorMessage = '', 3000);
       }
     }
   }

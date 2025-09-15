@@ -1,5 +1,6 @@
 package com.example.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import jakarta.validation.constraints.NotEmpty;
@@ -29,5 +30,19 @@ public class Produit {
     private String image; // Added image field
 
     @ManyToOne
+    @JsonIgnore
     private Categorie categorie;
+    
+    // Custom toString to avoid circular references
+    @Override
+    public String toString() {
+        return "Produit{" +
+                "idProduit=" + idProduit +
+                ", nom='" + nom + '\'' +
+                ", description='" + description + '\'' +
+                ", prix=" + prix +
+                ", image='" + image + '\'' +
+                ", categorieId=" + (categorie != null ? categorie.getId() : null) +
+                '}';
+    }
 }

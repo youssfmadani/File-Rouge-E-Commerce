@@ -106,14 +106,19 @@ export class OrderService {
             // If we have specific validation errors from the backend, include them
             if (error.error && typeof error.error === 'object') {
               // Check if this is a validation error response
-              const validationErrors = Object.keys(error.error);
-              if (validationErrors.length > 0) {
-                // If it's a validation error with specific field messages
-                if (validationErrors.some(key => typeof error.error[key] === 'string')) {
-                  errorMessage = `Invalid order data: ${validationErrors.map(key => `${key}: ${error.error[key]}`).join(', ')}`;
-                } else if (error.error.message) {
-                  // If it's a general error message
-                  errorMessage = `Invalid order data: ${error.error.message}`;
+              if (error.error.error) {
+                // More specific error message from backend
+                errorMessage = error.error.message || `Invalid order data: ${error.error.error}`;
+              } else {
+                const validationErrors = Object.keys(error.error);
+                if (validationErrors.length > 0) {
+                  // If it's a validation error with specific field messages
+                  if (validationErrors.some(key => typeof error.error[key] === 'string')) {
+                    errorMessage = `Invalid order data: ${validationErrors.map(key => `${key}: ${error.error[key]}`).join(', ')}`;
+                  } else if (error.error.message) {
+                    // If it's a general error message
+                    errorMessage = `Invalid order data: ${error.error.message}`;
+                  }
                 }
               }
             }
@@ -274,19 +279,10 @@ export class OrderService {
       throw new Error('Adherent ID is required to create an order. Please ensure you are logged in.');
     }
     
-    if (!order.produitIds || !Array.isArray(order.produitIds) || order.produitIds.length === 0) {
-      throw new Error('At least one product is required to create an order.');
-    }
-    
-    // Validate that all product IDs are valid numbers
-    if (order.produitIds.some(id => typeof id !== 'number' || id <= 0)) {
-      throw new Error('Invalid product IDs provided. All product IDs must be positive numbers.');
-    }
-    
-    // Validate that adherentId is a positive number
-    if (typeof order.adherentId !== 'number' || order.adherentId <= 0) {
-      throw new Error('Invalid adherent ID. Adherent ID must be a positive number.');
-    }
+    // Use produitIds if available, otherwise create empty array
+    const produitIds = order.produitIds && Array.isArray(order.produitIds) 
+      ? order.produitIds.map(id => Number(id)).filter(id => !isNaN(id) && id > 0)
+      : [];
     
     // Format the date properly for the backend
     let formattedDate = order.dateCommande || order.date;
@@ -318,15 +314,6 @@ export class OrderService {
       throw new Error('Order status is required.');
     }
     
-    // Ensure produitIds is properly formatted as an array of numbers
-    const produitIds = Array.isArray(order.produitIds) 
-      ? order.produitIds.map(id => Number(id)).filter(id => !isNaN(id) && id > 0)
-      : [];
-    
-    if (produitIds.length === 0) {
-      throw new Error('At least one valid product ID is required.');
-    }
-    
     // Handle montantTotal - ensure it's a valid number
     let montantTotal = order.montantTotal || order.total || 0;
     if (typeof montantTotal !== 'number' || isNaN(montantTotal)) {
@@ -336,13 +323,13 @@ export class OrderService {
     // Round to 2 decimal places to avoid floating point precision issues
     montantTotal = Math.round(montantTotal * 100) / 100;
     
-    // Send data in the exact format expected by the backend
+    // Send data in the exact format expected by the backend (CommandeDTO)
     const mapped: any = {
-      adherentId: order.adherentId,
+      adherentId: Number(order.adherentId),
       montantTotal: montantTotal,
       statut: status, // Use 'statut' not 'status'
       dateCommande: formattedDate,
-      produitIds: produitIds // Ensure this is properly formatted
+      produitIds: produitIds
     };
     
     // Validate that all required fields are present
@@ -356,31 +343,6 @@ export class OrderService {
     
     if (mapped.dateCommande === undefined || mapped.dateCommande === null) {
       throw new Error('dateCommande is required');
-    }
-    
-    if (!Array.isArray(mapped.produitIds) || mapped.produitIds.length === 0) {
-      throw new Error('produitIds is required and must be a non-empty array');
-    }
-    
-    // Additional validation for data types
-    if (typeof mapped.adherentId !== 'number') {
-      throw new Error('adherentId must be a number');
-    }
-    
-    if (typeof mapped.statut !== 'string') {
-      throw new Error('statut must be a string');
-    }
-    
-    if (typeof mapped.dateCommande !== 'string') {
-      throw new Error('dateCommande must be a string');
-    }
-    
-    if (!Array.isArray(mapped.produitIds)) {
-      throw new Error('produitIds must be an array');
-    }
-    
-    if (mapped.produitIds.some((id: any) => typeof id !== 'number')) {
-      throw new Error('All produitIds must be numbers');
     }
     
     // Remove undefined properties

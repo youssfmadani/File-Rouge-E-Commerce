@@ -1,5 +1,6 @@
 package com.example.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,8 +23,22 @@ public class Panier {
     private Status statut;
 
     @OneToOne
+    @JsonIgnore
     private Adherent adherent;
 
     @ManyToMany
+    @JsonIgnore
     private List<Produit> produits;
+    
+    // Custom toString to avoid circular references
+    @Override
+    public String toString() {
+        return "Panier{" +
+                "idPanier=" + idPanier +
+                ", dateCréation=" + dateCréation +
+                ", statut=" + statut +
+                ", adherentId=" + (adherent != null ? adherent.getId() : null) +
+                ", produitsCount=" + (produits != null ? produits.size() : 0) +
+                '}';
+    }
 }

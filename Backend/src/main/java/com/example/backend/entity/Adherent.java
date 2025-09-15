@@ -1,5 +1,6 @@
 package com.example.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.EqualsAndHashCode;
@@ -17,8 +18,24 @@ public class Adherent extends Utilisateur {
     private Panier panier;
 
     @OneToMany(mappedBy = "adherent")
+    @JsonIgnore
     private List<Commande> commandes;
 
     @OneToMany(mappedBy = "adherent")
+    @JsonIgnore
     private List<Avis> avis;
+    
+    // Custom toString to avoid circular references
+    @Override
+    public String toString() {
+        return "Adherent{" +
+                "id=" + getId() +
+                ", nom='" + getNom() + '\'' +
+                ", prénom='" + getPrénom() + '\'' +
+                ", email='" + getEmail() + '\'' +
+                ", panier=" + (panier != null ? panier.getIdPanier() : null) +
+                ", commandesCount=" + (commandes != null ? commandes.size() : 0) +
+                ", avisCount=" + (avis != null ? avis.size() : 0) +
+                '}';
+    }
 }
