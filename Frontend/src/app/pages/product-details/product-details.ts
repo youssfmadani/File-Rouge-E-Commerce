@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, ParamMap, RouterModule } from '@angular/router';
 import { ProductService, Product } from '../../services/product';
 import { CartService } from '../../services/cart';
 import { AuthService } from '../../services/auth';
+import { ProductCardComponent } from '../../components/product-card/product-card';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-product-details',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule, ProductCardComponent],
   templateUrl: './product-details.html',
   styleUrl: './product-details.css'
 })
@@ -35,12 +37,12 @@ export class ProductDetails implements OnInit {
   availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   
   // Product images
-  productImages = [
-    'https://via.placeholder.com/500x500/4285f4/ffffff?text=Main',
-    'https://via.placeholder.com/500x500/34a853/ffffff?text=Side',
-    'https://via.placeholder.com/500x500/ea4335/ffffff?text=Back',
-    'https://via.placeholder.com/500x500/fbbc05/ffffff?text=Detail'
-  ];
+  get productImages(): string[] {
+    if (this.product && this.product['image']) {
+      return [this.product['image']];
+    }
+    return [];
+  }
   
   // Tab state
   activeTab: string = 'description';
@@ -48,6 +50,7 @@ export class ProductDetails implements OnInit {
   // Cart state
   isAddingToCart = false;
   addToCartSuccess = false;
+  successMessage: string = '';
 
   constructor(
     private route: ActivatedRoute,
@@ -58,29 +61,37 @@ export class ProductDetails implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe(params => {
-      const productId = params['id'];
-      if (productId) {
-        this.loadProduct(parseInt(productId));
-      }
-    });
-  }
-
-  loadProduct(productId: number): void {
-    this.loading = true;
-    this.error = '';
-    
-    this.productService.getProductById(productId).subscribe({
+    // Subscribe to route parameter changes to reload product when ID changes
+    this.route.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        const id = params.get('id');
+        console.log('Route param changed, product ID:', id);
+        if (id) {
+          const productId = parseInt(id, 10);
+          if (!isNaN(productId)) {
+            this.loading = true;
+            this.error = '';
+            return this.productService.getProductById(productId);
+          } else {
+            throw new Error('Invalid product ID');
+          }
+        } else {
+          throw new Error('No product ID provided');
+        }
+      })
+    ).subscribe({
       next: (product) => {
+        console.log('Product loaded:', product);
         this.product = product;
         this.loadRelatedProducts();
         this.loading = false;
-        console.log('Product loaded:', product);
+        this.error = '';
       },
       error: (error) => {
         console.error('Error loading product:', error);
-        this.error = 'Failed to load product. Please try again.';
+        this.error = error.message || 'Failed to load product. Please try again.';
         this.loading = false;
+        this.product = null;
       }
     });
   }
@@ -92,8 +103,9 @@ export class ProductDetails implements OnInit {
       next: (products) => {
         // Get products from same category, excluding current product
         this.relatedProducts = products
-          .filter(p => p.id !== this.product?.id && p['category'] === this.product?.['category'])
+          .filter(p => p['id'] !== this.product!['id'] && p['category'] === this.product!['category'])
           .slice(0, 4);
+        console.log('Related products loaded:', this.relatedProducts);
       },
       error: (error) => {
         console.error('Error loading related products:', error);
@@ -160,6 +172,7 @@ export class ProductDetails implements OnInit {
       );
       
       this.addToCartSuccess = true;
+      this.successMessage = `${this.getProductTitle()} added to cart successfully!`;
       console.log('Added to cart:', {
         product: this.product,
         quantity: this.quantity,
@@ -170,6 +183,7 @@ export class ProductDetails implements OnInit {
       // Reset success message after 3 seconds
       setTimeout(() => {
         this.addToCartSuccess = false;
+        this.successMessage = '';
       }, 3000);
       
     } catch (error) {
@@ -205,13 +219,63 @@ export class ProductDetails implements OnInit {
     alert('Wishlist functionality will be implemented soon!');
   }
 
-  // Utility methods
-  getDiscountPercentage(): number {
-    if (!this.product || !this.product['originalPrice'] || !this.product.price) return 0;
-    const discount = ((this.product['originalPrice'] - this.product.price) / this.product['originalPrice']) * 100;
-    return Math.round(discount);
+  // Event handlers for related products
+  onAddToCart(product: Product): void {
+    console.log('Adding to cart from related products:', product);
+    
+    try {
+      this.cartService.addToCart(product, 1, {
+        color: 'default',
+        size: 'default'
+      });
+      
+      // Show success feedback
+      this.successMessage = `${product.title || product.nom || product.name || 'Product'} added to cart successfully!`;
+      this.addToCartSuccess = true;
+      console.log(this.successMessage);
+      
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        this.addToCartSuccess = false;
+        this.successMessage = '';
+      }, 3000);
+      
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
   }
 
+  onAddToWishlist(product: Product): void {
+    console.log('Adding to wishlist from related products:', product);
+    // TODO: Implement wishlist service when available
+    console.log('Wishlist functionality will be implemented soon!');
+  }
+
+  onAddToCompare(product: Product): void {
+    console.log('Adding to compare from related products:', product);
+    // TODO: Implement compare service when available
+    console.log('Compare functionality will be implemented soon!');
+  }
+
+  onBuyNow(product: Product): void {
+    console.log('Buying now from related products:', product);
+    
+    try {
+      // Add to cart first
+      this.cartService.addToCart(product, 1, {
+        color: 'default',
+        size: 'default'
+      });
+      
+      // Navigate to cart for checkout
+      this.router.navigate(['/cart']);
+      
+    } catch (error) {
+      console.error('Error in buy now:', error);
+    }
+  }
+
+  // Utility methods
   isInCart(): boolean {
     return this.product ? this.cartService.isInCart(this.product.id!) : false;
   }
@@ -229,71 +293,111 @@ export class ProductDetails implements OnInit {
   }
 
   isStarFilled(star: number): boolean {
-    const rating = this.product?.['rating'] || 0;
+    const rating = this.getProductRating();
     return star <= rating;
   }
 
   // Template helper methods to avoid optional chaining warnings
   getProductTitle(): string {
-    return this.product?.title || 'Product';
+    if (!this.product) return 'Product';
+    return this.product['title'] || this.product['nom'] || this.product['name'] || 'Product';
   }
 
   getProductImage(): string {
-    return this.productImages[this.selectedImageIndex] || this.product?.image || 'https://via.placeholder.com/500x500/4285f4/ffffff?text=Product';
+    if (!this.product) return '';
+    if (this.productImages && this.productImages.length > 0) {
+      return this.productImages[this.selectedImageIndex] || this.product['image'] || '';
+    }
+    return this.product['image'] || '';
   }
 
   getProductCategory(): string {
-    return this.product?.['category'] || 'Product Category';
+    if (!this.product) return 'Product Category';
+    // Handle both category field and nested categorie object
+    if (this.product['category']) {
+      return this.product['category'];
+    }
+    if (this.product['categorie'] && this.product['categorie']['nom']) {
+      return this.product['categorie']['nom'];
+    }
+    return 'Product Category';
   }
 
   getProductRating(): number {
-    return this.product?.['rating'] || 0;
+    if (!this.product) return 0;
+    return this.product['rating'] || 0;
   }
 
   getProductReviewCount(): number {
-    return this.product?.['reviewCount'] || 0;
-  }
-
-  getProductPrice(): number {
-    return this.product?.price || 0;
+    if (!this.product) return 0;
+    return this.product['reviewCount'] || 0;
   }
 
   getProductDescription(): string {
-    return this.product?.description || 'High-quality product with premium features and excellent performance. Perfect for everyday use and professional applications.';
+    if (!this.product) return 'High-quality product with premium features and excellent performance. Perfect for everyday use and professional applications.';
+    return this.product['description'] || 'High-quality product with premium features and excellent performance. Perfect for everyday use and professional applications.';
   }
 
   getProductBrand(): string {
-    return this.product?.['brand'] || 'Premium Brand';
+    if (!this.product) return 'Premium Brand';
+    return this.product['brand'] || 'Premium Brand';
   }
 
   getProductModel(): string {
-    return this.product?.['model'] || 'Latest Model';
+    if (!this.product) return 'Latest Model';
+    return this.product['model'] || 'Latest Model';
   }
 
   getProductWeight(): string {
-    return this.product?.['weight'] || '1.2 kg';
+    if (!this.product) return '1.2 kg';
+    return this.product['weight'] || '1.2 kg';
   }
 
   getProductDimensions(): string {
-    return this.product?.['dimensions'] || '25 x 15 x 8 cm';
+    if (!this.product) return '25 x 15 x 8 cm';
+    return this.product['dimensions'] || '25 x 15 x 8 cm';
+  }
+
+  // Get product price with fallback
+  getProductPrice(): number {
+    if (!this.product) return 0;
+    return this.product['price'] || this.product['prix'] || 0;
   }
 
   hasOriginalPrice(): boolean {
-    return !!(this.product?.['originalPrice'] && this.product?.price);
+    if (!this.product) return false;
+    return !!(this.product['originalPrice'] && this.getProductPrice());
+  }
+
+  getDiscountPercentage(): number {
+    if (!this.product || !this.product['originalPrice'] || !this.getProductPrice()) return 0;
+    const discount = ((this.product['originalPrice'] - this.getProductPrice()) / this.product['originalPrice']) * 100;
+    return Math.round(discount);
   }
 
   getSavingsAmount(): number {
     if (!this.hasOriginalPrice() || !this.product) return 0;
     const originalPrice = this.product['originalPrice'] as number;
-    const currentPrice = this.product.price as number;
+    const currentPrice = this.getProductPrice();
     return originalPrice - currentPrice;
   }
 
   getOriginalPrice(): number {
-    return this.product?.['originalPrice'] as number || 0;
+    if (!this.product) return 0;
+    return this.product['originalPrice'] as number || 0;
+  }
+
+  getStockQuantity(): number {
+    if (!this.product) return 0;
+    return this.product['stock'] || 0;
+  }
+
+  getProductId(): string {
+    if (!this.product) return 'N/A';
+    return this.product['id'] ? `P-${this.product['id']}` : 'N/A';
   }
 
   trackByProduct(index: number, product: Product): number {
-    return product.id || index;
+    return product['id'] || index;
   }
 }

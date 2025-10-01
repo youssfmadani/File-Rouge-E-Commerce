@@ -37,24 +37,7 @@ public class CommandeServiceImpl implements CommandeService {
 
     @Override
     public void deleteCommande(Integer id) {
-        try {
-            // Check if the commande exists before trying to delete
-            Optional<Commande> commandeOpt = commandeRepository.findById(id);
-            if (!commandeOpt.isPresent()) {
-                System.out.println("Attempted to delete non-existent commande with ID: " + id);
-                throw new RuntimeException("Commande not found with id: " + id);
-            }
-            
-            System.out.println("Deleting commande with ID: " + id);
-            System.out.println("Commande details: " + commandeOpt.get());
-            
-            commandeRepository.deleteById(id);
-            System.out.println("Successfully deleted commande with ID: " + id);
-        } catch (Exception e) {
-            System.err.println("Error deleting commande with ID: " + id + ", Error: " + e.getMessage());
-            e.printStackTrace();
-            throw new RuntimeException("Failed to delete commande with ID: " + id, e);
-        }
+        commandeRepository.deleteById(id);
     }
 
     @Override

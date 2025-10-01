@@ -9,9 +9,9 @@
       
       <!-- Product Badges -->
       <div class="product-badges">
-        <span class="badge badge-new" *ngIf="product?.isNew">NEW</span>
+        <span class="badge badge-new" *ngIf="product && product.isNew">NEW</span>
         <span class="badge badge-sale" *ngIf="hasDiscount()">-{{getDiscountPercent()}}%</span>
-        <span class="badge badge-featured" *ngIf="product?.isFeatured">FEATURED</span>
+        <span class="badge badge-featured" *ngIf="product && product.isFeatured">FEATURED</span>
         <span class="badge badge-limited" *ngIf="isLowStock()">LIMITED</span>
       </div>
       
@@ -139,7 +139,7 @@
         <span class="meta-label">SKU:</span>
         <span class="meta-value">{{ getProductSKU() }}</span>
       </div>
-      <div class="meta-item" *ngIf="getStockQuantity() !== undefined">
+      <div class="meta-item" *ngIf="getStockQuantity() !== undefined && getStockQuantity() >= 0">
         <span class="meta-label">Stock:</span>
         <span class="meta-value" [class.low-stock]="isLowStock()" [class.out-of-stock]="isOutOfStock()">
           {{ getStockQuantity() }} units

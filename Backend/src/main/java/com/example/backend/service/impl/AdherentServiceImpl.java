@@ -17,7 +17,21 @@ public class AdherentServiceImpl implements AdherentService {
 
     @Override
     public Adherent saveAdherent(Adherent adherent) {
-        return adherentRepository.save(adherent);
+        System.out.println("Saving adherent to database: " + adherent);
+        try {
+            // Save the adherent first
+            Adherent savedAdherent = adherentRepository.save(adherent);
+            System.out.println("Adherent saved successfully with ID: " + savedAdherent.getId());
+            
+            // Create a default panier for the adherent
+            // This will be handled by the PanierService or similar in a more complete implementation
+            
+            return savedAdherent;
+        } catch (Exception e) {
+            System.err.println("Error saving adherent to database: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @Override

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProductService, Product } from '../../services/product';
 import { CartService } from '../../services/cart';
-import { WonderfulProductCardComponent } from '../../components/wonderful-product-card/wonderful-product-card';
+import { ProductCardComponent } from '../../components/product-card/product-card';
 
 interface PriceRange {
   absolute: { min: number; max: number };
@@ -14,7 +14,7 @@ interface PriceRange {
 @Component({
   selector: 'app-product-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, WonderfulProductCardComponent],
+  imports: [CommonModule, FormsModule, ProductCardComponent],
   templateUrl: './product-list.html',
   styleUrls: ['./product-list.css']
 })
@@ -165,13 +165,15 @@ export class ProductListComponent {
   onAddToWishlist(product: Product) {
     console.log('Adding to wishlist:', product);
     // TODO: Implement wishlist service when available
-    alert('Wishlist functionality will be implemented soon!');
+    // For now, we'll just log and not show an alert
+    console.log('Wishlist functionality will be implemented soon!');
   }
 
   onAddToCompare(product: Product) {
     console.log('Adding to compare:', product);
     // TODO: Implement compare service when available
-    alert('Compare functionality will be implemented soon!');
+    // For now, we'll just log and not show an alert
+    console.log('Compare functionality will be implemented soon!');
   }
 
   onBuyNow(product: Product) {

@@ -103,6 +103,7 @@ export class Register {
       };
 
       // Try to create user via backend
+      console.log('Sending user data to backend:', userData);
       this.userService.createUser(userData).subscribe({
         next: (user) => {
           this.successMessage = 'Account created successfully! Redirecting to login...';
@@ -115,7 +116,15 @@ export class Register {
         },
         error: (error) => {
           console.error('Registration error:', error);
-          this.errorMessage = 'Registration failed. Please try again.';
+          console.log('Full error object:', JSON.stringify(error, null, 2));
+          if (error.error && error.error.message) {
+            this.errorMessage = error.error.message;
+            console.log('Server error message:', error.error.message);
+          } else if (error.message) {
+            this.errorMessage = error.message;
+          } else {
+            this.errorMessage = 'Registration failed. Please try again.';
+          }
           this.isLoading = false;
         }
       });

@@ -1,11 +1,11 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './product-card.html',
   styleUrl: './product-card.css'
 })
@@ -105,38 +105,45 @@ export class ProductCardComponent {
 
   // New methods for enhanced product card
   getDiscountPercent(): number {
-    if (this.product?.originalPrice && this.product?.price) {
-      return Math.round(((this.product.originalPrice - this.product.price) / this.product.originalPrice) * 100);
+    if (this.product && this.product['originalPrice'] && this.product['price']) {
+      return Math.round(((this.product['originalPrice'] - this.product['price']) / this.product['originalPrice']) * 100);
     }
-    return this.product?.discount || 0;
+    return this.product && this.product['discount'] || 0;
   }
 
   getSavingsAmount(): number {
-    if (this.product?.originalPrice && this.product?.price) {
-      return this.product.originalPrice - this.product.price;
+    if (this.product && this.product['originalPrice'] && this.product['price']) {
+      return this.product['originalPrice'] - this.product['price'];
     }
     return 0;
   }
 
-  isInStock(): boolean {
-    if (this.product?.stock !== undefined) {
-      return this.product.stock > 0;
+  hasDiscount(): boolean {
+    if (this.product && this.product['originalPrice'] && this.product['price']) {
+      return this.product['originalPrice'] > this.product['price'];
     }
-    return this.product?.inStock !== false;
+    return false;
+  }
+
+  isInStock(): boolean {
+    if (this.product && this.product['stock'] !== undefined) {
+      return this.product['stock'] > 0;
+    }
+    return this.product && this.product['inStock'] !== false;
   }
 
   isLowStock(): boolean {
-    if (this.product?.stock !== undefined) {
-      return this.product.stock > 0 && this.product.stock <= 10;
+    if (this.product && this.product['stock'] !== undefined) {
+      return this.product['stock'] > 0 && this.product['stock'] <= 10;
     }
     return false;
   }
 
   isOutOfStock(): boolean {
-    if (this.product?.stock !== undefined) {
-      return this.product.stock <= 0;
+    if (this.product && this.product['stock'] !== undefined) {
+      return this.product['stock'] <= 0;
     }
-    return this.product?.inStock === false;
+    return this.product && this.product['inStock'] === false;
   }
 
   getAvailabilityText(): string {
@@ -151,77 +158,76 @@ export class ProductCardComponent {
 
   // Navigation
   viewProductDetails() {
-    if (this.product?.id) {
-      this.router.navigate(['/products', this.product.id]);
+    const productId = (this.product && this.product['id']) || (this.product && this.product['idProduit']);
+    if (productId) {
+      this.router.navigate(['/products', productId]);
     }
   }
 
   // Get product image with fallback
   getProductImage(): string {
-    return this.product?.imageUrl || 
-           this.product?.image || 
-           null;
+    return (this.product && this.product['imageUrl']) || 
+           (this.product && this.product['image']) || 
+           '';
   }
 
   // Get product title with fallback
   getProductTitle(): string {
-    return this.product?.name || 
-           this.product?.title || 
+    return (this.product && this.product['name']) || 
+           (this.product && this.product['title']) || 
+           (this.product && this.product['nom']) ||
            'Premium Product';
   }
 
   // Get product category with fallback
   getProductCategory(): string {
-    return this.product?.category || 'Uncategorized';
+    return (this.product && this.product['category']) || 
+           (this.product && this.product['categorie'] && this.product['categorie']['nom']) || 
+           'Uncategorized';
   }
 
   // Get product price with fallback
   getProductPrice(): number {
-    return this.product?.price || 0;
+    return (this.product && this.product['price']) || (this.product && this.product['prix']) || 0;
   }
 
   // Get original price with fallback
   getOriginalPrice(): number {
-    return this.product?.originalPrice || this.product?.price || 0;
-  }
-
-  // Check if product has discount
-  hasDiscount(): boolean {
-    return this.getDiscountPercent() > 0;
+    return (this.product && this.product['originalPrice']) || (this.product && this.product['price']) || 0;
   }
 
   // Get product rating with fallback
   getProductRating(): number {
-    return this.product?.rating || 0;
+    return (this.product && this.product['rating']) || 0;
   }
 
   // Get review count with fallback
   getReviewCount(): number {
-    return this.product?.reviewCount || 0;
+    return (this.product && this.product['reviewCount']) || 0;
   }
 
   // Get product brand with fallback
   getProductBrand(): string {
-    return this.product?.brand || 'Unknown Brand';
+    return (this.product && this.product['brand']) || 'Unknown Brand';
   }
 
   // Get product description with fallback
   getProductDescription(): string {
-    return this.product?.description || 'No description available for this product.';
+    return (this.product && this.product['description']) || 'No description available for this product.';
   }
 
   // Get product features
   getProductFeatures(): string[] {
-    return this.product?.features || [];
+    return (this.product && this.product['features']) || [];
   }
 
   // Get product SKU
   getProductSKU(): string {
-    return this.product?.sku || 'N/A';
+    return (this.product && this.product['sku']) || 'N/A';
   }
 
   // Get stock quantity
   getStockQuantity(): number {
-    return this.product?.stock || 0;
+    return (this.product && this.product['stock']) || 0;
   }
 }

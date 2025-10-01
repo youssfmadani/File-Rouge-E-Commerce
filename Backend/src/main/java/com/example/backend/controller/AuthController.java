@@ -26,7 +26,7 @@ public class AuthController {
         result.put("token", "dummy-token-" + System.currentTimeMillis());
         result.put("role", role);
         
-        // Try to find or create the user
+
         try {
             Optional<Adherent> adherentOpt = adherentService.getAdherentByEmail(email);
             Adherent adherent;

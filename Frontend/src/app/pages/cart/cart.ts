@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ProductCardComponent } from '../../components/product-card/product-card';
 import { CartService, CartItem, CartSummary } from '../../services/cart';
-import { OrderService, Order } from '../../services/order';
 import { AuthService } from '../../services/auth';
 import { ProductService, Product } from '../../services/product';
 
@@ -31,8 +30,8 @@ export class Cart implements OnInit, OnDestroy {
   // UI State
   loading = false;
   error = '';
-  isProcessingOrder = false;
   orderSuccess = false;
+  isProcessingOrder = false;
   
   // Promo code
   promoCode = '';
@@ -44,7 +43,6 @@ export class Cart implements OnInit, OnDestroy {
   
   constructor(
     private cartService: CartService,
-    private orderService: OrderService,
     private authService: AuthService,
     private productService: ProductService,
     private router: Router
@@ -151,30 +149,7 @@ export class Cart implements OnInit, OnDestroy {
     }
   }
 
-  // Promo code methods
-  async applyPromoCode(): Promise<void> {
-    if (!this.promoCode.trim()) {
-      this.promoCodeMessage = 'Please enter a promo code';
-      return;
-    }
-
-    try {
-      const result = await this.cartService.applyPromoCode(this.promoCode.trim());
-      if (result.success) {
-        this.promoCodeApplied = true;
-        this.promoCodeMessage = result.message;
-        // Update cart summary if discount is applied
-        this.cartSummary = this.cartService.getCartSummary();
-      } else {
-        this.promoCodeMessage = result.message;
-      }
-    } catch (error) {
-      console.error('Error applying promo code:', error);
-      this.promoCodeMessage = 'Error applying promo code';
-    }
-  }
-
-  // Getter methods for template
+  // Cart summary methods
   getTotalItems(): number {
     return this.cartSummary.totalItems;
   }
@@ -199,8 +174,24 @@ export class Cart implements OnInit, OnDestroy {
     return this.cartSummary.total;
   }
 
-  // Order creation
-  async proceedToCheckout(): Promise<void> {
+  // Promo code methods
+  applyPromoCode(): void {
+    if (!this.promoCode.trim()) {
+      this.promoCodeMessage = 'Please enter a promo code';
+      return;
+    }
+
+    // In a real implementation, this would call an API
+    this.promoCodeApplied = true;
+    this.promoCodeMessage = 'Promo code applied successfully!';
+    
+    // For demo purposes, apply a 10% discount
+    this.cartSummary.discount = this.cartSummary.subtotal * 0.1;
+    this.cartSummary.total = this.cartSummary.subtotal + this.cartSummary.shipping + this.cartSummary.tax - this.cartSummary.discount;
+  }
+
+  // Checkout method
+  proceedToCheckout(): void {
     console.log('Proceed to checkout clicked...');
     
     if (this.cartItems.length === 0) {
@@ -217,136 +208,38 @@ export class Cart implements OnInit, OnDestroy {
       return;
     }
 
-    // Verify user data exists
-    let currentUser = this.authService.getCurrentUser();
-    console.log('Current user before validation:', currentUser);
-    
-    if (!currentUser || !currentUser.id) {
-      console.log('User data missing, attempting to migrate legacy data...');
-      // Force migration of legacy data
-      this.authService.migrateLegacyData();
-      
-      // Try to get user again
-      currentUser = this.authService.getCurrentUser();
-      console.log('Current user after migration:', currentUser);
-      
-      if (!currentUser || !currentUser.id) {
-        // Try to re-authenticate if no user data
-        console.warn('No user data found, attempting to recreate from stored email');
-        const storedEmail = localStorage.getItem('auth_email') || localStorage.getItem('userEmail');
-        console.log('Stored email found:', storedEmail);
-        
-        if (storedEmail && this.authService.isAuthenticated()) {
-          // Try to get or create the user properly
-          try {
-            const userResult = await this.authService.getOrCreateUser(storedEmail, 'USER').toPromise();
-            if (userResult && userResult.id) {
-              this.authService.setCurrentUser(userResult);
-              currentUser = userResult;
-              console.log('Successfully created/retrieved user:', currentUser);
-            }
-          } catch (error) {
-            console.error('Failed to create/retrieve user:', error);
-          }
-        }
-      }
-    }
-    
-    if (!currentUser || !currentUser.id) {
-      this.error = 'Authentication error. Please log out and log in again.';
-      console.error('Critical authentication error: User data could not be recovered');
-      setTimeout(() => {
-        if (confirm('Would you like to log in again?')) {
-          this.authService.logout();
-          this.router.navigate(['/login'], { queryParams: { returnUrl: '/cart' } });
-        }
-      }, 2000);
-      return;
-    }
-
+    // Process order
     this.isProcessingOrder = true;
-    this.error = '';
     
-    console.log('Starting order creation process...');
-    console.log('Current user:', currentUser);
-    console.log('Cart items:', this.cartItems);
-    console.log('Total:', this.getTotal());
-
-    try {
-      // Use the already validated user from above
-      // Prepare order data
-      const orderData: Order = {
-        adherentId: currentUser.id,
-        montantTotal: this.getTotal(), // Use montantTotal instead of total
-        statut: 'EN_COURS', // Use backend enum value directly (statut instead of status)
-        dateCommande: new Date().toISOString(),
-        // Send product IDs instead of full product objects
-        produitIds: this.cartItems.map(item => item.product.id || 0).filter(id => id > 0)
-      };
-      
-      // Ensure we have at least one product
-      if (!orderData.produitIds || orderData.produitIds.length === 0) {
-        throw new Error('Cannot create order without products');
-      }
-      
-      console.log('Order data to be sent:', orderData);
-
-      // Create order
-      console.log('Attempting to create order...');
-      const createdOrder = await this.orderService.createOrder(orderData).toPromise();
-      
-      console.log('Order creation successful:', createdOrder);
-      
-      if (createdOrder) {
-        // Clear cart after successful order
-        this.cartService.clearCart();
-        
-        // Show success message
-        this.orderSuccess = true;
-        this.error = 'Order placed successfully!';
-        
-        // Navigate to order confirmation or products page after delay
-        setTimeout(() => {
-          // For now, just redirect to products page since orders page might not exist
-          this.router.navigate(['/products'], {
-            queryParams: { orderSuccess: 'true', orderId: createdOrder.id }
-          });
-        }, 3000);
-        
-        console.log('Order created successfully:', createdOrder);
-      }
-    } catch (error) {
-      console.error('Error creating order:', error);
-      
-      // Provide specific error messages based on the error type
-      if (error instanceof Error) {
-        if (error.message.includes('User not found') || error.message.includes('adherent')) {
-          this.error = 'Authentication error. Please log out and log in again to refresh your user data.';
-        } else if (error.message.includes('authentication') || error.message.includes('unauthorized')) {
-          this.error = 'Your session has expired. Please log in again.';
-        } else if (error.message.includes('network') || error.message.includes('fetch')) {
-          this.error = 'Network error. Please check your connection and try again.';
-        } else if (error.message.includes('Invalid order data')) {
-          this.error = 'There was a problem with your order. Please log out and log in again to refresh your session.';
-        } else {
-          this.error = `Order failed: ${error.message}`;
-        }
-      } else {
-        this.error = 'Failed to place order. Please try again.';
-      }
-      
-      // If it's an authentication error, suggest re-login
-      if (this.error.includes('Authentication') || this.error.includes('session has expired')) {
-        setTimeout(() => {
-          if (confirm('Would you like to log in again?')) {
-            this.authService.logout();
-            this.router.navigate(['/login'], { queryParams: { returnUrl: '/cart' } });
-          }
-        }, 2000);
-      }
-    } finally {
+    // Simulate order processing
+    setTimeout(() => {
       this.isProcessingOrder = false;
-    }
+      this.orderSuccess = true;
+      
+      // Clear cart after successful order
+      this.cartService.clearCart();
+      
+      // Reset success message after 5 seconds
+      setTimeout(() => {
+        this.orderSuccess = false;
+      }, 5000);
+    }, 2000);
+  }
+
+  // Emergency fix for user data
+  emergencyFixUser(): void {
+    // This is a temporary fix for authentication issues
+    console.log('Emergency user fix triggered...');
+    
+    // Clear any corrupted auth data
+    localStorage.removeItem('auth_user');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_role');
+    localStorage.removeItem('auth_email');
+    localStorage.removeItem('userEmail');
+    
+    alert('Authentication data cleared. Please login again.');
+    this.router.navigate(['/login']);
   }
 
   // Navigation methods
@@ -415,20 +308,5 @@ export class Cart implements OnInit, OnDestroy {
     console.log('  - userEmail:', localStorage.getItem('userEmail'));
     
     console.log('=== End Debug Info ===');
-  }
-
-  // Emergency fix method to manually create user data
-  emergencyFixUser(): void {
-    console.log('Emergency fix: Creating user data...');
-    const email = 'user@test.com';
-    const success = this.authService.loginLocal(email, 'test123');
-    if (success) {
-      console.log('Emergency user created successfully');
-      this.debugAuthState();
-      alert('User data fixed! You can now proceed with checkout.');
-    } else {
-      console.error('Failed to create emergency user');
-      alert('Failed to fix user data. Please refresh and try logging in again.');
-    }
   }
 }

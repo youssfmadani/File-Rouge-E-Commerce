@@ -110,14 +110,15 @@
       </div>
       
       <div class="products-grid">
-        <app-wonderful-product-card
+        <app-product-card
           *ngFor="let product of getPaginatedProducts(); trackBy: trackByProduct"
           [product]="product"
+          [viewMode]="currentView"
           (addToCart)="onAddToCart($event)"
           (addToWishlist)="onAddToWishlist($event)"
           (addToCompare)="onAddToCompare($event)"
           (buyNow)="onBuyNow($event)">
-        </app-wonderful-product-card>
+        </app-product-card>
       </div>
       
       <!-- Pagination -->

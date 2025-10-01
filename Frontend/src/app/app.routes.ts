@@ -5,37 +5,35 @@ import { ProductDetails } from './pages/product-details/product-details';
 import { Cart } from './pages/cart/cart';
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
-import { AdminDashboard } from './pages/admin-dashboard/admin-dashboard';
-import { AdminProducts } from './pages/admin-products/admin-products';
-import { Categories } from './pages/categories/categories';
-import { Deals } from './pages/deals/deals';
-import { About } from './pages/about/about';
 import { Profile } from './pages/profile/profile';
-import { UserAdminConverter } from './components/user-admin-converter/user-admin-converter';
-import { EnhancedProductListComponent } from './components/enhanced-product-list/enhanced-product-list';
-import { PerfectProductList } from './pages/perfect-product-list/perfect-product-list';
-import { WonderfulProductList } from './pages/wonderful-product-list/wonderful-product-list';
+import { AdminDashboardComponent } from './pages/admin/admin-dashboard';
+import { AdherentsListComponent } from './pages/admin/adherents/adherents-list';
+import { AdherentFormComponent } from './pages/admin/adherents/adherent-form';
+import { OrdersListComponent } from './pages/admin/orders/orders-list';
+import { OrderFormComponent } from './pages/admin/orders/order-form';
+import { CategoriesListComponent } from './pages/admin/categories/categories-list';
+import { CategoryFormComponent } from './pages/admin/categories/category-form';
 import { authGuard } from './guards/auth.guard';
-import { guestGuard } from './guards/guest.guard';
 import { adminGuard } from './guards/admin.guard';
+import { guestGuard } from './guards/guest.guard';
 
 export const routes: Routes = [
   { path: '', component: Home },
   { path: 'products', component: ProductListComponent },
-  { path: 'products-enhanced', component: EnhancedProductListComponent },
-  { path: 'products-perfect', component: PerfectProductList },
-  { path: 'products-wonderful', component: WonderfulProductList },
   { path: 'products/:id', component: ProductDetails },
   { path: 'cart', component: Cart, canActivate: [authGuard] },
   { path: 'login', component: Login, canActivate: [guestGuard] },
   { path: 'register', component: Register, canActivate: [guestGuard] },
-  { path: 'admin', component: AdminDashboard, canActivate: [adminGuard] },
-  { path: 'admin/products', component: AdminProducts, canActivate: [adminGuard] },
-  { path: 'admin/users', component: UserAdminConverter },
-  { path: 'categories', component: Categories },
-  { path: 'deals', component: Deals },
-  { path: 'about', component: About },
   { path: 'profile', component: Profile, canActivate: [authGuard] },
-  { path: 'dashboard', redirectTo: '/profile' }, // Alias for customer dashboard
-  { path: '**', redirectTo: '' } // Redirect unknown paths to home
+  // Admin routes
+  { path: 'admin', component: AdminDashboardComponent, canActivate: [adminGuard] },
+  { path: 'admin/adherents', component: AdherentsListComponent, canActivate: [adminGuard] },
+  { path: 'admin/adherents/create', component: AdherentFormComponent, canActivate: [adminGuard] },
+  { path: 'admin/adherents/edit/:id', component: AdherentFormComponent, canActivate: [adminGuard] },
+  { path: 'admin/orders', component: OrdersListComponent, canActivate: [adminGuard] },
+  { path: 'admin/orders/edit/:id', component: OrderFormComponent, canActivate: [adminGuard] },
+  { path: 'admin/categories', component: CategoriesListComponent, canActivate: [adminGuard] },
+  { path: 'admin/categories/create', component: CategoryFormComponent, canActivate: [adminGuard] },
+  { path: 'admin/categories/edit/:id', component: CategoryFormComponent, canActivate: [adminGuard] },
+  { path: '**', redirectTo: '' }
 ];

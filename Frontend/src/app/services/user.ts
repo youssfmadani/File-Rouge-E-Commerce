@@ -73,7 +73,9 @@ export class UserService {
   }
 
   createUser(adherent: Adherent): Observable<Adherent> {
-    return this.http.post<Adherent>(this.adherentsUrl, this.mapFrontendAdherent(adherent)).pipe(
+    const mappedAdherent = this.mapFrontendAdherent(adherent);
+    console.log('Sending mapped adherent to backend:', mappedAdherent);
+    return this.http.post<Adherent>(this.adherentsUrl, mappedAdherent).pipe(
       map(a => this.mapBackendAdherent(a)),
       catchError(error => {
         console.error('Error creating user:', error);
@@ -130,10 +132,13 @@ export class UserService {
 
   // Map frontend adherent format to backend format
   private mapFrontendAdherent(adherent: Adherent): any {
-    return {
-      ...adherent,
-      prénom: adherent.prenom || adherent.prénom
-    };
+    const result = { ...adherent };
+    // Map prenom (without accent) to prénom (with accent)
+    if (result.prenom && !result.prénom) {
+      result.prénom = result.prenom;
+      delete result.prenom;
+    }
+    return result;
   }
 
 
