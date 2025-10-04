@@ -5,9 +5,9 @@ public class ProduitDTO {
     private String nom;
     private String description;
     private float prix;
-    private String image; // Added image field
+    private Integer stock = 0;
+    private String image;
     private Integer categorieId;
-    // Getters et setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
     public String getNom() { return nom; }
@@ -16,8 +16,10 @@ public class ProduitDTO {
     public void setDescription(String description) { this.description = description; }
     public float getPrix() { return prix; }
     public void setPrix(float prix) { this.prix = prix; }
-    public String getImage() { return image; } // Added getter
-    public void setImage(String image) { this.image = image; } // Added setter
+    public Integer getStock() { return stock; }
+    public void setStock(Integer stock) { this.stock = stock; }
+    public String getImage() { return image; }
+    public void setImage(String image) { this.image = image; }
     public Integer getCategorieId() { return categorieId; }
     public void setCategorieId(Integer categorieId) { this.categorieId = categorieId; }
 }

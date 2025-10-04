@@ -13,7 +13,6 @@ import { AuthService } from '../../services/auth';
   styleUrls: ['./register.css']
 })
 export class Register {
-  // Form data
   registerData = {
     firstName: '',
     lastName: '',
@@ -24,7 +23,6 @@ export class Register {
     newsletter: false
   };
 
-  // UI state
   showPassword = false;
   showConfirmPassword = false;
   isLoading = false;
@@ -37,7 +35,6 @@ export class Register {
     private authService: AuthService
   ) {}
 
-  // Toggle password visibility
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
@@ -46,7 +43,6 @@ export class Register {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
-  // Password strength calculation
   getPasswordStrength(): number {
     const password = this.registerData.password;
     if (!password) return 0;
@@ -81,12 +77,10 @@ export class Register {
     return 'strength-very-strong';
   }
 
-  // Password matching validation
   passwordsMatch(): boolean {
     return this.registerData.password === this.registerData.confirmPassword;
   }
 
-  // Form submission with backend integration
   onSubmit(): void {
     this.errorMessage = '';
     this.successMessage = '';
@@ -94,7 +88,6 @@ export class Register {
     if (this.validateForm()) {
       this.isLoading = true;
       
-      // Create user object for backend
       const userData = {
         nom: this.registerData.lastName,
         prenom: this.registerData.firstName,
@@ -102,24 +95,18 @@ export class Register {
         motDePasse: this.registerData.password
       };
 
-      // Try to create user via backend
-      console.log('Sending user data to backend:', userData);
       this.userService.createUser(userData).subscribe({
         next: (user) => {
           this.successMessage = 'Account created successfully! Redirecting to login...';
           this.isLoading = false;
           
-          // Redirect to login after success
           setTimeout(() => {
             this.router.navigate(['/login']);
           }, 2000);
         },
         error: (error) => {
-          console.error('Registration error:', error);
-          console.log('Full error object:', JSON.stringify(error, null, 2));
           if (error.error && error.error.message) {
             this.errorMessage = error.error.message;
-            console.log('Server error message:', error.error.message);
           } else if (error.message) {
             this.errorMessage = error.message;
           } else {
@@ -131,9 +118,7 @@ export class Register {
     }
   }
 
-  // Enhanced form validation
   private validateForm(): boolean {
-    // Check required fields
     if (!this.registerData.firstName?.trim()) {
       this.errorMessage = 'First name is required';
       return false;
@@ -149,14 +134,12 @@ export class Register {
       return false;
     }
     
-    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.registerData.email)) {
       this.errorMessage = 'Please enter a valid email address';
       return false;
     }
     
-    // Password validation
     if (!this.registerData.password) {
       this.errorMessage = 'Password is required';
       return false;
@@ -167,7 +150,6 @@ export class Register {
       return false;
     }
     
-    // Confirm password validation
     if (!this.registerData.confirmPassword) {
       this.errorMessage = 'Please confirm your password';
       return false;
@@ -178,7 +160,6 @@ export class Register {
       return false;
     }
     
-    // Terms acceptance
     if (!this.registerData.acceptTerms) {
       this.errorMessage = 'Please accept the terms and conditions';
       return false;
@@ -187,16 +168,11 @@ export class Register {
     return true;
   }
 
-  // Social registration methods
   onGoogleRegister(): void {
-    console.log('Google registration clicked');
-    // TODO: Implement Google OAuth registration
     this.errorMessage = 'Google registration is not implemented yet';
   }
 
   onFacebookRegister(): void {
-    console.log('Facebook registration clicked');
-    // TODO: Implement Facebook OAuth registration
     this.errorMessage = 'Facebook registration is not implemented yet';
   }
 }

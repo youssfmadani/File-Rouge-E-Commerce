@@ -27,13 +27,16 @@ public class Produit {
     @PositiveOrZero
     private float prix;
     
-    private String image; // Added image field
+    @PositiveOrZero
+    private Integer stock = 0;
+    
+    private String image;
 
     @ManyToOne
     @JsonIgnore
     private Categorie categorie;
     
-    // Custom toString to avoid circular references
+   
     @Override
     public String toString() {
         return "Produit{" +
@@ -41,6 +44,7 @@ public class Produit {
                 ", nom='" + nom + '\'' +
                 ", description='" + description + '\'' +
                 ", prix=" + prix +
+                ", stock=" + stock +
                 ", image='" + image + '\'' +
                 ", categorieId=" + (categorie != null ? categorie.getId() : null) +
                 '}';

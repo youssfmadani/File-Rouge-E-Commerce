@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { OrderService, Order } from '../../../services/order';
+import { OrderService, Order } from '../../../services/order.service';
 import { AdminSidebarComponent } from '../../admin/admin-sidebar';
 
 @Component({
@@ -13,10 +13,24 @@ import { AdminSidebarComponent } from '../../admin/admin-sidebar';
   styleUrls: ['./order-form.css']
 })
 export class OrderFormComponent implements OnInit {
-  order: Order = {};
+  order: Order = {
+    dateCommande: new Date(),
+    statut: 'EN_COURS',
+    adherentId: undefined,
+    montantTotal: 0,
+    produitIds: []
+  };
   isEditMode = false;
   loading = false;
   error: string | null = null;
+
+  // Status options for the dropdown
+  statusOptions = [
+    { value: 'EN_COURS', label: 'En cours' },
+    { value: 'EXPEDIE', label: 'Expédié' },
+    { value: 'LIVRE', label: 'Livré' },
+    { value: 'ANNULE', label: 'Annulé' }
+  ];
 
   constructor(
     private router: Router,
@@ -55,13 +69,14 @@ export class OrderFormComponent implements OnInit {
       // Update existing order
       if (this.order.idCommande) {
         this.orderService.updateOrder(this.order.idCommande, this.order).subscribe({
-          next: () => {
+          next: (updatedOrder) => {
             this.loading = false;
+            console.log('Order updated successfully:', updatedOrder);
             this.router.navigate(['/admin/orders']);
           },
           error: (error) => {
             console.error('Error updating order:', error);
-            this.error = 'Failed to update order';
+            this.error = 'Failed to update order: ' + (error.message || 'Unknown error');
             this.loading = false;
           }
         });
@@ -69,13 +84,14 @@ export class OrderFormComponent implements OnInit {
     } else {
       // Create new order
       this.orderService.createOrder(this.order).subscribe({
-        next: () => {
+        next: (newOrder) => {
           this.loading = false;
+          console.log('Order created successfully:', newOrder);
           this.router.navigate(['/admin/orders']);
         },
         error: (error) => {
           console.error('Error creating order:', error);
-          this.error = 'Failed to create order';
+          this.error = 'Failed to create order: ' + (error.message || 'Unknown error');
           this.loading = false;
         }
       });
@@ -84,5 +100,18 @@ export class OrderFormComponent implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['/admin/orders']);
+  }
+  
+  // Helper method to format date for display
+  formatDate(date: Date | undefined): string {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString();
+  }
+  
+  // Helper method to handle date input changes
+  onDateChange(event: any): void {
+    if (event.target.value) {
+      this.order.dateCommande = new Date(event.target.value);
+    }
   }
 }

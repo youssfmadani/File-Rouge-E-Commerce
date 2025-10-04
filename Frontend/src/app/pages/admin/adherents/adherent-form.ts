@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdherentService, Adherent } from '../../../services/adherent';
-import { AdminSidebarComponent } from '../../admin/admin-sidebar';
 
 @Component({
   selector: 'app-adherent-form',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, AdminSidebarComponent],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './adherent-form.html',
   styleUrls: ['./adherent-form.css']
 })

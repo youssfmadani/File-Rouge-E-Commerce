@@ -12,80 +12,58 @@ import { AuthService, User } from '../../services/auth';
   styleUrls: ['./login.css']
 })
 export class Login {
-  // Form data
   loginData = {
     email: '',
     password: '',
     rememberMe: false
   };
 
-  // UI state
   showPassword = false;
   isLoading = false;
   errorMessage = '';
 
   constructor(private router: Router, private authService: AuthService) {
-    console.log('Login component initialized at:', new Date().toISOString());
   }
 
-  // Toggle password visibility
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
 
-  // Form submission - Enhanced with AuthService integration and admin redirect
   onSubmit(): void {
-    console.log('onSubmit method called at:', new Date().toISOString());
-    this.errorMessage = ''; // Clear previous errors
+    this.errorMessage = '';
     
     if (this.validateForm()) {
       this.isLoading = true;
       
-      // Try backend authentication first
       this.authService.login(this.loginData.email, this.loginData.password).subscribe({
         next: (success) => {
           if (success) {
-            // Verify user was stored properly
             const currentUser = this.authService.getCurrentUser();
-            console.log('Backend login - Current user after login:', currentUser);
             
-            // Check user role and redirect accordingly
             const userRole = this.authService.getUserRole();
             if (userRole === 'ADMIN') {
-              console.log('Admin login successful, redirecting to admin dashboard');
               this.router.navigate(['/admin']);
             } else {
-              console.log('User login successful, redirecting to profile dashboard');
               this.router.navigate(['/profile']);
             }
           } else {
-            // Fallback to local authentication for development
-            console.log('Backend login failed, trying local authentication...');
             const localSuccess = this.authService.loginLocal(this.loginData.email, this.loginData.password);
             if (localSuccess) {
-              // Force a small delay to ensure localStorage is updated
               setTimeout(() => {
-                // Verify user was stored properly
                 const currentUser = this.authService.getCurrentUser();
-                console.log('Local login - Current user after login:', currentUser);
                 
                 if (!currentUser) {
-                  console.error('User not stored properly after local login, forcing migration...');
                   this.authService.migrateLegacyData();
                   const migratedUser = this.authService.getCurrentUser();
-                  console.log('After migration - Current user:', migratedUser);
                 }
                 
-                // Check user role and redirect accordingly
                 const userRole = this.authService.getUserRole();
                 if (userRole === 'ADMIN') {
-                  console.log('Admin local login successful, redirecting to admin dashboard');
                   this.router.navigate(['/admin']);
                 } else {
-                  console.log('User local login successful, redirecting to profile dashboard');
                   this.router.navigate(['/profile']);
                 }
-              }, 100); // Small delay to ensure localStorage is written
+              }, 100);
             } else {
               this.errorMessage = 'Invalid email or password. Please try again.';
             }
@@ -93,34 +71,23 @@ export class Login {
           this.isLoading = false;
         },
         error: (error) => {
-          console.error('Login error:', error);
-          // Fallback to local authentication
-          console.log('Backend login error, trying local authentication...');
           const localSuccess = this.authService.loginLocal(this.loginData.email, this.loginData.password);
           if (localSuccess) {
-            // Force a small delay to ensure localStorage is updated
             setTimeout(() => {
-              // Verify user was stored properly
               const currentUser = this.authService.getCurrentUser();
-              console.log('Local login (error fallback) - Current user after login:', currentUser);
               
               if (!currentUser) {
-                console.error('User not stored properly after local login, forcing migration...');
                 this.authService.migrateLegacyData();
                 const migratedUser = this.authService.getCurrentUser();
-                console.log('After migration - Current user:', migratedUser);
               }
               
-              // Check user role and redirect accordingly
               const userRole = this.authService.getUserRole();
               if (userRole === 'ADMIN') {
-                console.log('Admin local login successful, redirecting to admin dashboard');
                 this.router.navigate(['/admin']);
               } else {
-                console.log('User local login successful, redirecting to profile dashboard');
                 this.router.navigate(['/profile']);
               }
-            }, 100); // Small delay to ensure localStorage is written
+            }, 100);
           } else {
             this.errorMessage = 'Login failed. Please check your credentials and try again.';
           }
@@ -130,14 +97,12 @@ export class Login {
     }
   }
 
-  // Form validation
   private validateForm(): boolean {
     if (!this.loginData.email || !this.loginData.password) {
       this.errorMessage = 'Please fill in all required fields';
       return false;
     }
 
-    // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.loginData.email)) {
       this.errorMessage = 'Please enter a valid email address';
@@ -147,26 +112,18 @@ export class Login {
     return true;
   }
 
-  // Social login methods
   onGoogleLogin(): void {
-    console.log('Google login clicked');
-    // TODO: Implement Google OAuth login
-    // For now, simulate successful login for demo purposes
     this.isLoading = true;
     
-    // Simulate Google OAuth response
     setTimeout(() => {
       const mockGoogleEmail = 'user@gmail.com';
       const success = this.authService.loginLocal(mockGoogleEmail, 'google-oauth');
       
       if (success) {
-        // Check user role and redirect accordingly
         const userRole = this.authService.getUserRole();
         if (userRole === 'ADMIN') {
-          console.log('Google admin login successful, redirecting to admin dashboard');
           this.router.navigate(['/admin']);
         } else {
-          console.log('Google login successful, redirecting to profile dashboard');
           this.router.navigate(['/profile']);
         }
       } else {
@@ -177,24 +134,17 @@ export class Login {
   }
 
   onFacebookLogin(): void {
-    console.log('Facebook login clicked');
-    // TODO: Implement Facebook OAuth login
-    // For now, simulate successful login for demo purposes
     this.isLoading = true;
     
-    // Simulate Facebook OAuth response
     setTimeout(() => {
       const mockFacebookEmail = 'user@facebook.com';
       const success = this.authService.loginLocal(mockFacebookEmail, 'facebook-oauth');
       
       if (success) {
-        // Check user role and redirect accordingly
         const userRole = this.authService.getUserRole();
         if (userRole === 'ADMIN') {
-          console.log('Facebook admin login successful, redirecting to admin dashboard');
           this.router.navigate(['/admin']);
         } else {
-          console.log('Facebook login successful, redirecting to profile dashboard');
           this.router.navigate(['/profile']);
         }
       } else {

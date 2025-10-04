@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { OrderService, Order } from '../../../services/order';
+import { OrderService, Order } from '../../../services/order.service';
 import { AdminSidebarComponent } from '../../admin/admin-sidebar';
 
 @Component({
@@ -38,7 +38,7 @@ export class OrdersListComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading orders:', error);
-        this.error = 'Failed to load orders';
+        this.error = 'Failed to load orders: ' + (error.message || 'Unknown error');
         this.loading = false;
       }
     });
@@ -58,17 +58,45 @@ export class OrdersListComponent implements OnInit {
         next: () => {
           // Remove the order from the list
           this.orders = this.orders.filter(order => order.idCommande !== id);
+          console.log('Order deleted successfully');
         },
         error: (error) => {
           console.error('Error deleting order:', error);
-          this.error = 'Failed to delete order';
+          this.error = 'Failed to delete order: ' + (error.message || 'Unknown error');
         }
       });
     }
   }
 
+  navigateToCreate(): void {
+    this.router.navigate(['/admin/orders/create']);
+  }
+
   navigateToEdit(id: number | undefined): void {
     if (id === undefined) return;
     this.router.navigate(['/admin/orders/edit', id]);
+  }
+  
+  // Helper method to get status label
+  getStatusLabel(status: string | undefined): string {
+    const statusMap: { [key: string]: string } = {
+      'EN_COURS': 'En cours',
+      'EXPEDIE': 'Expédié',
+      'LIVRE': 'Livré',
+      'ANNULE': 'Annulé'
+    };
+    return status ? statusMap[status] || status : 'Unknown';
+  }
+  
+  // Helper method to format date
+  formatDate(date: Date | undefined): string {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleDateString();
+  }
+  
+  // Helper method to format currency
+  formatCurrency(amount: number | undefined): string {
+    if (amount === undefined) return 'N/A';
+    return `$${amount.toFixed(2)}`;
   }
 }

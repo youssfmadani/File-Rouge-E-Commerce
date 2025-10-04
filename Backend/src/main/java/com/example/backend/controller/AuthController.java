@@ -34,16 +34,14 @@ public class AuthController {
             if (adherentOpt.isPresent()) {
                 adherent = adherentOpt.get();
             } else {
-                // Create a new adherent
                 Adherent newAdherent = new Adherent();
                 newAdherent.setEmail(email);
                 newAdherent.setNom("User");
                 newAdherent.setPrénom(email.split("@")[0]);
-                newAdherent.setMotDePasse("default-password"); // In a real app, this would be properly hashed
+                newAdherent.setMotDePasse("default-password");
                 adherent = adherentService.saveAdherent(newAdherent);
             }
             
-            // Add user data to response
             Map<String, Object> userMap = new HashMap<>();
             userMap.put("id", adherent.getId());
             userMap.put("email", adherent.getEmail());
@@ -53,7 +51,6 @@ public class AuthController {
             
             result.put("user", userMap);
         } catch (Exception e) {
-            // If there's an error creating/retrieving user, continue with just token and role
             System.err.println("Error processing user data: " + e.getMessage());
             e.printStackTrace();
         }

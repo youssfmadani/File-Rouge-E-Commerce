@@ -28,7 +28,6 @@ public class Avis {
     @JsonIgnore
     private Produit produit;
     
-    // Custom toString to avoid circular references
     @Override
     public String toString() {
         return "Avis{" +

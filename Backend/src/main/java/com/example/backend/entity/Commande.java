@@ -40,7 +40,6 @@ public class Commande {
     
     private Double montantTotal;
     
-    // Custom toString to avoid circular references
     @Override
     public String toString() {
         return "Commande{" +

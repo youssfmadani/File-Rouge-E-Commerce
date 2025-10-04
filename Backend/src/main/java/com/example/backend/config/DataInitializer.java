@@ -19,7 +19,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Create categories if they don't exist
         if (categorieRepository.count() == 0) {
             Categorie electronics = new Categorie();
             electronics.setNom("Electronics");
@@ -37,7 +36,6 @@ public class DataInitializer implements CommandLineRunner {
             books.setNom("Books");
             categorieRepository.save(books);
 
-            // Create sample products
             Produit laptop = new Produit();
             laptop.setNom("Gaming Laptop");
             laptop.setDescription("High-performance gaming laptop with RTX 4080 graphics");

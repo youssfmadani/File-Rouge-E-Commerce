@@ -27,13 +27,38 @@ public class ProduitServiceImpl implements ProduitService {
 
     @Override
     public ProduitDTO saveProduit(ProduitDTO produitDTO) {
-        Produit produit = produitMapper.toEntity(produitDTO);
-        // Set the category if categorieId is provided
+        Produit produit = new Produit();
+        
+        if (produitDTO.getNom() != null) {
+            produit.setNom(produitDTO.getNom().trim());
+        } else {
+            produit.setNom("Product");
+        }
+        
+        if (produitDTO.getDescription() != null) {
+            produit.setDescription(produitDTO.getDescription().trim());
+        } else {
+            produit.setDescription("No description available");
+        }
+        
+        produit.setPrix(produitDTO.getPrix() >= 0 ? produitDTO.getPrix() : 0);
+        
+        if (produitDTO.getStock() != null && produitDTO.getStock() >= 0) {
+            produit.setStock(produitDTO.getStock());
+        } else {
+            produit.setStock(0);
+        }
+        
+        if (produitDTO.getImage() != null) {
+            produit.setImage(produitDTO.getImage());
+        }
+        
         if (produitDTO.getCategorieId() != null) {
             Categorie categorie = categorieRepository.findById(produitDTO.getCategorieId())
                 .orElseThrow(() -> new NotFoundException("Categorie not found with id: " + produitDTO.getCategorieId()));
             produit.setCategorie(categorie);
         }
+        
         Produit saved = produitRepository.save(produit);
         return produitMapper.toDTO(saved);
     }
@@ -42,17 +67,33 @@ public class ProduitServiceImpl implements ProduitService {
     public ProduitDTO updateProduit(Integer id, ProduitDTO produitDTO) {
         Produit produit = produitRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Produit not found with id: " + id));
-        produit.setNom(produitDTO.getNom());
-        produit.setDescription(produitDTO.getDescription());
-        produit.setPrix(produitDTO.getPrix());
-        produit.setImage(produitDTO.getImage()); // Added image field
+        
+        if (produitDTO.getNom() != null) {
+            produit.setNom(produitDTO.getNom().trim());
+        }
+        
+        if (produitDTO.getDescription() != null) {
+            produit.setDescription(produitDTO.getDescription().trim());
+        }
+        
+        if (produitDTO.getPrix() >= 0) {
+            produit.setPrix(produitDTO.getPrix());
+        }
+        
+        if (produitDTO.getStock() != null && produitDTO.getStock() >= 0) {
+            produit.setStock(produitDTO.getStock());
+        }
+        
+        if (produitDTO.getImage() != null) {
+            produit.setImage(produitDTO.getImage());
+        }
+        
         if (produitDTO.getCategorieId() != null) {
             Categorie categorie = categorieRepository.findById(produitDTO.getCategorieId())
                     .orElseThrow(() -> new NotFoundException("Categorie not found with id: " + produitDTO.getCategorieId()));
             produit.setCategorie(categorie);
-        } else {
-            produit.setCategorie(null);
         }
+        
         Produit updated = produitRepository.save(produit);
         return produitMapper.toDTO(updated);
     }

@@ -25,7 +25,6 @@ public class Adherent extends Utilisateur {
     @JsonIgnore
     private List<Avis> avis;
     
-    // Custom toString to avoid circular references
     @Override
     public String toString() {
         return "Adherent{" +

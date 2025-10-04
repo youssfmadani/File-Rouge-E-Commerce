@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ProductService, Product } from '../../services/product';
 import { CartService } from '../../services/cart';
 import { ProductCardComponent } from '../../components/product-card/product-card';
+import { CategoryService, Category } from '../../services/category';
 
 interface PriceRange {
   absolute: { min: number; max: number };
@@ -21,41 +22,39 @@ interface PriceRange {
 export class ProductListComponent {
   products: Product[] = [];
   filteredProducts: Product[] = [];
+  categories: Category[] = [];
   loading = false;
   error: string = '';
   
-  // Filter states
   selectedCategories = new Set<string>(['all']);
   selectedBrands = new Set<string>();
   selectedRatings = new Set<number>();
   
-  // Price range
   priceRange: PriceRange = {
     absolute: { min: 0, max: 1000 },
     current: { min: 0, max: 1000 }
   };
   
-  // View and sorting
   currentView: 'grid' | 'list' = 'grid';
   currentSort: string = 'featured';
   
-  // Pagination
   currentPage: number = 1;
   itemsPerPage: number = 12;
   totalPages: number = 1;
   
-  // UI State
   addToCartSuccess: boolean = false;
   successMessage: string = '';
 
   constructor(
     private productService: ProductService,
+    private categoryService: CategoryService,
     private cartService: CartService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     this.loadProducts();
+    this.loadCategories();
   }
 
   loadProducts(): void {
@@ -68,17 +67,25 @@ export class ProductListComponent {
         this.setupPriceRange();
         this.applyFilters();
         this.loading = false;
-        console.log('Products loaded:', products);
       },
       error: (error: any) => {
-        console.error('Error loading products:', error);
         this.error = 'Failed to load products. Please try again.';
         this.loading = false;
       }
     });
   }
 
-  // Price Range Methods
+  loadCategories(): void {
+    this.categoryService.getAllCategories().subscribe({
+      next: (categories: Category[]) => {
+        this.categories = categories;
+        this.applyFilters();
+      },
+      error: (error: any) => {
+      }
+    });
+  }
+
   setupPriceRange(): void {
     if (this.products.length === 0) return;
     
@@ -138,59 +145,40 @@ export class ProductListComponent {
   }
 
   onAddToCart(product: Product) {
-    console.log('Adding to cart:', product);
-    
     try {
       this.cartService.addToCart(product, 1, {
         color: 'default',
         size: 'default'
       });
       
-      // Show success feedback
       this.successMessage = `${product.title || 'Product'} added to cart successfully!`;
       this.addToCartSuccess = true;
-      console.log(this.successMessage);
       
-      // Reset success message after 3 seconds
       setTimeout(() => {
         this.addToCartSuccess = false;
         this.successMessage = '';
       }, 3000);
       
     } catch (error) {
-      console.error('Error adding to cart:', error);
     }
   }
 
   onAddToWishlist(product: Product) {
-    console.log('Adding to wishlist:', product);
-    // TODO: Implement wishlist service when available
-    // For now, we'll just log and not show an alert
-    console.log('Wishlist functionality will be implemented soon!');
   }
 
   onAddToCompare(product: Product) {
-    console.log('Adding to compare:', product);
-    // TODO: Implement compare service when available
-    // For now, we'll just log and not show an alert
-    console.log('Compare functionality will be implemented soon!');
   }
 
   onBuyNow(product: Product) {
-    console.log('Buying now:', product);
-    
     try {
-      // Add to cart first
       this.cartService.addToCart(product, 1, {
         color: 'default',
         size: 'default'
       });
       
-      // Navigate to cart for checkout
       this.router.navigate(['/cart']);
       
     } catch (error) {
-      console.error('Error in buy now:', error);
     }
   }
 
@@ -198,7 +186,6 @@ export class ProductListComponent {
     return product.id || index;
   }
 
-  // Filter Methods
   onCategoryFilter(event: any): void {
     const target = event.target as HTMLSelectElement;
     const category = target.value;
@@ -244,27 +231,26 @@ export class ProductListComponent {
   applyFilters(): void {
     let filtered = [...this.products];
 
-    // Category filter
     if (!this.selectedCategories.has('all')) {
-      filtered = filtered.filter(product => 
-        this.selectedCategories.has((product['category'] || '').toLowerCase())
-      );
+      filtered = filtered.filter(product => {
+        const productCategory = product['category'] || '';
+        return Array.from(this.selectedCategories).some(selectedCategory => 
+          selectedCategory.toLowerCase() === productCategory.toLowerCase()
+        );
+      });
     }
 
-    // Brand filter
     if (this.selectedBrands.size > 0) {
       filtered = filtered.filter(product => 
         this.selectedBrands.has((product['brand'] || '').toLowerCase())
       );
     }
 
-    // Price filter
     filtered = filtered.filter(product => {
       const price = product.price || 0;
       return price >= this.priceRange.current.min && price <= this.priceRange.current.max;
     });
 
-    // Rating filter
     if (this.selectedRatings.size > 0) {
       filtered = filtered.filter(product => {
         const rating = product['rating'] || 0;
@@ -273,11 +259,10 @@ export class ProductListComponent {
     }
 
     this.filteredProducts = this.sortProducts(filtered);
-    this.currentPage = 1; // Reset to first page when filters change
+    this.currentPage = 1;
     this.updatePagination();
   }
 
-  // View and Sorting Methods
   setView(view: 'grid' | 'list'): void {
     this.currentView = view;
   }
@@ -307,7 +292,6 @@ export class ProductListComponent {
     }
   }
 
-  // Display Methods
   getDisplayedProductsCount(): string {
     const start = Math.min(1, this.filteredProducts.length);
     const end = this.filteredProducts.length;
@@ -336,7 +320,6 @@ export class ProductListComponent {
     return count;
   }
 
-  // Enhanced Filter Clear Methods
   clearCategoryFilters(): void {
     this.selectedCategories.clear();
     this.selectedCategories.add('all');
@@ -359,7 +342,6 @@ export class ProductListComponent {
     this.applyFilters();
   }
 
-  // Pagination Methods
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
@@ -377,16 +359,11 @@ export class ProductListComponent {
     return this.filteredProducts.slice(startIndex, endIndex);
   }
 
-  // Add these missing methods
   getUniqueCategories(): string[] {
-    const categories = new Set<string>();
-    this.products.forEach(product => {
-      const category = (product['category'] || '').toLowerCase();
-      if (category) {
-        categories.add(category);
-      }
-    });
-    return Array.from(categories).sort();
+    return this.categories
+      .map(category => category.nom || '')
+      .filter(name => name !== '')
+      .sort();
   }
 
   getUniqueBrands(): string[] {
@@ -437,11 +414,7 @@ export class ProductListComponent {
     return pages;
   }
 
-  // Add missing methods for search and other functionality
   onSearchChange(event: any): void {
-    // This would typically filter products based on search term
-    // Implementation depends on how search is intended to work
-    console.log('Search term:', event.target.value);
   }
 
   onViewChange(view: 'grid' | 'list'): void {

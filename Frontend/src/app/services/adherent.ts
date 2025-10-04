@@ -24,7 +24,6 @@ export class AdherentService {
   getAllAdherents(): Observable<Adherent[]> {
     return this.http.get<Adherent[]>(this.adherentsUrl).pipe(
       catchError(error => {
-        console.error('Error fetching adherents:', error);
         return throwError(error);
       })
     );
@@ -33,7 +32,6 @@ export class AdherentService {
   getAdherentById(id: number): Observable<Adherent> {
     return this.http.get<Adherent>(`${this.adherentsUrl}/${id}`).pipe(
       catchError(error => {
-        console.error('Error fetching adherent:', error);
         return throwError(error);
       })
     );
@@ -42,7 +40,6 @@ export class AdherentService {
   createAdherent(adherent: Adherent): Observable<Adherent> {
     return this.http.post<Adherent>(this.adherentsUrl, adherent).pipe(
       catchError(error => {
-        console.error('Error creating adherent:', error);
         return throwError(error);
       })
     );
@@ -51,7 +48,6 @@ export class AdherentService {
   updateAdherent(id: number, adherent: Adherent): Observable<Adherent> {
     return this.http.put<Adherent>(`${this.adherentsUrl}/${id}`, adherent).pipe(
       catchError(error => {
-        console.error('Error updating adherent:', error);
         return throwError(error);
       })
     );
@@ -60,7 +56,6 @@ export class AdherentService {
   deleteAdherent(id: number): Observable<void> {
     return this.http.delete<void>(`${this.adherentsUrl}/${id}`).pipe(
       catchError(error => {
-        console.error('Error deleting adherent:', error);
         return throwError(error);
       })
     );
@@ -69,7 +64,6 @@ export class AdherentService {
   makeAdmin(id: number): Observable<Adherent> {
     return this.http.post<Adherent>(`${this.adherentsUrl}/${id}/make-admin`, {}).pipe(
       catchError(error => {
-        console.error('Error making adherent admin:', error);
         return throwError(error);
       })
     );

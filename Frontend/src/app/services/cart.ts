@@ -30,12 +30,10 @@ export class CartService {
     this.loadCartFromStorage();
   }
 
-  // Get current cart items
   getCartItems(): CartItem[] {
     return this.cartItemsSubject.value;
   }
 
-  // Add item to cart
   addToCart(product: Product, quantity: number = 1, options?: { color?: string; size?: string }): void {
     const currentItems = this.getCartItems();
     const existingItemIndex = currentItems.findIndex(item => 
@@ -45,10 +43,8 @@ export class CartService {
     );
 
     if (existingItemIndex > -1) {
-      // Update existing item quantity
       currentItems[existingItemIndex].quantity += quantity;
     } else {
-      // Add new item
       const newItem: CartItem = {
         product,
         quantity,
@@ -61,7 +57,6 @@ export class CartService {
     this.updateCart(currentItems);
   }
 
-  // Remove item from cart
   removeFromCart(productId: number, options?: { color?: string; size?: string }): void {
     const currentItems = this.getCartItems();
     const filteredItems = currentItems.filter(item => 
@@ -72,7 +67,6 @@ export class CartService {
     this.updateCart(filteredItems);
   }
 
-  // Update item quantity
   updateQuantity(productId: number, quantity: number, options?: { color?: string; size?: string }): void {
     if (quantity <= 0) {
       this.removeFromCart(productId, options);
@@ -92,7 +86,6 @@ export class CartService {
     }
   }
 
-  // Increase item quantity
   increaseQuantity(productId: number, options?: { color?: string; size?: string }): void {
     const currentItems = this.getCartItems();
     const item = currentItems.find(item => 
@@ -106,7 +99,6 @@ export class CartService {
     }
   }
 
-  // Decrease item quantity
   decreaseQuantity(productId: number, options?: { color?: string; size?: string }): void {
     const currentItems = this.getCartItems();
     const item = currentItems.find(item => 
@@ -122,24 +114,19 @@ export class CartService {
     }
   }
 
-  // Clear entire cart
   clearCart(): void {
     this.updateCart([]);
   }
 
-  // Get cart summary
   getCartSummary(): CartSummary {
     const items = this.getCartItems();
     const subtotal = items.reduce((sum, item) => sum + ((item.product.price || 0) * item.quantity), 0);
     const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
     
-    // Calculate shipping (free over $100, otherwise $9.99)
     const shipping = subtotal > 100 ? 0 : 9.99;
     
-    // Calculate tax (8% of subtotal)
     const tax = subtotal * 0.08;
     
-    // Discount (can be extended for promo codes)
     const discount = 0;
     
     const total = subtotal + shipping + tax - discount;
@@ -154,12 +141,10 @@ export class CartService {
     };
   }
 
-  // Check if product is in cart
   isInCart(productId: number): boolean {
     return this.getCartItems().some(item => item.product.id === productId);
   }
 
-  // Get item count for specific product
   getItemCount(productId: number): number {
     const items = this.getCartItems();
     return items
@@ -167,16 +152,13 @@ export class CartService {
       .reduce((sum, item) => sum + item.quantity, 0);
   }
 
-  // Apply promo code (placeholder for future implementation)
   applyPromoCode(code: string): Promise<{ success: boolean; message: string; discount?: number }> {
-    // This would typically make an API call to validate the promo code
     return Promise.resolve({
       success: false,
       message: 'Promo code functionality not implemented yet'
     });
   }
 
-  // Get cart for order creation
   getCartForOrder(): any {
     const items = this.getCartItems();
     const summary = this.getCartSummary();
@@ -193,7 +175,6 @@ export class CartService {
     };
   }
 
-  // Private methods
   private updateCart(items: CartItem[]): void {
     this.cartItemsSubject.next(items);
     this.saveCartToStorage(items);
@@ -207,7 +188,6 @@ export class CartService {
         this.cartItemsSubject.next(items);
       }
     } catch (error) {
-      console.error('Error loading cart from storage:', error);
     }
   }
 
@@ -215,7 +195,6 @@ export class CartService {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(items));
     } catch (error) {
-      console.error('Error saving cart to storage:', error);
     }
   }
 }

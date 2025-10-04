@@ -1,54 +1,50 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { UserService, Adherent } from '../../services/user';
 import { AuthService, User } from '../../services/auth';
+import { OrderService, Order } from '../../services/order.service';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule],
   templateUrl: './profile.html',
   styleUrl: './profile.css'
 })
 export class Profile implements OnInit {
   user: Adherent | null = null;
   currentUser: User | null = null;
+  userOrders: Order[] = [];
   loading = false;
   error: string = '';
-  activeTab = 'overview';
+  ordersLoading = false;
+  ordersError: string = '';
 
   constructor(
     private users: UserService,
     private authService: AuthService,
+    private orderService: OrderService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    console.log('Profile component initializing...');
-    // Try to migrate any legacy authentication data
     this.authService.migrateLegacyData();
     
-    // Use AuthService for centralized authentication management
     if (!this.authService.isAuthenticated()) {
       this.error = 'Authentication required. Please log in.';
-      console.log('Profile: User not authenticated, redirecting to login');
       this.redirectToLogin();
       return;
     }
 
-    // Get current user from AuthService
     this.currentUser = this.authService.getCurrentUser();
-    console.log('Profile: Current user from AuthService:', this.currentUser);
     
     if (!this.currentUser || !this.currentUser.email) {
       this.error = 'Invalid user session. Please log in again.';
-      console.log('Profile: Invalid user session, redirecting to login');
       this.redirectToLogin();
       return;
     }
 
-    // Load user profile data
     this.loadUserProfile(this.currentUser.email);
   }
 
@@ -56,48 +52,84 @@ export class Profile implements OnInit {
     this.loading = true;
     this.error = '';
     
-    // Try primary method, fallback to alt
     this.users.getByEmail(email).subscribe({
       next: (res1: any) => {
         const candidate = Array.isArray(res1) ? (res1[0] || null) : (res1 as Adherent | null);
         if (candidate) {
           this.user = candidate;
           this.loading = false;
+          this.loadUserOrders();
           return;
         }
-        // Fallback to alternative method
         this.users.getByEmailAlt(email).subscribe({
           next: (res2) => {
             this.user = res2;
             this.loading = false;
             if (!this.user) {
               this.error = 'Could not load profile data';
+            } else {
+              this.loadUserOrders();
             }
           },
           error: (error) => {
-            console.error('Error loading profile (alt method):', error);
             this.error = 'Failed to load profile. Please try again.';
             this.loading = false;
           }
         });
       },
       error: (error) => {
-        console.error('Error loading profile (primary method):', error);
-        // Try alternative method as fallback
         this.users.getByEmailAlt(email).subscribe({
           next: (res2) => {
             this.user = res2;
             this.loading = false;
             if (!this.user) {
               this.error = 'Could not load profile data';
+            } else {
+              this.loadUserOrders();
             }
           },
           error: (error2) => {
-            console.error('Error loading profile (both methods failed):', error2);
             this.error = 'Failed to load profile. Please try again.';
             this.loading = false;
           }
         });
+      }
+    });
+  }
+
+  private loadUserOrders(): void {
+    if (!this.user || !this.user.id) {
+      return;
+    }
+
+    this.ordersLoading = true;
+    this.ordersError = '';
+
+    this.orderService.getOrdersByUserId(this.user.id).subscribe({
+      next: (orders: Order[]) => {
+        this.userOrders = orders;
+        this.ordersLoading = false;
+        
+        if (this.user) {
+          this.user.ordersCount = this.userOrders.length;
+          this.user.recentOrders = this.userOrders
+            .sort((a, b) => 
+              new Date(b.dateCommande || 0).getTime() - new Date(a.dateCommande || 0).getTime()
+            )
+            .slice(0, 3)
+            .map(order => ({
+              id: order.idCommande,
+              title: `Order #${order.idCommande}`,
+              date: order.dateCommande,
+              status: order.statut,
+              total: order.montantTotal,
+              imageUrl: 'https://via.placeholder.com/100x100/7c77c6/ffffff?text=Order'
+            }));
+        }
+      },
+      error: (error) => {
+        this.ordersError = error.message || 'Failed to load order history';
+        this.ordersLoading = false;
       }
     });
   }
@@ -111,30 +143,9 @@ export class Profile implements OnInit {
     }, 2000);
   }
 
-  // Tab navigation methods
-  switchTab(tabName: string) {
-    this.activeTab = tabName;
-  }
-
-  // Dashboard action methods
   editProfile() {
-    console.log('Edit profile clicked');
-    // TODO: Implement edit profile functionality
   }
 
-  viewOrders() {
-    this.switchTab('orders');
-  }
-
-  viewWishlist() {
-    this.switchTab('wishlist');
-  }
-
-  viewSettings() {
-    this.switchTab('settings');
-  }
-
-  // Authentication helper methods
   refreshProfile() {
     if (this.currentUser?.email) {
       this.loadUserProfile(this.currentUser.email);
@@ -146,7 +157,6 @@ export class Profile implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  // Getters for template
   getUserDisplayName(): string {
     return this.user?.nom || this.currentUser?.name || this.currentUser?.email || 'User';
   }
@@ -158,15 +168,4 @@ export class Profile implements OnInit {
   getUserRole(): string {
     return this.currentUser?.role || 'USER';
   }
-
-  // Debug method for troubleshooting
-  debugAuthState(): void {
-    console.log('=== Profile Authentication Debug ===');
-    console.log('Is Authenticated:', this.authService.isAuthenticated());
-    console.log('Current User:', this.currentUser);
-    console.log('User Role:', this.getUserRole());
-    console.log('Token:', this.authService.getToken());
-    console.log('Profile User Data:', this.user);
-    console.log('=== End Debug ===');
-  }
-} 
+}

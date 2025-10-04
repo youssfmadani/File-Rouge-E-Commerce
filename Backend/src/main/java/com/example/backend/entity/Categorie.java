@@ -24,7 +24,6 @@ public class Categorie {
     @JsonIgnore
     private List<Produit> produits;
     
-    // Custom toString to avoid circular references
     @Override
     public String toString() {
         return "Categorie{" +

@@ -1,45 +1,59 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { DecimalPipe, NgFor, NgIf } from '@angular/common';
 import { ProductService, Product } from '../../services/product';
 import { CartService } from '../../services/cart';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [DecimalPipe, FormsModule, NgIf, NgFor, RouterLink],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
 export class Home implements OnInit {
   featuredProducts: Product[] = [];
-  email: string = '';
-  loading: boolean = false;
+  testimonials = [
+    {
+      id: 1,
+      name: 'Alex Johnson',
+      role: 'Regular Customer',
+      content: 'The quality of products here is unmatched. Fast delivery and excellent customer service!',
+      rating: 5
+    },
+    {
+      id: 2,
+      name: 'Sarah Williams',
+      role: 'Premium Member',
+      content: 'I\'ve been shopping here for years. Their selection and prices are unbeatable.',
+      rating: 5
+    },
+    {
+      id: 3,
+      name: 'Michael Chen',
+      role: 'Business Owner',
+      content: 'Reliable service and consistent quality. My go-to store for all my needs.',
+      rating: 4
+    }
+  ];
 
   constructor(
     private router: Router,
     private productService: ProductService,
     private cartService: CartService
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     this.loadFeaturedProducts();
   }
 
   loadFeaturedProducts(): void {
-    this.loading = true;
-    
-    // Fetch products from the backend
     this.productService.getAllProducts().subscribe({
       next: (products: Product[]) => {
-        // Take the first 4 products as featured
-        this.featuredProducts = products.slice(0, 4);
-        this.loading = false;
+        this.featuredProducts = products.slice(0, 6);
       },
       error: (error: any) => {
-        console.error('Error loading featured products:', error);
-        this.loading = false;
       }
     });
   }
@@ -49,40 +63,19 @@ export class Home implements OnInit {
   }
 
   addToCart(product: Product): void {
-    try {
-      this.cartService.addToCart(product, 1);
-      const productName = product.title || product.nom || product.name || 'Product';
-      alert(`${productName} added to cart successfully!`);
-    } catch (error) {
-      console.error('Error adding to cart:', error);
-      alert('Failed to add product to cart. Please try again.');
-    }
+    this.cartService.addToCart(product);
   }
 
   getStarArray(rating: number): number[] {
-    if (!rating || rating <= 0) return [0, 0, 0, 0, 0];
-    return Array(5).fill(0).map((_, index) => index < Math.floor(rating) ? 1 : 0);
+    return Array(5).fill(0).map((_, i) => i < Math.floor(rating) ? 1 : 0);
   }
 
   getDiscountPercent(originalPrice: number, currentPrice: number): number {
-    if (originalPrice && currentPrice !== undefined && originalPrice > currentPrice) {
-      return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
-    }
-    return 0;
+    if (originalPrice <= currentPrice) return 0;
+    return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
   }
 
-  subscribeToNewsletter(): void {
-    if (this.email && this.isValidEmail(this.email)) {
-      // In a real application, you would send this to your backend
-      console.log('Subscribing email:', this.email);
-      alert('Thank you for subscribing to our newsletter!');
-      this.email = '';
-    } else {
-      alert('Please enter a valid email address.');
-    }
-  }
-
-  private isValidEmail(email: string): boolean {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  getRandomTestimonial() {
+    return this.testimonials[Math.floor(Math.random() * this.testimonials.length)];
   }
 }

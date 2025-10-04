@@ -22,16 +22,17 @@ public class CommandeServiceImpl implements CommandeService {
 
     @Override
     public Commande updateCommande(Integer id, Commande commande) {
-        Optional<Commande> existingCommandeOpt = commandeRepository.findById(id);
-        if (existingCommandeOpt.isPresent()) {
-            Commande existingCommande = existingCommandeOpt.get();
-            existingCommande.setDateCommande(commande.getDateCommande());
-            existingCommande.setStatut(commande.getStatut());
-            existingCommande.setAdherent(commande.getAdherent());
-            existingCommande.setProduits(commande.getProduits());
-            return commandeRepository.save(existingCommande);
-        } else {
-            throw new RuntimeException("Commande not found with id: " + id);
+        try {
+            boolean exists = commandeRepository.existsById(id);
+            if (!exists) {
+                throw new RuntimeException("Commande not found with id: " + id);
+            }
+            
+            commande.setIdCommande(id);
+            
+            return commandeRepository.save(commande);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update commande with ID: " + id + ". The order may be corrupted.");
         }
     }
 
@@ -49,4 +50,9 @@ public class CommandeServiceImpl implements CommandeService {
     public List<Commande> getAllCommandes() {
         return commandeRepository.findAll();
     }
-} 
+
+    @Override
+    public List<Commande> getCommandesByAdherentId(Integer adherentId) {
+        return commandeRepository.findByAdherentId(adherentId);
+    }
+}

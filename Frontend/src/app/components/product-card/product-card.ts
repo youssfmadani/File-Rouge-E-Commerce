@@ -183,7 +183,7 @@ export class ProductCardComponent {
   getProductCategory(): string {
     return (this.product && this.product['category']) || 
            (this.product && this.product['categorie'] && this.product['categorie']['nom']) || 
-           'Uncategorized';
+           '';
   }
 
   // Get product price with fallback

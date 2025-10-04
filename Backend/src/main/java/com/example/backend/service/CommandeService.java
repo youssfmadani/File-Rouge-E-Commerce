@@ -10,4 +10,5 @@ public interface CommandeService {
     void deleteCommande(Integer id);
     Optional<Commande> getCommandeById(Integer id);
     List<Commande> getAllCommandes();
-} 
+    List<Commande> getCommandesByAdherentId(Integer adherentId);
+}

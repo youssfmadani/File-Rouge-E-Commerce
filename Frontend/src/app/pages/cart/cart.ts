@@ -7,6 +7,7 @@ import { ProductCardComponent } from '../../components/product-card/product-card
 import { CartService, CartItem, CartSummary } from '../../services/cart';
 import { AuthService } from '../../services/auth';
 import { ProductService, Product } from '../../services/product';
+import { OrderService, Order } from '../../services/order.service';
 
 @Component({
   selector: 'app-cart',
@@ -27,40 +28,31 @@ export class Cart implements OnInit, OnDestroy {
   };
   recommendedProducts: Product[] = [];
   
-  // UI State
   loading = false;
   error = '';
   orderSuccess = false;
   isProcessingOrder = false;
   
-  // Promo code
   promoCode = '';
   promoCodeApplied = false;
   promoCodeMessage = '';
   
-  // Subscriptions
   private cartSubscription: Subscription = new Subscription();
   
   constructor(
     private cartService: CartService,
     private authService: AuthService,
     private productService: ProductService,
+    private orderService: OrderService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    console.log('Cart component initializing...');
-    
-    // Try to migrate any legacy authentication data first
     this.authService.migrateLegacyData();
     
-    // Add a small delay to ensure localStorage operations are complete
     setTimeout(() => {
       this.subscribeToCart();
       this.loadRecommendedProducts();
-      
-      // Debug authentication state after migration
-      this.debugAuthState();
     }, 50);
   }
 
@@ -75,10 +67,8 @@ export class Cart implements OnInit, OnDestroy {
       next: (items) => {
         this.cartItems = items;
         this.cartSummary = this.cartService.getCartSummary();
-        console.log('Cart updated:', { items, summary: this.cartSummary });
       },
       error: (error) => {
-        console.error('Error loading cart:', error);
         this.error = 'Failed to load cart items';
       }
     });
@@ -87,13 +77,11 @@ export class Cart implements OnInit, OnDestroy {
   private loadRecommendedProducts(): void {
     this.productService.getAllProducts().subscribe({
       next: (products) => {
-        // Get random products for recommendations, excluding items already in cart
         const cartProductIds = this.cartItems.map(item => item.product.id);
         const availableProducts = products.filter(p => !cartProductIds.includes(p.id));
         this.recommendedProducts = this.shuffleArray(availableProducts).slice(0, 4);
       },
       error: (error) => {
-        console.error('Error loading recommended products:', error);
       }
     });
   }
@@ -107,7 +95,6 @@ export class Cart implements OnInit, OnDestroy {
     return shuffled;
   }
 
-  // Cart manipulation methods
   increaseQuantity(item: CartItem): void {
     this.cartService.increaseQuantity(item.product.id!, {
       color: item.selectedColor,
@@ -149,7 +136,6 @@ export class Cart implements OnInit, OnDestroy {
     }
   }
 
-  // Cart summary methods
   getTotalItems(): number {
     return this.cartSummary.totalItems;
   }
@@ -174,64 +160,73 @@ export class Cart implements OnInit, OnDestroy {
     return this.cartSummary.total;
   }
 
-  // Promo code methods
   applyPromoCode(): void {
     if (!this.promoCode.trim()) {
       this.promoCodeMessage = 'Please enter a promo code';
       return;
     }
 
-    // In a real implementation, this would call an API
     this.promoCodeApplied = true;
     this.promoCodeMessage = 'Promo code applied successfully!';
     
-    // For demo purposes, apply a 10% discount
     this.cartSummary.discount = this.cartSummary.subtotal * 0.1;
     this.cartSummary.total = this.cartSummary.subtotal + this.cartSummary.shipping + this.cartSummary.tax - this.cartSummary.discount;
   }
 
-  // Checkout method
   proceedToCheckout(): void {
-    console.log('Proceed to checkout clicked...');
-    
     if (this.cartItems.length === 0) {
       alert('Your cart is empty!');
       return;
     }
 
-    // Enhanced authentication check
     if (!this.authService.isAuthenticated()) {
-      console.log('User not authenticated, redirecting to login...');
       if (confirm('You need to login to place an order. Would you like to login now?')) {
         this.router.navigate(['/login'], { queryParams: { returnUrl: '/cart' } });
       }
       return;
     }
 
-    // Process order
     this.isProcessingOrder = true;
     
-    // Simulate order processing
-    setTimeout(() => {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser || !currentUser.id) {
+      this.error = 'Unable to get user information. Please log in again.';
       this.isProcessingOrder = false;
-      this.orderSuccess = true;
-      
-      // Clear cart after successful order
-      this.cartService.clearCart();
-      
-      // Reset success message after 5 seconds
-      setTimeout(() => {
-        this.orderSuccess = false;
-      }, 5000);
-    }, 2000);
+      return;
+    }
+    
+    const order: Order = {
+      dateCommande: new Date(),
+      statut: 'EN_COURS',
+      adherentId: currentUser.id,
+      montantTotal: this.cartSummary.total,
+      produits: this.cartItems.map(item => ({
+        id: item.product.id,
+        nom: item.product.nom || item.product.name || item.product.title,
+        prix: item.product.prix || item.product.price,
+        quantity: item.quantity
+      }))
+    };
+    
+    this.orderService.createOrder(order).subscribe({
+      next: (createdOrder) => {
+        this.isProcessingOrder = false;
+        this.orderSuccess = true;
+        
+        this.cartService.clearCart();
+        
+        setTimeout(() => {
+          this.orderSuccess = false;
+        }, 5000);
+      },
+      error: (error) => {
+        this.error = error.message || 'Failed to create order. Please try again.';
+        this.isProcessingOrder = false;
+      }
+    });
   }
 
-  // Emergency fix for user data
   emergencyFixUser(): void {
-    // This is a temporary fix for authentication issues
-    console.log('Emergency user fix triggered...');
-    
-    // Clear any corrupted auth data
     localStorage.removeItem('auth_user');
     localStorage.removeItem('auth_token');
     localStorage.removeItem('auth_role');
@@ -242,12 +237,10 @@ export class Cart implements OnInit, OnDestroy {
     this.router.navigate(['/login']);
   }
 
-  // Navigation methods
   continueShopping(): void {
     this.router.navigate(['/products']);
   }
 
-  // Utility methods
   getItemTotal(item: CartItem): number {
     return (item.product.price || 0) * item.quantity;
   }
@@ -289,24 +282,5 @@ export class Cart implements OnInit, OnDestroy {
 
   trackByProduct(index: number, product: Product): number {
     return product.id || index;
-  }
-
-  // Debug method to check authentication state
-  debugAuthState(): void {
-    console.log('=== Authentication Debug Info ===');
-    console.log('Is Authenticated:', this.authService.isAuthenticated());
-    console.log('Current User:', this.authService.getCurrentUser());
-    console.log('User Role:', this.authService.getUserRole());
-    console.log('Token:', this.authService.getToken());
-    
-    // Additional debugging for localStorage
-    console.log('Raw localStorage values:');
-    console.log('  - auth_user:', localStorage.getItem('auth_user'));
-    console.log('  - auth_token:', localStorage.getItem('auth_token'));
-    console.log('  - auth_role:', localStorage.getItem('auth_role'));
-    console.log('  - auth_email:', localStorage.getItem('auth_email'));
-    console.log('  - userEmail:', localStorage.getItem('userEmail'));
-    
-    console.log('=== End Debug Info ===');
   }
 }

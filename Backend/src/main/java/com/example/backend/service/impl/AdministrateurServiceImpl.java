@@ -29,7 +29,6 @@ public class AdministrateurServiceImpl implements AdministrateurService {
             existingAdministrateur.setPrénom(administrateur.getPrénom());
             existingAdministrateur.setEmail(administrateur.getEmail());
             existingAdministrateur.setMotDePasse(administrateur.getMotDePasse());
-            // Ajoute ici les autres champs à mettre à jour si besoin
             return administrateurRepository.save(existingAdministrateur);
         } else {
             throw new RuntimeException("Administrateur not found with id: " + id);

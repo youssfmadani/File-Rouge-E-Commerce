@@ -20,13 +20,11 @@ export class ProductDetails implements OnInit {
   loading = false;
   error = '';
   
-  // Product options
   quantity: number = 1;
   selectedColor: string = 'black';
   selectedSize: string = 'M';
   selectedImageIndex: number = 0;
   
-  // Available options
   availableColors = [
     { name: 'black', label: 'Black', code: '#000000' },
     { name: 'white', label: 'White', code: '#FFFFFF' },
@@ -36,7 +34,7 @@ export class ProductDetails implements OnInit {
   
   availableSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   
-  // Product images
+  
   get productImages(): string[] {
     if (this.product && this.product['image']) {
       return [this.product['image']];
@@ -44,10 +42,6 @@ export class ProductDetails implements OnInit {
     return [];
   }
   
-  // Tab state
-  activeTab: string = 'description';
-  
-  // Cart state
   isAddingToCart = false;
   addToCartSuccess = false;
   successMessage: string = '';
@@ -61,11 +55,9 @@ export class ProductDetails implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to route parameter changes to reload product when ID changes
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) => {
         const id = params.get('id');
-        console.log('Route param changed, product ID:', id);
         if (id) {
           const productId = parseInt(id, 10);
           if (!isNaN(productId)) {
@@ -81,14 +73,12 @@ export class ProductDetails implements OnInit {
       })
     ).subscribe({
       next: (product) => {
-        console.log('Product loaded:', product);
         this.product = product;
         this.loadRelatedProducts();
         this.loading = false;
         this.error = '';
       },
       error: (error) => {
-        console.error('Error loading product:', error);
         this.error = error.message || 'Failed to load product. Please try again.';
         this.loading = false;
         this.product = null;
@@ -101,19 +91,15 @@ export class ProductDetails implements OnInit {
     
     this.productService.getAllProducts().subscribe({
       next: (products) => {
-        // Get products from same category, excluding current product
         this.relatedProducts = products
           .filter(p => p['id'] !== this.product!['id'] && p['category'] === this.product!['category'])
           .slice(0, 4);
-        console.log('Related products loaded:', this.relatedProducts);
       },
       error: (error) => {
-        console.error('Error loading related products:', error);
       }
     });
   }
 
-  // Quantity methods
   increaseQuantity(): void {
     this.quantity++;
   }
@@ -133,7 +119,6 @@ export class ProductDetails implements OnInit {
     }
   }
 
-  // Color and size selection
   selectColor(color: string): void {
     this.selectedColor = color;
   }
@@ -142,20 +127,12 @@ export class ProductDetails implements OnInit {
     this.selectedSize = size;
   }
 
-  // Image navigation
   selectImage(index: number): void {
     this.selectedImageIndex = index;
   }
 
-  // Tab navigation
-  selectTab(tab: string): void {
-    this.activeTab = tab;
-  }
-
-  // Cart actions
   addToCart(): void {
     if (!this.product) {
-      console.error('No product selected');
       return;
     }
 
@@ -173,21 +150,13 @@ export class ProductDetails implements OnInit {
       
       this.addToCartSuccess = true;
       this.successMessage = `${this.getProductTitle()} added to cart successfully!`;
-      console.log('Added to cart:', {
-        product: this.product,
-        quantity: this.quantity,
-        color: this.selectedColor,
-        size: this.selectedSize
-      });
       
-      // Reset success message after 3 seconds
       setTimeout(() => {
         this.addToCartSuccess = false;
         this.successMessage = '';
       }, 3000);
       
     } catch (error) {
-      console.error('Error adding to cart:', error);
     } finally {
       this.isAddingToCart = false;
     }
@@ -195,14 +164,11 @@ export class ProductDetails implements OnInit {
 
   buyNow(): void {
     if (!this.product) {
-      console.error('No product selected');
       return;
     }
 
-    // Add to cart first
     this.addToCart();
     
-    // Navigate to cart/checkout
     setTimeout(() => {
       this.router.navigate(['/cart']);
     }, 500);
@@ -210,72 +176,50 @@ export class ProductDetails implements OnInit {
 
   addToWishlist(): void {
     if (!this.product) {
-      console.error('No product selected');
       return;
     }
 
-    // TODO: Implement wishlist functionality
-    console.log('Adding to wishlist:', this.product);
     alert('Wishlist functionality will be implemented soon!');
   }
 
-  // Event handlers for related products
   onAddToCart(product: Product): void {
-    console.log('Adding to cart from related products:', product);
-    
     try {
       this.cartService.addToCart(product, 1, {
         color: 'default',
         size: 'default'
       });
       
-      // Show success feedback
       this.successMessage = `${product.title || product.nom || product.name || 'Product'} added to cart successfully!`;
       this.addToCartSuccess = true;
-      console.log(this.successMessage);
       
-      // Reset success message after 3 seconds
       setTimeout(() => {
         this.addToCartSuccess = false;
         this.successMessage = '';
       }, 3000);
       
     } catch (error) {
-      console.error('Error adding to cart:', error);
     }
   }
 
   onAddToWishlist(product: Product): void {
-    console.log('Adding to wishlist from related products:', product);
-    // TODO: Implement wishlist service when available
-    console.log('Wishlist functionality will be implemented soon!');
   }
 
   onAddToCompare(product: Product): void {
-    console.log('Adding to compare from related products:', product);
-    // TODO: Implement compare service when available
-    console.log('Compare functionality will be implemented soon!');
   }
 
   onBuyNow(product: Product): void {
-    console.log('Buying now from related products:', product);
-    
     try {
-      // Add to cart first
       this.cartService.addToCart(product, 1, {
         color: 'default',
         size: 'default'
       });
       
-      // Navigate to cart for checkout
       this.router.navigate(['/cart']);
       
     } catch (error) {
-      console.error('Error in buy now:', error);
     }
   }
 
-  // Utility methods
   isInCart(): boolean {
     return this.product ? this.cartService.isInCart(this.product.id!) : false;
   }
@@ -297,7 +241,6 @@ export class ProductDetails implements OnInit {
     return star <= rating;
   }
 
-  // Template helper methods to avoid optional chaining warnings
   getProductTitle(): string {
     if (!this.product) return 'Product';
     return this.product['title'] || this.product['nom'] || this.product['name'] || 'Product';
@@ -312,15 +255,13 @@ export class ProductDetails implements OnInit {
   }
 
   getProductCategory(): string {
-    if (!this.product) return 'Product Category';
-    // Handle both category field and nested categorie object
-    if (this.product['category']) {
+    if (this.product && this.product['category']) {
       return this.product['category'];
     }
-    if (this.product['categorie'] && this.product['categorie']['nom']) {
+    if (this.product && this.product['categorie'] && this.product['categorie']['nom']) {
       return this.product['categorie']['nom'];
     }
-    return 'Product Category';
+    return '';
   }
 
   getProductRating(): number {
@@ -358,7 +299,6 @@ export class ProductDetails implements OnInit {
     return this.product['dimensions'] || '25 x 15 x 8 cm';
   }
 
-  // Get product price with fallback
   getProductPrice(): number {
     if (!this.product) return 0;
     return this.product['price'] || this.product['prix'] || 0;

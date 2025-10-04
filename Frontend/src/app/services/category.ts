@@ -21,7 +21,6 @@ export class CategoryService {
   getAllCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(this.categoriesUrl).pipe(
       catchError(error => {
-        console.error('Error fetching categories:', error);
         return throwError(error);
       })
     );
@@ -30,7 +29,6 @@ export class CategoryService {
   getCategoryById(id: number): Observable<Category> {
     return this.http.get<Category>(`${this.categoriesUrl}/${id}`).pipe(
       catchError(error => {
-        console.error('Error fetching category:', error);
         return throwError(error);
       })
     );
@@ -39,7 +37,6 @@ export class CategoryService {
   createCategory(category: Category): Observable<Category> {
     return this.http.post<Category>(this.categoriesUrl, category).pipe(
       catchError(error => {
-        console.error('Error creating category:', error);
         return throwError(error);
       })
     );
@@ -48,7 +45,6 @@ export class CategoryService {
   updateCategory(id: number, category: Category): Observable<Category> {
     return this.http.put<Category>(`${this.categoriesUrl}/${id}`, category).pipe(
       catchError(error => {
-        console.error('Error updating category:', error);
         return throwError(error);
       })
     );
@@ -57,7 +53,6 @@ export class CategoryService {
   deleteCategory(id: number): Observable<void> {
     return this.http.delete<void>(`${this.categoriesUrl}/${id}`).pipe(
       catchError(error => {
-        console.error('Error deleting category:', error);
         return throwError(error);
       })
     );
