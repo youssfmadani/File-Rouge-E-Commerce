@@ -4,11 +4,6 @@
 Ce projet est une plateforme e-commerce permettant aux utilisateurs de parcourir des produits, les ajouter au panier et passer commande. Il s’adresse aussi bien aux clients qu’aux administrateurs, avec des fonctionnalités de gestion de produits, catégories, utilisateurs, commandes, etc.
 
 ---
-## L'architecture de projet (Backend)
-
-![image](https://github.com/user-attachments/assets/e63325b4-ac3d-4964-89ce-8bb942b8ccb6)
-
----
 
 ## 🧩 Fonctionnalités principales
 
@@ -32,14 +27,12 @@ Ce projet est une plateforme e-commerce permettant aux utilisateurs de parcourir
 
 ### 1. Diagramme de cas d'utilisation (Use Case)
 
-![image](https://github.com/user-attachments/assets/84606f42-f4f6-48da-92bf-1a3ce7a5f705)
+<img width="1118" height="643" alt="image" src="https://github.com/user-attachments/assets/a1c96264-2b63-4061-91b2-4cd48d8a96bd" />
 
 
 ### 2. Diagramme de classe 
 
-![image](https://github.com/user-attachments/assets/4ed17363-d57d-40ad-b0c4-0a480af066f8)
+<img width="945" height="705" alt="image" src="https://github.com/user-attachments/assets/a809eab0-1029-4805-93ec-d71d4a84cdb0" />
 
-### 3. Diagramme de séquence
 
-![image](https://github.com/user-attachments/assets/73d68006-284b-402d-9c34-f46a1b5953a8)
 
