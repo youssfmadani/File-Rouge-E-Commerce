@@ -14,16 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 public class Adherent extends Utilisateur {
 
-    @OneToOne(mappedBy = "adherent", cascade = CascadeType.ALL)
-    private Panier panier;
-
     @OneToMany(mappedBy = "adherent")
     @JsonIgnore
     private List<Commande> commandes;
-
-    @OneToMany(mappedBy = "adherent")
-    @JsonIgnore
-    private List<Avis> avis;
     
     @Override
     public String toString() {
@@ -32,9 +25,7 @@ public class Adherent extends Utilisateur {
                 ", nom='" + getNom() + '\'' +
                 ", prénom='" + getPrénom() + '\'' +
                 ", email='" + getEmail() + '\'' +
-                ", panier=" + (panier != null ? panier.getIdPanier() : null) +
                 ", commandesCount=" + (commandes != null ? commandes.size() : 0) +
-                ", avisCount=" + (avis != null ? avis.size() : 0) +
                 '}';
     }
 }

@@ -24,6 +24,7 @@ RUN rm -rf ./*
 # Copy built Angular app from build stage
 COPY --from=build /app/dist/Frontend/browser ./
 
+
 # Copy custom nginx configuration if needed
 # COPY nginx.conf /etc/nginx/nginx.conf
 

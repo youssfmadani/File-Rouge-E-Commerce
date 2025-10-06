@@ -29,4 +29,4 @@ public interface PanierMapper {
     List<PanierDTO> toDTOList(List<Panier> paniers);
 
     List<Panier> toEntityList(List<PanierDTO> panierDTOs);
-} 
+}

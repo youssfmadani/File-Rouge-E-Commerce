@@ -2,11 +2,11 @@
   <!-- Product Image Container -->
   <div class="product-image-container">
     <div class="product-image">
-      <img [src]="getProductImage()" 
+      <img [src]="getProductImage()"
            [alt]="getProductTitle()"
            loading="lazy"
            (click)="viewProductDetails()" *ngIf="getProductImage(); else noImage">
-      
+
       <!-- Product Badges -->
       <div class="product-badges">
         <span class="badge badge-new" *ngIf="product && product.isNew">NEW</span>
@@ -14,29 +14,7 @@
         <span class="badge badge-featured" *ngIf="product && product.isFeatured">FEATURED</span>
         <span class="badge badge-limited" *ngIf="isLowStock()">LIMITED</span>
       </div>
-      
-      <!-- Hover Actions -->
-      <div class="product-hover-actions">
-        <button class="action-btn" (click)="openQuickView()" title="Quick View">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-          </svg>
-        </button>
-        <button class="action-btn" (click)="onAddToWishlist()" title="Add to Wishlist">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-        </button>
-        <button class="action-btn" (click)="onAddToCompare()" title="Compare">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2z"></path>
-            <path d="M21 19v-6a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2z"></path>
-            <path d="M9 10V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2z"></path>
-          </svg>
-        </button>
-      </div>
-      
+
       <!-- Availability Indicator -->
       <div class="availability-indicator" [class.in-stock]="isInStock()" [class.low-stock]="isLowStock()" [class.out-of-stock]="isOutOfStock()">
         <span class="availability-dot"></span>
@@ -44,27 +22,27 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Product Content -->
   <div class="product-content">
     <!-- Product Category -->
     <div class="product-category" *ngIf="getProductCategory()">
       <span class="category-label">{{ getProductCategory() }}</span>
     </div>
-    
+
     <!-- Product Title -->
     <h3 class="product-title" (click)="viewProductDetails()">{{ getProductTitle() }}</h3>
-    
+
     <!-- Product Description (List View Only) -->
     <p class="product-description" *ngIf="viewMode === 'list' && getProductDescription()">
       {{ getProductDescription() }}
     </p>
-    
+
     <!-- Product Rating -->
     <div class="product-rating" *ngIf="getProductRating() || getProductRating() === 0">
       <div class="stars">
-        <span class="star" 
-              *ngFor="let star of getStarArray(getProductRating()); let i = index" 
+        <span class="star"
+              *ngFor="let star of getStarArray(getProductRating()); let i = index"
               [class.filled]="star === 1">
           {{ star === 1 ? '★' : '☆' }}
         </span>
@@ -72,12 +50,12 @@
       <span class="rating-value">{{ getProductRating() }}</span>
       <span class="review-count" *ngIf="getReviewCount() && getReviewCount() > 0">({{ getReviewCount() }} reviews)</span>
     </div>
-    
+
     <!-- Product Features (List View Only) -->
     <div class="product-features" *ngIf="viewMode === 'list' && getProductFeatures() && getProductFeatures().length > 0">
       <span class="feature-tag" *ngFor="let feature of getProductFeatures().slice(0, 3)">{{ feature }}</span>
     </div>
-    
+
     <!-- Product Price -->
     <div class="product-pricing">
       <div class="price-main">
@@ -90,7 +68,7 @@
         Save {{ getSavingsAmount() | currency:'USD':'symbol':'1.2-2' }}
       </div>
     </div>
-    
+
     <!-- Product Actions -->
     <div class="product-actions">
       <button class="btn btn-primary btn-add-cart" (click)="onAddToCart()" [disabled]="isOutOfStock()">
@@ -101,7 +79,7 @@
         </svg>
         <span>{{ isOutOfStock() ? 'Out of Stock' : 'Add to Cart' }}</span>
       </button>
-      
+
       <div class="secondary-actions" *ngIf="viewMode === 'grid'">
         <button class="btn btn-secondary btn-sm" (click)="onBuyNow()" [disabled]="isOutOfStock()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -110,7 +88,7 @@
           Buy Now
         </button>
       </div>
-      
+
       <!-- List View Extended Actions -->
       <div class="extended-actions" *ngIf="viewMode === 'list'">
         <button class="btn btn-secondary" (click)="onBuyNow()" [disabled]="isOutOfStock()">
@@ -128,7 +106,7 @@
         </button>
       </div>
     </div>
-    
+
     <!-- Product Meta (List View Only) -->
     <div class="product-meta" *ngIf="viewMode === 'list'">
       <div class="meta-item" *ngIf="getProductBrand()">
@@ -170,21 +148,21 @@
         <line x1="6" y1="6" x2="18" y2="18"></line>
       </svg>
     </button>
-    
+
     <div class="quick-view-layout">
       <div class="quick-view-image">
-        <img [src]="getProductImage()" 
+        <img [src]="getProductImage()"
              [alt]="getProductTitle()" *ngIf="getProductImage(); else noImageModal">
       </div>
-      
+
       <div class="quick-view-details">
         <div class="quick-view-category" *ngIf="getProductCategory()">{{ getProductCategory() }}</div>
         <h3 class="quick-view-title">{{ getProductTitle() }}</h3>
-        
+
         <div class="quick-view-rating" *ngIf="getProductRating() || getProductRating() === 0">
           <div class="stars">
-            <span class="star" 
-                  *ngFor="let star of getStarArray(getProductRating()); let i = index" 
+            <span class="star"
+                  *ngFor="let star of getStarArray(getProductRating()); let i = index"
                   [class.filled]="star === 1">
               {{ star === 1 ? '★' : '☆' }}
             </span>
@@ -192,26 +170,26 @@
           <span class="rating-value">{{ getProductRating() }}</span>
           <span class="review-count" *ngIf="getReviewCount() && getReviewCount() > 0">({{ getReviewCount() }} reviews)</span>
         </div>
-        
+
         <p class="quick-view-description" *ngIf="getProductDescription()">
           {{ getProductDescription() }}
         </p>
-        
+
         <div class="quick-view-price">
           <span class="current-price">{{ getProductPrice() | currency:'USD':'symbol':'1.2-2' }}</span>
           <span class="original-price" *ngIf="getOriginalPrice() > getProductPrice()">
             {{ getOriginalPrice() | currency:'USD':'symbol':'1.2-2' }}
           </span>
         </div>
-        
+
         <!-- Product Options -->
         <div class="quick-view-options">
           <div class="option-group">
             <label class="option-label">Color:</label>
             <div class="color-options">
-              <button 
-                *ngFor="let color of availableColors" 
-                class="color-option" 
+              <button
+                *ngFor="let color of availableColors"
+                class="color-option"
                 [class.active]="selectedColor === color.name"
                 [style.background-color]="color.code"
                 [attr.title]="color.label"
@@ -224,9 +202,9 @@
           <div class="option-group">
             <label class="option-label">Size:</label>
             <div class="size-options">
-              <button 
-                *ngFor="let size of availableSizes" 
-                class="size-option" 
+              <button
+                *ngFor="let size of availableSizes"
+                class="size-option"
                 [class.active]="selectedSize === size"
                 (click)="selectSize(size)">
                 {{ size }}
@@ -242,12 +220,12 @@
                   <line x1="6" y1="12" x2="18" y2="12"></line>
                 </svg>
               </button>
-              <input 
-                type="number" 
-                [value]="quantity" 
-                (input)="updateQuantity($event)" 
-                class="qty-input" 
-                min="1" 
+              <input
+                type="number"
+                [value]="quantity"
+                (input)="updateQuantity($event)"
+                class="qty-input"
+                min="1"
                 max="99">
               <button class="qty-btn" (click)="increaseQuantity()">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -258,7 +236,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="quick-view-actions">
           <button class="btn btn-primary" (click)="onAddToCart(); closeQuickView()" [disabled]="isOutOfStock()">
             {{ isOutOfStock() ? 'Out of Stock' : 'Add to Cart' }}

@@ -17,13 +17,11 @@ public interface AdherentMapper{
     AdherentDTO toDTO(Adherent adherent);
 
     @Mapping(source = "prenom", target = "prénom")
-    @Mapping(target = "panier", ignore = true)
-    @Mapping(target = "commandes", ignore = true)
-    @Mapping(target = "avis", ignore = true)
     @Mapping(target = "motDePasse", ignore = true)
+    @Mapping(target = "commandes", ignore = true)
     Adherent toEntity(AdherentDTO adherentDTO);
 
     List<AdherentDTO> toDTOList(List<Adherent> adherents);
 
     List<Adherent> toEntityList(List<AdherentDTO> adherentDTOs);
-} 
+}
